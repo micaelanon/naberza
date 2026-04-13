@@ -1,0 +1,14 @@
+name: Deploy Pre
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: pre
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Configure Vercel deployment for pre here"

@@ -1,0 +1,13 @@
+name: Deploy Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: pro
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Configure Vercel deployment for production here"
