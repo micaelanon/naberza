@@ -1,0 +1,45 @@
+name: Release to Main
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: "Branch to release from"
+        required: true
+        default: "develop"
+      run_deploy:
+        description: "Trigger production deploy after merge"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge source branch into main
+        run: |
+          git checkout main
+          git pull origin main
+          git merge --ff-only origin/${{ inputs.source_ref }}
+          git push origin main
+
+      - name: Trigger production deploy workflow
+        if: inputs.run_deploy == true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run deploy-production.yml --ref main
