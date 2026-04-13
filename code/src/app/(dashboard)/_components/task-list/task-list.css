@@ -1,4 +1,4 @@
 .task-list {
   display: grid;
-  gap: var(--size-16);
+  gap: var(--size-14);
 }
