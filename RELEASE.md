@@ -6,7 +6,8 @@
 1. crear una rama `feature/*`, `bugfix/*` o `internal/*` desde `develop`
 2. abrir PR hacia `develop`
 3. revisar y mergear esa PR
-4. al llegar a `develop`, se ejecuta CI y se intenta deploy a `pre`
+4. al llegar a `develop`, se ejecuta CI
+5. el deploy a `pre` se lanza manualmente cuando se quiera validar en entorno
 
 ### Producción
 No se abre una PR manual de `develop` por defecto.
@@ -26,8 +27,8 @@ Configurar estos secrets en GitHub:
 
 Sin esos secrets:
 - CI y build pueden pasar
-- `pre` se salta con aviso
-- `pro` falla para no simular un release inexistente
+- `pre` falla si intentas lanzarlo
+- `pro` falla si intentas lanzarlo
 
 ## Comandos útiles
 ### Lanzar release manual desde GitHub CLI

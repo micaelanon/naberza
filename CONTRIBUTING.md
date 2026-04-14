@@ -21,7 +21,8 @@ internal/*  → trabajo interno
 4. abrir PR a `develop`
 5. revisar
 6. mergear a `develop`
-7. `develop` intenta despliegue a `pre`
+7. `develop` ejecuta CI
+8. el despliegue a `pre` se lanza manualmente cuando haga falta
 
 ### Producción
 - no abrir PR manual de `develop` por defecto

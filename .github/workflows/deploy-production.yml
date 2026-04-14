@@ -1,8 +1,7 @@
 name: Deploy Production
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy-production:
@@ -11,6 +10,10 @@ jobs:
     defaults:
       run:
         working-directory: code
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,7 +30,7 @@ jobs:
         id: vercel-secrets
         shell: bash
         run: |
-          if [ -n "${{ secrets.VERCEL_TOKEN }}" ] && [ -n "${{ secrets.VERCEL_ORG_ID }}" ] && [ -n "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
             echo "configured=true" >> "$GITHUB_OUTPUT"
           else
             echo "configured=false" >> "$GITHUB_OUTPUT"
@@ -37,12 +40,9 @@ jobs:
         if: steps.vercel-secrets.outputs.configured == 'true'
         run: |
           npm install --no-save vercel@latest
-          npx vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
-          npx vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
-          npx vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          npx vercel pull --yes --environment=production
+          npx vercel build --prod
+          npx vercel deploy --prebuilt --prod
 
       - name: Fail when Vercel is not configured
         if: steps.vercel-secrets.outputs.configured != 'true'
