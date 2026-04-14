@@ -18,24 +18,22 @@ export default function DashboardPage() {
 
           <nav className="dashboard-page__nav" aria-label="Main navigation">
             <button className="dashboard-page__nav-item dashboard-page__nav-item--active" type="button">
-              <span className="dashboard-page__nav-icon">◌</span>
+              <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 0"}}>calendar_today</span>
               <span>Hoy</span>
             </button>
             <button className="dashboard-page__nav-item" type="button">
-              <span className="dashboard-page__nav-icon">○</span>
+              <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 0"}}>event_upcoming</span>
               <span>Próximamente</span>
             </button>
             <button className="dashboard-page__nav-item" type="button">
-              <span className="dashboard-page__nav-icon">◐</span>
+              <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 0"}}>push_pin</span>
               <span>Persistentes</span>
             </button>
             <button className="dashboard-page__nav-item" type="button">
-              <span className="dashboard-page__nav-icon">✓</span>
+              <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 0"}}>task_alt</span>
               <span>Completadas</span>
             </button>
           </nav>
-
-          <div className="dashboard-page__sidebar-spacer" />
 
           <div className="dashboard-page__profile">
             <div className="dashboard-page__avatar" />
@@ -53,15 +51,20 @@ export default function DashboardPage() {
               <p className="dashboard-page__topbar-date">Martes, 14 de abril</p>
             </div>
             <div className="dashboard-page__topbar-actions">
-              <button className="dashboard-page__icon-button" type="button">◔</button>
-              <button className="dashboard-page__icon-button" type="button">⚙</button>
-              <button className="dashboard-page__primary-button" type="button">Añadir tarea</button>
+              <div className="dashboard-page__icon-buttons">
+                <button className="dashboard-page__icon-button material-symbols-outlined" type="button">notifications</button>
+                <button className="dashboard-page__icon-button material-symbols-outlined" type="button">settings</button>
+              </div>
+              <button className="dashboard-page__primary-button" type="button">
+                <span className="material-symbols-outlined" style={{fontSize: '20px'}}>add</span>
+                <span>Añadir tarea</span>
+              </button>
             </div>
           </header>
 
           <div className="dashboard-page__content">
             <section className="dashboard-page__section">
-              <div className="dashboard-page__section-heading">
+              <div className="dashboard-page__section-header">
                 <span className="dashboard-page__section-kicker">Recordatorios persistentes</span>
                 <div className="dashboard-page__section-line" />
               </div>
@@ -69,13 +72,13 @@ export default function DashboardPage() {
               <div className="dashboard-page__persistent-grid">
                 {persistentTasks.map((task) => (
                   <article className="dashboard-page__persistent-card" key={task.id}>
-                    <div className="dashboard-page__persistent-topline">
-                      <span className="dashboard-page__persistent-refresh">↻</span>
+                    <div className="dashboard-page__persistent-top">
+                      <span className="material-symbols-outlined dashboard-page__persistent-icon" style={{fontVariationSettings: "'FILL' 0"}}>autorenew</span>
                       <span className="dashboard-page__persistent-tag">{task.priority === "high" ? "Prioridad" : "Salud"}</span>
                     </div>
-                    <div className="dashboard-page__persistent-body">
+                    <div className="dashboard-page__persistent-info">
                       <h3 className="dashboard-page__persistent-title">{task.title}</h3>
-                      <p className="dashboard-page__persistent-copy">{task.dueLabel} • {task.note}</p>
+                      <p className="dashboard-page__persistent-desc">{task.dueLabel} • {task.note}</p>
                     </div>
                   </article>
                 ))}
@@ -91,26 +94,20 @@ export default function DashboardPage() {
               <div className="dashboard-page__todo-list">
                 {normalTasks.map((task) => (
                   <article className="dashboard-page__todo-item" key={task.id}>
-                    <div className="dashboard-page__todo-check" />
+                    <div className="dashboard-page__todo-check">
+                      <div className="dashboard-page__todo-check-inner" />
+                    </div>
                     <div className="dashboard-page__todo-main">
-                      <div className="dashboard-page__todo-title-row">
-                        <h5 className="dashboard-page__todo-item-title">{task.title}</h5>
-                        {task.id === "arnes-perro" ? null : <span className="dashboard-page__todo-time">4:00 PM</span>}
-                      </div>
-                      <p className="dashboard-page__todo-copy">{task.note}</p>
+                      <h5 className="dashboard-page__todo-item-title">{task.title}</h5>
+                      <p className="dashboard-page__todo-desc">{task.note}</p>
                     </div>
                     <div className="dashboard-page__todo-side">
-                      <span className="dashboard-page__todo-chip">{task.channel === "dashboard" ? "Personal" : "Salud"}</span>
-                      <span className="dashboard-page__todo-drag">⋮⋮</span>
+                      <span className="dashboard-page__todo-chip">{task.channel === "dashboard" ? "Personal" : "Trabajo"}</span>
+                      <span className="material-symbols-outlined dashboard-page__todo-drag">drag_indicator</span>
                     </div>
                   </article>
                 ))}
               </div>
-            </section>
-
-            <section className="dashboard-page__image-panel">
-              <div className="dashboard-page__image-overlay" />
-              <p className="dashboard-page__image-caption">Respira. Piensa. Actúa.</p>
             </section>
           </div>
         </section>
