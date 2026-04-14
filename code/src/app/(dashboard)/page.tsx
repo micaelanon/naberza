@@ -1,9 +1,57 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Shell from "@/components/ui/shell";
-import { TASKS } from "@/lib/tasks";
+import { fetchTasks, updateTaskStatus } from "@/lib/supabase-tasks";
+import { isSupabaseEnabled } from "@/lib/supabase-client";
+import type { TaskItem } from "@/lib/tasks";
 import "./page.css";
 
 export default function DashboardPage() {
-  const pendingTasks = TASKS.filter((task) => !task.completed);
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const data = await fetchTasks();
+        setTasks(data);
+      } catch (err) {
+        console.error("Failed to load tasks:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTasks();
+  }, []);
+
+  const handleToggleTask = async (taskId: string) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const newCompleted = !task.completed;
+
+    // Optimistic update
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId ? { ...t, completed: newCompleted } : t
+      )
+    );
+
+    // Sync to Supabase
+    const success = await updateTaskStatus(taskId, newCompleted);
+    if (!success) {
+      // Revert on error
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId ? { ...t, completed: task.completed } : t
+        )
+      );
+    }
+  };
+
+  const pendingTasks = tasks.filter((task) => !task.completed);
   const persistentTasks = pendingTasks.filter((task) => task.kind === "persistent");
   const normalTasks = pendingTasks.filter((task) => task.kind === "normal");
 
@@ -14,6 +62,7 @@ export default function DashboardPage() {
           <div className="dashboard-page__brand-block">
             <h1 className="dashboard-page__brand">naBerza</h1>
             <p className="dashboard-page__brand-subtitle">Tu refugio tranquilo</p>
+            {isSupabaseEnabled && <p className="dashboard-page__brand-meta">📊 Powered by Supabase</p>}
           </div>
 
           <nav className="dashboard-page__nav" aria-label="Main navigation">
@@ -70,7 +119,14 @@ export default function DashboardPage() {
                 {persistentTasks.map((task) => (
                   <article className="dashboard-page__persistent-card" key={task.id}>
                     <div className="dashboard-page__persistent-topline">
-                      <span className="dashboard-page__persistent-refresh">↻</span>
+                      <button
+                        className="dashboard-page__persistent-refresh"
+                        type="button"
+                        onClick={() => handleToggleTask(task.id)}
+                        title={task.completed ? "Reabrir tarea" : "Marcar como hecha"}
+                      >
+                        {task.completed ? "↻" : "↻"}
+                      </button>
                       <span className="dashboard-page__persistent-tag">{task.priority === "high" ? "Prioridad" : "Salud"}</span>
                     </div>
                     <div className="dashboard-page__persistent-body">
@@ -91,7 +147,13 @@ export default function DashboardPage() {
               <div className="dashboard-page__todo-list">
                 {normalTasks.map((task) => (
                   <article className="dashboard-page__todo-item" key={task.id}>
-                    <div className="dashboard-page__todo-check" />
+                    <button
+                      className="dashboard-page__todo-check"
+                      type="button"
+                      onClick={() => handleToggleTask(task.id)}
+                      title={task.completed ? "Reabrir tarea" : "Marcar como hecha"}
+                      aria-label={`${task.completed ? "Reabrir" : "Completar"}: ${task.title}`}
+                    />
                     <div className="dashboard-page__todo-main">
                       <div className="dashboard-page__todo-title-row">
                         <h5 className="dashboard-page__todo-item-title">{task.title}</h5>
