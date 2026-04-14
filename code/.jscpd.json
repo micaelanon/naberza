@@ -1,0 +1,11 @@
+{
+  "threshold": 3,
+  "reporters": ["console"],
+  "absolute": true,
+  "ignore": [
+    "**/.next/**",
+    "**/node_modules/**",
+    "**/public/**",
+    "**/*.json"
+  ]
+}

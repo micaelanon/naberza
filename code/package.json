@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
+    "check:duplication": "jscpd --config .jscpd.json src",
     "test": "npm run lint && npm run type-check"
   },
   "dependencies": {
@@ -21,6 +22,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
+    "eslint-plugin-regexp": "^2.10.0",
+    "eslint-plugin-sonarjs": "^3.0.5",
+    "jscpd": "^4.0.5",
     "typescript": "^5"
   }
 }
