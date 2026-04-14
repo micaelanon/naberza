@@ -1,14 +1,51 @@
 name: Deploy Pre
 
 on:
-  push:
-    branches: [develop]
   workflow_dispatch:
 
 jobs:
-  deploy:
+  deploy-pre:
     runs-on: ubuntu-latest
     environment: pre
+    defaults:
+      run:
+        working-directory: code
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - run: echo "Configure Vercel deployment for pre here"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: code/package-lock.json
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Check Vercel secrets
+        id: vercel-secrets
+        shell: bash
+        run: |
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy preview to Vercel
+        if: steps.vercel-secrets.outputs.configured == 'true'
+        run: |
+          npm install --no-save vercel@latest
+          npx vercel pull --yes --environment=preview
+          npx vercel build
+          npx vercel deploy --prebuilt
+
+      - name: Fail when Vercel is not configured
+        if: steps.vercel-secrets.outputs.configured != 'true'
+        run: |
+          echo "Missing Vercel secrets for pre deployment." >&2
+          exit 1

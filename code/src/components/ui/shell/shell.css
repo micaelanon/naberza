@@ -1,16 +1,11 @@
 .shell {
   min-height: 100vh;
-  padding: var(--size-24);
+  padding: 0;
+  background: #fbf8fc;
 }
 
 .shell__inner {
   width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
-}
-
-@media (min-width: 768px) {
-  .shell {
-    padding: var(--size-32);
-  }
+  max-width: none;
+  margin: 0;
 }
