@@ -14,8 +14,8 @@ No se abre una PR manual de `develop` por defecto.
 La promoción a producción se hace con el workflow manual **Release to Main**.
 
 Ese workflow:
-1. toma `develop` (o la rama indicada)
-2. hace fast-forward de `main` con esa rama
+1. toma `develop`
+2. hace fast-forward de `main` con `develop`
 3. empuja `main`
 4. dispara el workflow de producción
 
@@ -33,7 +33,7 @@ Sin esos secrets:
 ## Comandos útiles
 ### Lanzar release manual desde GitHub CLI
 ```bash
-gh workflow run "Release to Main" --repo micaelanon/naberza --ref main -f source_ref=develop -f run_deploy=true
+gh workflow run "Release to Main" --repo micaelanon/naberza --ref main -f run_deploy=true
 ```
 
 ### Lanzar deploy pre manual

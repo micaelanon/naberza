@@ -27,7 +27,7 @@ internal/*  → trabajo interno
 ### Producción
 - no abrir PR manual de `develop` por defecto
 - usar el workflow **Release to Main** cuando toque promoción real
-- ese workflow promueve a `main` y dispara despliegue a `pro`
+- ese workflow promueve `develop` a `main` y dispara despliegue a `pro`
 
 ## Calidad mínima
 Antes de mergear:

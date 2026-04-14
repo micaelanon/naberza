@@ -3,10 +3,6 @@ name: Release to Main
 on:
   workflow_dispatch:
     inputs:
-      source_ref:
-        description: "Branch to release from"
-        required: true
-        default: "develop"
       run_deploy:
         description: "Trigger production deploy after merge"
         required: true
@@ -30,11 +26,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Merge source branch into main
+      - name: Merge develop into main
         run: |
           git checkout main
           git pull origin main
-          git merge --ff-only origin/${{ inputs.source_ref }}
+          git merge --ff-only origin/develop
           git push origin main
 
       - name: Trigger production deploy workflow

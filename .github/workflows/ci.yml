@@ -39,3 +39,6 @@ jobs:
       - run: npm run lint
       - run: npm run type-check
       - run: npm run build
+      - name: Run tests when the project has real tests
+        if: ${{ hashFiles('code/src/**/*.test.ts', 'code/src/**/*.test.tsx', 'code/e2e/**/*.spec.ts') != '' }}
+        run: npm run test
