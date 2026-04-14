@@ -2,6 +2,13 @@
 
 ## Flujo real
 
+### Principio importante
+En este flujo es normal que `develop` y `main` no estén alineadas todo el tiempo.
+- `develop` representa integración y validación en `pre`
+- `main` representa lo que realmente ha salido a producción (`pro`)
+- por tanto, `develop` suele ir por delante de `main`
+- no hay que intentar igualarlas salvo cuando se hace una release real
+
 ### Trabajo normal
 1. crear una rama `feature/*`, `bugfix/*` o `internal/*` desde `develop`
 2. abrir PR hacia `develop`
