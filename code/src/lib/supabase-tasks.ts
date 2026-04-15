@@ -1,5 +1,5 @@
 import { supabase, isSupabaseEnabled } from "./supabase-client";
-import type { TaskItem } from "./tasks";
+import { TASKS, type TaskItem } from "./tasks";
 
 /**
  * Fetch all tasks from Supabase
@@ -124,14 +124,27 @@ export async function createTask(task: Omit<TaskItem, "id">): Promise<TaskItem |
 const TASKS_STORAGE_KEY = "naBerza_tasks";
 
 function getTasksFromLocalStorage(): TaskItem[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return TASKS;
 
   try {
     const stored = localStorage.getItem(TASKS_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+
+    if (!stored) {
+      localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(TASKS));
+      return TASKS;
+    }
+
+    const parsed = JSON.parse(stored) as TaskItem[];
+
+    if (parsed.length === 0) {
+      localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(TASKS));
+      return TASKS;
+    }
+
+    return parsed;
   } catch (err) {
     console.error("localStorage error:", err);
-    return [];
+    return TASKS;
   }
 }
 
