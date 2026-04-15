@@ -30,6 +30,14 @@
   font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-page__brand-icon {
+  font-size: 28px;
+  color: #606c38;
 }
 
 .dashboard-page__brand-subtitle {

@@ -138,8 +138,11 @@ function DashboardSidebar({
   return (
     <aside className="dashboard-page__sidebar">
       <div className="dashboard-page__brand-block">
-        <h1 className="dashboard-page__brand">naBerza</h1>
-        <p className="dashboard-page__brand-subtitle">Tu refugio tranquilo</p>
+        <h1 className="dashboard-page__brand">
+          <span className="material-symbols-outlined dashboard-page__brand-icon">leaf</span>
+          naBerza
+        </h1>
+        <p className="dashboard-page__brand-subtitle">Espabila a troita</p>
         <p className="dashboard-page__brand-meta">
           {isSupabaseEnabled ? "Supabase activo" : "Modo local"}
         </p>
