@@ -111,6 +111,12 @@
   color: #686765;
 }
 
+.dashboard-page__empty-state {
+  margin: 0;
+  color: #686765;
+  font-size: 14px;
+}
+
 .dashboard-page__canvas {
   margin-left: 256px;
   flex: 1;
@@ -369,11 +375,25 @@
   flex: 1;
 }
 
+.dashboard-page__todo-main-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .dashboard-page__todo-item-title {
   margin: 0;
   font-size: 16px;
   font-weight: 500;
   color: #1b1b1e;
+}
+
+.dashboard-page__todo-due-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #686765;
 }
 
 .dashboard-page__todo-desc {
@@ -382,12 +402,24 @@
   color: #686765;
 }
 
+.dashboard-page__todo-item--completed {
+  opacity: 0.72;
+}
+
+.dashboard-page__todo-item--completed .dashboard-page__todo-item-title {
+  text-decoration: line-through;
+}
+
 .dashboard-page__todo-side {
   display: flex;
   align-items: center;
   gap: 12px;
   opacity: 0;
   transition: opacity 0.2s;
+}
+
+.dashboard-page__todo-side--visible {
+  opacity: 1;
 }
 
 .dashboard-page__todo-item:hover .dashboard-page__todo-side {
@@ -402,6 +434,11 @@
   background-color: #f0edf1;
   padding: 4px 8px;
   border-radius: 4px;
+}
+
+.dashboard-page__todo-chip--subtle {
+  background-color: transparent;
+  border: 1px solid rgba(104, 103, 101, 0.16);
 }
 
 .dashboard-page__todo-drag {
