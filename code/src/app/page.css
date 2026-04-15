@@ -40,6 +40,14 @@
   letter-spacing: 0.1em;
 }
 
+.dashboard-page__brand-meta {
+  margin: 12px 0 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #485422;
+}
+
 .dashboard-page__nav {
   display: flex;
   flex-direction: column;
@@ -109,6 +117,12 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: #686765;
+}
+
+.dashboard-page__empty-state {
+  margin: 0;
+  color: #686765;
+  font-size: 14px;
 }
 
 .dashboard-page__canvas {
@@ -208,6 +222,90 @@
   margin-bottom: 64px;
 }
 
+.dashboard-page__create-panel {
+  margin-bottom: 40px;
+  padding: 24px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(104, 103, 101, 0.12);
+  box-shadow: 0 10px 30px rgba(27, 27, 30, 0.04);
+}
+
+.dashboard-page__create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-page__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashboard-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashboard-page__field--full {
+  grid-column: 1 / -1;
+}
+
+.dashboard-page__field-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #686765;
+}
+
+.dashboard-page__input,
+.dashboard-page__textarea,
+.dashboard-page__select {
+  width: 100%;
+  border: 1px solid rgba(104, 103, 101, 0.16);
+  border-radius: 10px;
+  background: #fbf8fc;
+  color: #1b1b1e;
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.dashboard-page__textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.dashboard-page__input:focus,
+.dashboard-page__textarea:focus,
+.dashboard-page__select:focus {
+  outline: 2px solid rgba(72, 84, 34, 0.2);
+  border-color: #485422;
+}
+
+.dashboard-page__form-error {
+  margin: 0;
+  color: #a63d40;
+  font-size: 14px;
+}
+
+.dashboard-page__form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dashboard-page__secondary-button {
+  border: 1px solid rgba(104, 103, 101, 0.16);
+  background: transparent;
+  color: #1b1b1e;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font: inherit;
+  cursor: pointer;
+}
+
 .dashboard-page__section-header {
   display: flex;
   align-items: center;
@@ -265,6 +363,17 @@
 
 .dashboard-page__persistent-icon {
   color: #606c38;
+}
+
+.dashboard-page__persistent-refresh {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(72, 84, 34, 0.08);
+  color: #485422;
+  cursor: pointer;
+  font-size: 18px;
 }
 
 .dashboard-page__persistent-tag {
@@ -346,6 +455,10 @@
   justify-content: center;
   margin-right: 24px;
   transition: border-color 0.2s;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 .dashboard-page__todo-item:hover .dashboard-page__todo-check {
@@ -369,11 +482,25 @@
   flex: 1;
 }
 
+.dashboard-page__todo-main-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .dashboard-page__todo-item-title {
   margin: 0;
   font-size: 16px;
   font-weight: 500;
   color: #1b1b1e;
+}
+
+.dashboard-page__todo-due-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #686765;
 }
 
 .dashboard-page__todo-desc {
@@ -382,12 +509,24 @@
   color: #686765;
 }
 
+.dashboard-page__todo-item--completed {
+  opacity: 0.72;
+}
+
+.dashboard-page__todo-item--completed .dashboard-page__todo-item-title {
+  text-decoration: line-through;
+}
+
 .dashboard-page__todo-side {
   display: flex;
   align-items: center;
   gap: 12px;
   opacity: 0;
   transition: opacity 0.2s;
+}
+
+.dashboard-page__todo-side--visible {
+  opacity: 1;
 }
 
 .dashboard-page__todo-item:hover .dashboard-page__todo-side {
@@ -402,6 +541,11 @@
   background-color: #f0edf1;
   padding: 4px 8px;
   border-radius: 4px;
+}
+
+.dashboard-page__todo-chip--subtle {
+  background-color: transparent;
+  border: 1px solid rgba(104, 103, 101, 0.16);
 }
 
 .dashboard-page__todo-drag {
@@ -422,5 +566,12 @@
   }
   .dashboard-page__todo-side {
     opacity: 1;
+  }
+  .dashboard-page__form-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-page__todo-main-top {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
