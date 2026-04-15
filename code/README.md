@@ -8,7 +8,7 @@ Esta primera versión es deliberadamente básica:
 - dashboard sobrio y usable
 - separación conceptual entre tareas normales y persistentes
 - estructura preparada para crecer
-- sin backend real todavía
+- persistencia básica con Supabase o fallback local
 - sin envío real de recordatorios todavía
 
 ## Stack
@@ -36,6 +36,12 @@ npm run dev
 ```
 
 Abrir `http://localhost:3000`.
+
+## Seguridad actual
+
+- La tabla `tasks` debe quedar protegida por RLS y ligada a `auth.uid()` mediante `owner_id`.
+- No debe existir acceso público total a las tareas en Supabase.
+- El workflow de PR incluye CI, CodeQL, JSCPD y Snyk, pero Snyk requiere configurar `SNYK_TOKEN` en los secrets del repositorio.
 
 ## Criterio de producto
 
