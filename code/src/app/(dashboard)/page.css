@@ -33,6 +33,12 @@
   letter-spacing: 0.28em;
 }
 
+.dashboard-page__brand-meta {
+  margin: 10px 0 0;
+  color: #77786b;
+  font-size: 11px;
+}
+
 .dashboard-page__nav {
   display: grid;
   gap: 26px;
@@ -159,6 +165,92 @@
 .dashboard-page__content {
   max-width: 1040px;
   padding: 24px 42px 56px 48px;
+}
+
+.dashboard-page__create-panel {
+  margin-bottom: 42px;
+  padding: 28px;
+  border-radius: 18px;
+  background: #f0edf1;
+}
+
+.dashboard-page__create-form {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-page__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashboard-page__field {
+  display: grid;
+  gap: 8px;
+}
+
+.dashboard-page__field--full {
+  grid-column: 1 / -1;
+}
+
+.dashboard-page__field-label {
+  color: #625d5a;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.dashboard-page__input,
+.dashboard-page__textarea,
+.dashboard-page__select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(72, 84, 34, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #1b1b1e;
+}
+
+.dashboard-page__textarea {
+  resize: vertical;
+  min-height: 88px;
+}
+
+.dashboard-page__input:focus,
+.dashboard-page__textarea:focus,
+.dashboard-page__select:focus {
+  outline: 2px solid rgba(72, 84, 34, 0.18);
+  outline-offset: 1px;
+}
+
+.dashboard-page__form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dashboard-page__secondary-button {
+  padding: 11px 20px;
+  border: 1px solid rgba(72, 84, 34, 0.16);
+  border-radius: 12px;
+  background: transparent;
+  color: #485422;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.dashboard-page__form-error {
+  margin: 0;
+  color: #8d3f3f;
+  font-size: 13px;
+}
+
+.dashboard-page__empty-copy {
+  margin: 0;
+  color: #625d5a;
+  font-size: 14px;
 }
 
 .dashboard-page__section {
@@ -389,8 +481,13 @@
     display: none;
   }
 
-  .dashboard-page__persistent-grid {
+  .dashboard-page__persistent-grid,
+  .dashboard-page__form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-page__form-actions {
+    flex-direction: column;
   }
 
   .dashboard-page__topbar,
