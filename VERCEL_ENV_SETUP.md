@@ -1,35 +1,27 @@
 # Configurar Variables de Entorno en Vercel
 
-## Pasos:
+## Pasos
 
-1. **Ve a Vercel Dashboard**
-   - https://vercel.com/dashboard
-   - Selecciona el proyecto "naberza"
-
+1. **Ve a Vercel Dashboard** → https://vercel.com/dashboard → selecciona el proyecto "naberza"
 2. **Abre Settings > Environment Variables**
-   - Click en "Add New" para cada variable
+3. **Añade estas dos variables** (valores reales en Supabase Dashboard → Settings → API):
 
-3. **Añade estas dos variables:**
+| Variable | Scope |
+|----------|-------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Production, Preview, Development |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production, Preview, Development |
 
-| Variable | Valor | Scope |
-|----------|-------|-------|
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://wlgmlfkbmpyckjckjgxz.supabase.co` | Production, Preview, Development |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsZ21sZmtibXB5Y2tqY2tqZ3h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTEyNDIsImV4cCI6MjA5MTc2NzI0Mn0.D0duQS1oFNThcyjdFcM36ucLCD06x8SrnlaPSlrFxXg` | Production, Preview, Development |
+> ⚠️ **Nunca documentes los valores reales en este fichero.** Las credenciales van solo en los secretos de Vercel y en `.env.local` (no commiteado).
 
-4. **Redeploy:**
-   - Ve a Deployments
-   - Haz click en los "3 puntos" del último deployment fallido
-   - Selecciona "Redeploy"
+4. **Redeploy**: Deployments → "3 puntos" del último deploy fallido → Redeploy
 
 ## ¿Por qué?
 
-- `NEXT_PUBLIC_*` son variables públicas que se incrustan en el cliente
-- Vercel necesita que se configuren en el dashboard (no en .env.local)
-- El archivo `.env.local` es solo para desarrollo local
+- `NEXT_PUBLIC_*` se incrustan en el bundle de cliente, no son secretas en sentido estricto, pero no deben commitearse.
+- Vercel necesita las variables en el dashboard. `.env.local` es solo para desarrollo local.
 
-## Verificar que funcionó:
+## Verificar que funcionó
 
-Después del redeploy:
-- El preview debe compilar exitosamente
-- Abre la URL del preview en el navegador
-- Deberías ver las tareas cargadas desde Supabase
+- El preview debe compilar sin errores.
+- Abrir la URL del preview → las tareas deben cargarse desde Supabase.
+- En consola del browser: sin errores de conexión Supabase.

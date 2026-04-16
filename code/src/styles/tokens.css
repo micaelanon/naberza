@@ -1,4 +1,5 @@
 :root {
+  /* Neutral palette */
   --color-bg: #efe9de;
   --color-bg-muted: #e4dccd;
   --color-surface: rgba(255, 251, 245, 0.78);
@@ -9,18 +10,49 @@
   --color-text-primary: #241f1a;
   --color-text-secondary: #695f55;
   --color-text-tertiary: #8f8479;
+
+  /* Brand palette (moss / olive) */
+  --color-brand: #485422;
+  --color-brand-strong: #3a4419;
+  --color-brand-mid: #606c38;
+  --color-brand-soft: rgba(72, 84, 34, 0.10);
+  --color-brand-border: rgba(72, 84, 34, 0.18);
+
+  /* Accent (green-grey) */
   --color-accent: #53695d;
   --color-accent-strong: #3f5248;
   --color-accent-soft: rgba(83, 105, 93, 0.12);
+
+  /* Semantic */
   --color-warning: #95683c;
   --color-warning-soft: rgba(149, 104, 60, 0.12);
   --color-success: #55735b;
+
+  /* Sidebar */
+  --color-sidebar-bg: #f5f3f6;
+  --color-sidebar-text: #686765;
+  --color-sidebar-text-active: #485422;
+
+  /* Canvas */
+  --color-canvas-bg: #fbf8fc;
+  --color-canvas-topbar: rgba(251, 248, 252, 0.82);
+
+  /* Cards */
+  --color-card-bg: #f0edf1;
+  --color-card-text: #1b1b1e;
+
+  /* Shadows */
   --shadow-soft: 0 18px 50px rgba(36, 31, 26, 0.08);
   --shadow-card: 0 8px 24px rgba(36, 31, 26, 0.05);
+  --shadow-button: 0 2px 8px rgba(72, 84, 34, 0.16);
+
+  /* Radii */
   --radius-s: 14px;
   --radius-m: 22px;
   --radius-l: 34px;
   --radius-pill: 999px;
+
+  /* Spacing scale */
   --size-4: 4px;
   --size-8: 8px;
   --size-10: 10px;
@@ -35,5 +67,7 @@
   --size-48: 48px;
   --size-56: 56px;
   --size-72: 72px;
+
+  /* Typography */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
