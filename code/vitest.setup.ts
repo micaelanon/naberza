@@ -1,9 +1,18 @@
+import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+// Cleanup after each test to avoid DOM leaks
+afterEach(() => {
+  cleanup();
+});
+
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
 
   return {
-    getItem: (key: string) => store[key] || null,
+    getItem: (key: string) => store[key] ?? null,
     setItem: (key: string, value: string) => {
       store[key] = value.toString();
     },
@@ -18,4 +27,5 @@ const localStorageMock = (() => {
 
 Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
+  writable: true,
 });
