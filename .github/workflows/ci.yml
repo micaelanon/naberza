@@ -51,4 +51,4 @@ jobs:
       
       - name: Check code duplication
         working-directory: ./code
-        run: npm run jscpd
+        run: npm run check:duplication
