@@ -169,32 +169,6 @@
   gap: 18px;
 }
 
-.dashboard-page__icon-buttons {
-  display: flex;
-  align-items: center;
-  gap: var(--size-8);
-}
-
-.dashboard-page__icon-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--size-40);
-  height: var(--size-40);
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-size: 22px;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.dashboard-page__icon-button:hover {
-  background: var(--color-brand-soft);
-  color: var(--color-brand);
-}
-
 .dashboard-page__primary-button {
   display: flex;
   align-items: center;
