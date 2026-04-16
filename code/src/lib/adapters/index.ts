@@ -9,3 +9,5 @@ export type {
   HealthCheckResult,
   AdapterErrorCode,
 } from "./adapter-types";
+export { PaperlessAdapter, syncPaperlessDocuments } from "./paperless";
+
