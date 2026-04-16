@@ -1,5 +1,6 @@
 "use client";
 
+import ConfirmModal from "./_components/confirm-modal";
 import CreateTaskPanel from "./_components/create-task-panel";
 import DashboardSidebar from "./_components/dashboard-sidebar";
 import DashboardTopbar from "./_components/dashboard-topbar";
@@ -22,12 +23,15 @@ export default function DashboardPage() {
     showPersistentRail,
     showPendingList,
     viewMeta,
+    showDiscardModal,
     handleSelectView,
     handleToggleTask,
     handleToggleCreate,
     handleFormChange,
     handleCreateTask,
     handleCancelCreate,
+    handleConfirmDiscard,
+    handleCancelDiscard,
   } = useDashboard();
 
   return (
@@ -86,6 +90,16 @@ export default function DashboardPage() {
           )}
         </div>
       </section>
+
+      <ConfirmModal
+        isOpen={showDiscardModal}
+        title="¿Descartar cambios?"
+        description="Tienes cambios sin guardar en el formulario. Si cambias de sección los perderás."
+        confirmLabel="Sí, descartar"
+        cancelLabel="Seguir editando"
+        onConfirm={handleConfirmDiscard}
+        onCancel={handleCancelDiscard}
+      />
     </main>
   );
 }

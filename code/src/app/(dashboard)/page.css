@@ -597,3 +597,43 @@
     padding-right: var(--size-24);
   }
 }
+
+/* ── Confirm modal ───────────────────────── */
+.confirm-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.confirm-modal__box {
+  width: min(440px, calc(100vw - 2rem));
+  padding: var(--size-32);
+  border-radius: var(--radius-m);
+  background: var(--color-canvas-bg);
+  box-shadow: 0 8px 40px rgb(0 0 0 / 0.28);
+}
+
+.confirm-modal__title {
+  margin: 0 0 var(--size-8);
+  color: var(--color-text-primary);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.confirm-modal__description {
+  margin: 0 0 var(--size-24);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.confirm-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--size-12);
+}

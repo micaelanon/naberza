@@ -15,10 +15,13 @@ export interface UseDashboardReturn {
   showPersistentRail: boolean;
   showPendingList: boolean;
   viewMeta: ViewMeta;
+  showDiscardModal: boolean;
   handleSelectView: (view: DashboardView) => void;
   handleToggleTask: (taskId: string) => Promise<void>;
   handleToggleCreate: () => void;
   handleFormChange: <K extends keyof TaskFormState>(field: K, value: TaskFormState[K]) => void;
   handleCreateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
   handleCancelCreate: () => void;
+  handleConfirmDiscard: () => void;
+  handleCancelDiscard: () => void;
 }

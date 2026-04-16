@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import type { TaskItem } from "@/lib/tasks";
-import { formatTodayLabel, getActiveTasks, getTaskCollections, isUpcomingTask } from "../utils/helpers";
+import { formatTodayLabel, getActiveTasks, getTaskCollections, isFormDirty, isUpcomingTask, INITIAL_FORM } from "../utils/helpers";
 
 const makeTask = (overrides: Partial<TaskItem> = {}): TaskItem => ({
   id: "t1",
@@ -95,5 +95,35 @@ describe("formatTodayLabel", () => {
     const months = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
     const label = formatTodayLabel().toLowerCase();
     expect(months.some((m) => label.includes(m))).toBe(true);
+  });
+});
+
+describe("isFormDirty", () => {
+  it("returns false for initial form", () => {
+    expect(isFormDirty(INITIAL_FORM)).toBe(false);
+  });
+
+  it("returns true when title is filled", () => {
+    expect(isFormDirty({ ...INITIAL_FORM, title: "Mi tarea" })).toBe(true);
+  });
+
+  it("returns true when note is filled", () => {
+    expect(isFormDirty({ ...INITIAL_FORM, note: "Algo" })).toBe(true);
+  });
+
+  it("returns true when dueLabel changed", () => {
+    expect(isFormDirty({ ...INITIAL_FORM, dueLabel: "Mañana" })).toBe(true);
+  });
+
+  it("returns true when priority changed", () => {
+    expect(isFormDirty({ ...INITIAL_FORM, priority: "high" })).toBe(true);
+  });
+
+  it("returns true when kind changed", () => {
+    expect(isFormDirty({ ...INITIAL_FORM, kind: "persistent" })).toBe(true);
+  });
+
+  it("returns false for whitespace-only title", () => {
+    expect(isFormDirty({ ...INITIAL_FORM, title: "   " })).toBe(false);
   });
 });
