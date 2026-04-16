@@ -10,6 +10,8 @@ export const env = {
   // Auth — server only
   nextAuthSecret: process.env.NEXTAUTH_SECRET,
   nextAuthUrl: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
+  authAdminEmail: process.env.AUTH_ADMIN_EMAIL,
+  authAdminPassword: process.env.AUTH_ADMIN_PASSWORD,
   // API base URL — client safe
   apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api",
 } as const;
