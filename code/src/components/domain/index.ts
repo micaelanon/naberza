@@ -1,2 +1,3 @@
-// TODO: Shared domain components (Phase 1+)
-// Business-logic components shared across modules
+// Shared domain components barrel
+// Business-logic components shared across modules live in subdirectories here
+// e.g.: import AuditEventRow from "@/components/domain/audit-event-row"

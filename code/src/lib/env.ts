@@ -1,9 +1,15 @@
-// TODO: Environment configuration module (Phase 1)
-// Centralized access to all environment variables
-// Typed and validated at startup
+// Centralized environment access
+// All environment variables are accessed through this module — never use process.env directly in app code
 
 export const env = {
-  // These will be implemented in Phase 1
-  // NEXT_PUBLIC_*: Client-side vars
-  // Private vars: Server-side only
-};
+  nodeEnv: process.env.NODE_ENV ?? "development",
+  isDev: process.env.NODE_ENV === "development",
+  isProd: process.env.NODE_ENV === "production",
+  // Database — server only
+  databaseUrl: process.env.DATABASE_URL,
+  // Auth — server only
+  nextAuthSecret: process.env.NEXTAUTH_SECRET,
+  nextAuthUrl: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
+  // API base URL — client safe
+  apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api",
+} as const;

@@ -1,4 +1,2 @@
-// Finance module public interface
-// TODO: Export public service and types
-
-export {};
+// finance module — public interface
+// Implementation lives in Phase 1+ (see README.md for details)

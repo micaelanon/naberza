@@ -1,4 +1,2 @@
-// Integrations module public interface
-// TODO: Export public adapters and provider interfaces
-
-export {};
+// integrations module — public interface
+// Implementation lives in Phase 1+ (see README.md for details)
