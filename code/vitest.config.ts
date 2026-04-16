@@ -9,7 +9,6 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
-    throwSuggestions: true,
     coverage: {
       exclude: [
         "src/**/*.types.ts",
