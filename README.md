@@ -1,85 +1,204 @@
-# naBerza
+# Naberza OS
 
-Sistema personal de tareas, recordatorios y citas con dashboard cuidado y recordatorios persistentes.
+A personal home operations system providing centralized inbox management, task scheduling, document handling, home automation integration, and financial tracking.
 
-## Objetivo de la v1
+**Status**: Phase 0 (Foundation) — Infrastructure and scaffolding complete, ready for Phase 1 (Core Loop).
 
-Entregar una base mínima pero útil para:
-- ✅ ver tareas generales en un dashboard funcional
-- ✅ distinguir tareas persistentes de tareas normales
-- ✅ marcar tareas como hechas y reabrir
-- ✅ crear tareas nuevas
-- ✅ persistencia en localStorage
-- Recordatorios diarios por canal (próxima iteración)
-- Autenticación de usuarios (próxima iteración)
-- Sincronización a Supabase (próxima iteración)
+## Project Structure
 
-## Estructura del repo
-
-```text
+```
 naberza/
-├── .github/           # Workflows de CI/CD
-├── code/              # Aplicación Next.js + código fuente
-├── docs/              # Documentación
-├── vercel.json        # Config Vercel
-├── CONTRIBUTING.md    # Cómo contribuir
-├── RELEASE.md         # Flujo de releases
-└── README.md          # Este fichero
+├── .github/               # CI/CD workflows
+├── code/                  # Next.js application + source code
+│   ├── src/
+│   │   ├── app/           # App Router pages and layouts
+│   │   ├── components/    # React components (UI + domain)
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── lib/           # Business logic (events, audit, adapters, DB)
+│   │   ├── modules/       # Domain modules (inbox, tasks, documents, etc.)
+│   │   ├── styles/        # CSS modules and design tokens
+│   │   └── types/         # TypeScript domain types
+│   ├── prisma/            # Database schema and migrations
+│   ├── public/            # Static assets
+│   ├── .env.example       # Environment template
+│   └── package.json
+├── docs/
+│   ├── architecture.md    # System design and data flow
+│   ├── domain-model.md    # Entity definitions (12 entities)
+│   ├── modules.md         # Module boundaries and ownership
+│   ├── integrations.md    # Provider interfaces (Paperless, HA, Mail)
+│   ├── security.md        # Auth, secrets, safety
+│   ├── decisions.md       # Architecture Decision Records (ADRs)
+│   ├── roadmap.md         # 8-phase development plan
+│   └── docker-setup.md    # Local dev environment with Docker
+├── Dockerfile             # Production image (multi-stage)
+├── docker-compose.yml     # Local dev orchestration
+├── CONTRIBUTING.md        # Development guidelines
+├── RELEASE.md             # Deployment procedures
+└── README.md              # This file
 ```
 
-Todo el código vive dentro de `code/`.
+## Quick Start
 
-## Estado actual (2026-04-16)
+### Prerequisites
 
-V1 funcional del dashboard:
-- ✅ Dashboard interactivo (Client Component)
-- ✅ Toggle de tareas (localStorage primary store)
-- ✅ Crear tareas nuevas
-- ✅ Filtros por vista (Hoy, Próximamente, Persistentes, Completadas)
-- ✅ Vitest setup + 17 tests pasando
-- ✅ CI/CD con lint, type-check, tests, build
-- ✅ Despliegue en Vercel (pre + pro)
+- Node.js 22+
+- Docker + Docker Compose (for local dev database)
+- Git
+
+### 1. Environment Setup
+
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local` with your values (see `docs/docker-setup.md` for details).
+
+### 2. Start Local Environment
+
+```bash
+docker-compose up -d
+```
+
+App available at http://localhost:3000
+
+### 3. Development Workflow
+
+```bash
+cd code
+npm install
+npm run dev          # http://localhost:3000
+npm run check        # lint + type-check + tests + build
+```
+
+See `docs/docker-setup.md` for full Docker setup and troubleshooting.
+
+## Architecture Overview
+
+### Modular Monolith
+
+11 domain modules with strict boundaries:
+
+- **Inbox**: Incoming items from external sources
+- **Tasks**: Personal task management (today, upcoming, persistent, completed)
+- **Documents**: Links to Paperless-ngx documents
+- **Invoices**: Financial document tracking
+- **Finance**: Financial entry logging and analytics
+- **Home**: Home Assistant integration and events
+- **Ideas**: Idea capture and tagging
+- **Automations**: Rule engine with approval workflows
+- **Integrations**: Provider interfaces and adapter registry
+- **Audit**: Immutable event log (append-only)
+- **Users**: Single-user settings and preferences
+
+### Core Infrastructure (Phase 0 ✅)
+
+- **Event Bus**: Typed, async, error-isolated
+- **Audit Service**: Append-only log with filtering/pagination
+- **Adapter Registry**: Lifecycle management for external services
+- **Prisma ORM**: Type-safe database operations
+- **NextAuth.js v4**: Single-user authentication
+
+### Technology Stack
+
+| Layer | Technology | Notes |
+|-------|------------|-------|
+| Framework | Next.js 14 (App Router) | App Router + React 19 |
+| Language | TypeScript (strict) | 100% type-safe |
+| Database | PostgreSQL 16 | Prisma ORM |
+| Auth | NextAuth.js 4.24.14 | Single-user in Phase 0 |
+| Testing | Vitest + Jest DOM | Fast, ESM-native |
+| Linting | ESLint | simple-import-sort, SonarJS |
+| Styling | CSS Modules | Design tokens (moss/olive/cream) |
+| Deployment | Vercel | Auto-deploy on push to develop/main |
+| Local Dev | Docker Compose | PostgreSQL + app containerization |
+
+## Development Guidelines
+
+### Git Workflow
+
+- **Develop branch** (`develop`): Integration branch, latest stable
+- **Main branch** (`main`): Production-ready releases only
+- **Feature branches**: `feature/*`, `bugfix/*`, `internal/*`
+
+### Code Quality Standards
+
+- **Lint**: 0 errors (ESLint + SonarJS)
+- **Types**: Strict mode passes
+- **Tests**: All passing
+- **Build**: Production build succeeds
+- **Duplication**: 0 code clones (jscpd)
+
+### No TODOs in Code
+
+Keep `.ts` files clean (CodeQL flags TODOs as errors). Use `README.md` files in modules instead.
+
+## Deployment
+
+### Local Docker
+
+```bash
+docker-compose up -d
+```
+
+See `docs/docker-setup.md` for troubleshooting.
+
+### Production (Vercel)
+
+```bash
+git push origin develop     # Preview deploy
+git checkout main && git merge develop && git push  # Production
+```
+
+See `RELEASE.md` for full deployment checklist.
 
 ## Roadmap
 
-### v1.1 (próxima)
-- [ ] Refactorizar page.tsx en componentes más pequeños
-- [ ] Autenticación básica (magic link o anonymous)
-- [ ] Sincronizar a Supabase realmente
-- [ ] Tests de integración para componentes
+### Phase 0: Foundation ✅
+- [x] Architecture documentation
+- [x] Project structure scaffolding
+- [x] Event bus + audit service
+- [x] Adapter registry
+- [x] Prisma schema + migrations
+- [x] NextAuth.js setup
+- [x] Page scaffolds for all modules
+- [x] Docker setup
 
-### v1.2
-- [ ] Notificaciones por Telegram
-- [ ] Recordatorios automáticos
-- [ ] Datos del usuario real (no "Julian Vane" hardcodeado)
-- [ ] Rutas reales (/today, /persistent, etc.)
+### Phase 1: Core Loop (In Progress)
+- [ ] PostgreSQL fully operational
+- [ ] Inbox CRUD + classification
+- [ ] Task module (all views)
+- [ ] Dashboard: today view
+- [ ] Audit log integration
 
-### v2
-- [ ] Sincronización offline
-- [ ] Apps móviles nativas (habitOS-mobile)
-- [ ] Integración con coach console
-- [ ] Reportes y análisis
+### Phases 2–8: Planned
+See `docs/roadmap.md` for full plan including Documents, Invoices, Home Assistant, Email, Finance, Automations, and production hardening.
 
-## Desarrollo
+## Documentation
 
-```bash
-# Setup
-cd code
-npm install --legacy-peer-deps
+- **Architecture**: `docs/architecture.md`
+- **Domain Model**: `docs/domain-model.md`
+- **Modules**: `docs/modules.md`
+- **Integrations**: `docs/integrations.md`
+- **Security**: `docs/security.md`
+- **Decisions**: `docs/decisions.md` (ADRs)
+- **Roadmap**: `docs/roadmap.md`
+- **Docker**: `docs/docker-setup.md`
+- **Contributing**: `CONTRIBUTING.md`
+- **Release**: `RELEASE.md`
 
-# Dev
-npm run dev         # http://localhost:3000
+## Environment Variables
 
-# Testing
-npm run test        # watch mode
-npm run test:run    # single run
-npm run check       # lint + type-check + test:run + build
+See `.env.local.example` and `code/.env.example` for full reference.
 
-# Build
-npm run build
-npm run start
+Key variables:
+```env
+DATABASE_URL=postgresql://...
+NEXTAUTH_SECRET=...
+NEXTAUTH_URL=http://localhost:3000
 ```
 
-## Configuración (local + Vercel)
+## License
 
-Ver `SUPABASE_SETUP.md` y `VERCEL_ENV_SETUP.md`.
+MIT
+

@@ -1,0 +1,11 @@
+# .dockerignore
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env.local
+.env*.local
+.next
+.eslintcache
+coverage
+dist
