@@ -1,6 +1,7 @@
 import type { TaskItem } from "@/lib/tasks";
 
 import type { CreateTaskPanelProps } from "./utils/types";
+import "./create-task-panel.css";
 
 const CreateTaskPanel = ({ form, submitError, isSubmitting, onChange, onSubmit, onCancel }: CreateTaskPanelProps) => (
   <section className="dashboard-page__create-panel">

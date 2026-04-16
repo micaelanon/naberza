@@ -1,4 +1,5 @@
 import type { DashboardTopbarProps } from "./utils/types";
+import "./dashboard-topbar.css";
 
 const DashboardTopbar = ({ viewMeta, activeView, todayLabel, isCreateOpen, onToggleCreate }: DashboardTopbarProps) => {
   const subtitle = activeView === "today" ? todayLabel : viewMeta.description;

@@ -1,0 +1,121 @@
+/* ─────────────────────────────────────────────────
+   dashboard-sidebar · component styles
+   ───────────────────────────────────────────────── */
+
+/* ── Sidebar ──────────────────────────────── */
+.dashboard-page__sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: var(--size-32) var(--size-24) var(--size-24);
+  background: var(--color-sidebar-bg);
+}
+
+.dashboard-page__brand-block {
+  margin-bottom: 42px;
+}
+
+.dashboard-page__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--size-8);
+  margin: 0;
+  color: var(--color-brand);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.dashboard-page__brand-icon {
+  font-size: 28px;
+  color: var(--color-brand-mid);
+}
+
+.dashboard-page__brand-subtitle {
+  margin: 6px 0 0;
+  color: var(--color-sidebar-text);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+}
+
+.dashboard-page__brand-meta {
+  margin: var(--size-4) 0 0;
+  color: var(--color-text-tertiary);
+  font-size: 10px;
+}
+
+.dashboard-page__nav {
+  display: grid;
+  gap: 26px;
+}
+
+.dashboard-page__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 44px;
+  padding: 0 0 0 22px;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: var(--color-sidebar-text);
+  font-size: 17px;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.dashboard-page__nav-item:hover {
+  color: var(--color-sidebar-text-active);
+}
+
+.dashboard-page__nav-item--active {
+  color: var(--color-sidebar-text-active);
+  font-weight: 600;
+  border-left-color: var(--color-brand);
+}
+
+.dashboard-page__nav-icon {
+  width: 18px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.dashboard-page__sidebar-spacer {
+  flex: 1;
+}
+
+.dashboard-page__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--size-14);
+  margin-top: auto;
+  opacity: 0.92;
+}
+
+.dashboard-page__avatar {
+  width: var(--size-48);
+  height: var(--size-48);
+  border: 1px solid var(--color-brand-border);
+  border-radius: var(--radius-pill);
+  background: radial-gradient(circle at 30% 30%, #444 0%, #232323 62%),
+    linear-gradient(135deg, #d8d4d9, #bfc6a0);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45);
+  flex: none;
+}
+
+.dashboard-page__profile-name {
+  margin: 0;
+  color: var(--color-card-text);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.dashboard-page__profile-meta {
+  margin: 3px 0 0;
+  color: var(--color-sidebar-text);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+}
