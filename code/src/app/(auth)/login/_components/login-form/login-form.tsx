@@ -8,7 +8,7 @@ import "./login-form.css";
 
 export default function LoginForm({ callbackUrl = "/", error }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const getInitialError = () => {
+  const getInitialError = (): string | null => {
     if (!error) return null;
     if (error === "CredentialsSignin") return "Email o contraseña incorrectos.";
     return `Configuration error: ${error}`;
