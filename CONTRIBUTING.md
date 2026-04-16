@@ -1,8 +1,36 @@
 # Contributing to Naberza OS
 
+## Quick Start
+
+Nuevo contribuidor? Comienza aquí:
+
+```bash
+# 1. Clona y entra al repo
+git clone https://github.com/micaelanon/naberza.git
+cd naberza
+
+# 2. Copia el template de entorno
+cp .env.local.example .env.local
+# Edita .env.local con credenciales de prueba
+
+# 3. Inicia el entorno local
+docker-compose up -d
+cd code && npm install
+
+# 4. Servidor de desarrollo
+npm run dev              # http://localhost:3000
+
+# 5. Ejecuta checks antes de commit
+npm run check            # lint + type-check + tests + build
+```
+
+Para credenciales de usuario de prueba, ve a: `docs/test-users-and-auth.md`
+
+---
+
 ## Branch Naming
 
-Use kebab-case after the prefix:
+Usa kebab-case después del prefijo:
 
 ```
 feature/add-inbox-classification
@@ -13,34 +41,34 @@ internal/update-prisma-schema
 
 ## Code Style
 
-- **Imports**: Grouped and sorted via `eslint-plugin-simple-import-sort`
-- **Naming**: kebab-case for files/folders, camelCase for vars, PascalCase for components/types
-- **Types**: Co-located with code, interface for objects, type for unions
-- **Components**: Default export, with co-located tests, styles, and types
+- **Imports**: Agrupados y ordenados via `eslint-plugin-simple-import-sort`
+- **Naming**: kebab-case para archivos/carpetas, camelCase para variables, PascalCase para componentes/tipos
+- **Types**: Co-localizados con el código, interface para objetos, type para uniones
+- **Components**: Default export, con tests, estilos y tipos co-localizados
 
-See `instructions/` in copilot-instructions-test for full conventions.
+Ve a `instructions/` en copilot-instructions-test para convenciones completas.
 
 ## Pull Request Process
 
-1. Branch from `develop`
-2. Keep commits atomic and descriptive
-3. Run `npm run check` before pushing
-4. Open PR to `develop`
-5. Address review feedback
-6. Merge when approved
+1. Rama desde `develop`
+2. Mantén commits atómicos y descriptivos
+3. Ejecuta `npm run check` antes de push
+4. Abre PR a `develop`
+5. Resuelve feedback de review
+6. Merge cuando esté aprobado
 
 ## Testing
 
-Every module must have tests:
-- Unit tests for services
-- Component tests for UI
-- Integration tests for module flow
+Cada módulo debe tener tests:
+- Unit tests para servicios
+- Component tests para UI
+- Integration tests para flujos de módulo
 
-Run: `npm run test`
+Ejecuta: `npm run test`
 
 ## Commits
 
-Keep commits small and descriptive:
+Mantén commits pequeños y descriptivos:
 
 ```
 feat: add inbox classification service
@@ -51,11 +79,51 @@ chore: update dependencies
 
 ## Review Checklist
 
-Before merging:
-- [ ] Tests pass (`npm run test:run`)
-- [ ] Lint passes (`npm run lint`)
+Antes de mergear:
+- [ ] Tests pasan (`npm run test:run`)
+- [ ] Lint pasa (`npm run lint`)
 - [ ] Types check (`npm run type-check`)
-- [ ] No duplicate code (`npm run check:duplication`)
-- [ ] Code reviewed
-- [ ] No secrets or hardcoded values
-- [ ] Documentation updated if needed
+- [ ] Sin código duplicado (`npm run check:duplication`)
+- [ ] Código revisado
+- [ ] Sin secretos o valores hardcodeados
+- [ ] Documentación actualizada si es necesario
+
+## Local Database (Docker)
+
+Si necesitas trabajar con la base de datos:
+
+```bash
+# Ver estado de servicios
+docker-compose ps
+
+# Ver logs del app
+docker-compose logs app
+
+# Ver logs de PostgreSQL
+docker-compose logs postgres
+
+# Resetear base de datos
+docker-compose down -v
+docker-compose up -d
+```
+
+## Documentation
+
+Actualiza docs cuando:
+- Cambies arquitectura o decisiones
+- Añadas nuevas features
+- Modifiques workflows
+- Actualices dependencias
+
+Archivos claves:
+- `docs/architecture.md` - Diseño del sistema
+- `docs/domain-model.md` - Entidades y relaciones
+- `docs/modules.md` - Límites de módulos
+- `docs/roadmap.md` - Plan de desarrollo
+- `CONTRIBUTING.md` - Este archivo
+
+## Questions?
+
+- Check `docs/` para arquitectura y decisiones
+- Review `code/src/` para ejemplos de patrones
+- Open an issue para clarificaciones
