@@ -9,7 +9,7 @@ import "./login-form.css";
 export default function LoginForm({ callbackUrl = "/", error }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(
-    error === "CredentialsSignin" ? "Email o contraseña incorrectos." : null
+    error === "CredentialsSignin" ? "Email o contraseña incorrectos." : error ? `Configuration error: ${error}` : null
   );
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -21,21 +21,34 @@ export default function LoginForm({ callbackUrl = "/", error }: LoginFormProps) 
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      callbackUrl,
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        callbackUrl,
+        redirect: false,
+      });
 
-    if (result?.error) {
-      setFormError("Email o contraseña incorrectos.");
+      console.log("[Login] Result:", result);
+
+      if (result?.error) {
+        console.error("[Login] SignIn error:", result.error, result);
+        setFormError(
+          result.error === "CredentialsSignin"
+            ? "Email o contraseña incorrectos."
+            : `Error de configuración: ${result.error}`
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      if (result?.url) {
+        window.location.href = result.url;
+      }
+    } catch (err) {
+      console.error("[Login] Exception:", err);
+      setFormError("Error inesperado. Por favor, intenta de nuevo.");
       setIsLoading(false);
-      return;
-    }
-
-    if (result?.url) {
-      window.location.href = result.url;
     }
   }
 

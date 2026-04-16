@@ -27,17 +27,23 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      # Database
       DATABASE_URL: postgresql://${POSTGRES_USER:-naberza}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-naberza_dev}
+      
+      # NextAuth
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-}
+      AUTH_ADMIN_EMAIL: ${AUTH_ADMIN_EMAIL:-admin@naberza.local}
+      AUTH_ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:-TestPassword123!}
+      
+      # Application
       NODE_ENV: ${NODE_ENV:-development}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:3000/api}
     ports:
       - '3000:3000'
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
+    # NOTE: Volumes are disabled to use built image directly
+    # For local development with hot-reload, use: npm run dev (outside Docker)
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/']
       interval: 30s

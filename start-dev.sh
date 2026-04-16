@@ -27,12 +27,12 @@ echo "✅ .env.local configurado"
 
 # 4. Levanta Docker Compose
 echo -e "\n📦 Iniciando servicios (PostgreSQL + app)..."
-docker-compose up -d
+docker compose up -d
 
 # 5. Espera a que PostgreSQL esté listo
 echo "⏳ Esperando a que PostgreSQL esté disponible..."
 for i in {1..30}; do
-  if docker-compose exec -T postgres pg_isready -U naberza >/dev/null 2>&1; then
+  if docker compose exec -T postgres pg_isready -U naberza >/dev/null 2>&1; then
     echo "✅ PostgreSQL listo"
     break
   fi
