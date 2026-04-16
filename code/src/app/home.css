@@ -1,66 +1,80 @@
 .home-page {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 1100px;
+}
+
+.home-page__section {
+  margin-bottom: var(--size-40);
+}
+
+.home-page__section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-tertiary);
+  margin: 0 0 var(--size-16);
+}
+
+/* Guest / unauthenticated */
+.home-page--guest {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top left, rgba(95, 116, 103, 0.14), transparent 30%),
+    linear-gradient(180deg, #f7f4ef 0%, #f2eee7 100%);
 }
 
 .home-page__hero {
   text-align: center;
   padding: 4rem 2rem;
+  max-width: 480px;
+}
+
+.home-page__hero-icon {
+  display: block;
+  font-size: 3rem;
+  color: var(--color-brand);
+  margin-bottom: var(--size-16);
+  line-height: 1;
 }
 
 .home-page__title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--color-moss, #485422);
-  margin: 0 0 0.5rem;
+  color: var(--color-brand);
+  margin: 0 0 var(--size-8);
+  letter-spacing: -0.03em;
 }
 
 .home-page__subtitle {
-  font-size: 1.25rem;
-  color: var(--color-text-muted, #888);
-  margin: 0 0 1rem;
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--size-12);
+  font-weight: 500;
 }
 
 .home-page__description {
-  font-size: 1rem;
-  color: var(--color-text-muted, #888);
-  margin: 0 0 2rem;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 0.9375rem;
+  color: var(--color-text-tertiary);
+  margin: 0 0 var(--size-32);
+  line-height: 1.6;
 }
 
 .home-page__cta {
   display: inline-block;
-  padding: 0.75rem 2rem;
-  background: var(--color-olive, #606c38);
+  padding: var(--size-12) var(--size-32);
+  background: var(--color-brand);
   color: #fff;
-  border-radius: 8px;
+  border-radius: var(--radius-pill);
   text-decoration: none;
   font-weight: 600;
-  transition: background 0.15s;
+  font-size: 0.9375rem;
+  box-shadow: var(--shadow-button);
+  transition: background 0.15s, transform 0.1s;
 }
 
 .home-page__cta:hover {
-  background: var(--color-moss, #485422);
-}
-
-.home-page__header {
-  margin-bottom: 3rem;
-}
-
-.home-page__section {
-  margin-bottom: 3rem;
-}
-
-.home-page__section-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #2a2a2a);
-  margin: 0 0 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.875rem;
-  color: var(--color-text-muted, #888);
+  background: var(--color-brand-strong);
+  transform: translateY(-1px);
 }

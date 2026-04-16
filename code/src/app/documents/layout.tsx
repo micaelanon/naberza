@@ -1,5 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
+import { AppShell } from "@/components/ui";
 
-export default function documentsLayout({ children }: { children: ReactNode }): ReactNode {
-  return <>{children}</>;
+export default function DocumentsLayout({ children }: { children: ReactNode }): ReactNode {
+  return <AppShell title="Documentos">{children}</AppShell>;
 }

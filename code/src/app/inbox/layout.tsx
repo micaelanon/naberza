@@ -1,5 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
+import { AppShell } from "@/components/ui";
 
-export default function inboxLayout({ children }: { children: ReactNode }): ReactNode {
-  return <>{children}</>;
+export default function InboxLayout({ children }: { children: ReactNode }): ReactNode {
+  return <AppShell title="Inbox">{children}</AppShell>;
 }
