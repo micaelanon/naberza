@@ -11,6 +11,7 @@ declare global {
 function createPrismaClient(): PrismaClient {
   return new PrismaClient({
     log: env.isDev ? ["query", "error", "warn"] : ["error"],
+    datasourceUrl: env.databaseUrl,
   });
 }
 

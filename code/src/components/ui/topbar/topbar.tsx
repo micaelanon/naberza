@@ -1,0 +1,23 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import "./topbar.css";
+
+interface TopbarProps {
+  title: string;
+}
+
+export default async function Topbar({ title }: TopbarProps) {
+  const session = await getServerSession(authOptions);
+  const initials = session?.user?.email?.slice(0, 2).toUpperCase() ?? "?";
+
+  return (
+    <header className="topbar">
+      <h1 className="topbar__title">{title}</h1>
+      <div className="topbar__right">
+        <div className="topbar__avatar" title={session?.user?.email ?? ""}>
+          {initials}
+        </div>
+      </div>
+    </header>
+  );
+}

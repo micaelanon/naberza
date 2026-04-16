@@ -1,5 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
+import { AppShell } from "@/components/ui";
 
-export default function homeLayout({ children }: { children: ReactNode }): ReactNode {
-  return <>{children}</>;
+export default function HomeModuleLayout({ children }: { children: ReactNode }): ReactNode {
+  return <AppShell title="Casa">{children}</AppShell>;
 }

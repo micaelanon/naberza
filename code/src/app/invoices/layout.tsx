@@ -1,5 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
+import { AppShell } from "@/components/ui";
 
-export default function invoicesLayout({ children }: { children: ReactNode }): ReactNode {
-  return <>{children}</>;
+export default function InvoicesLayout({ children }: { children: ReactNode }): ReactNode {
+  return <AppShell title="Facturas">{children}</AppShell>;
 }
