@@ -40,36 +40,36 @@ export async function fetchTasks(): Promise<TaskItem[]> {
 }
 
 /**
- * Update task status in Supabase
- * Falls back to localStorage if Supabase is not available
+ * Update task status in localStorage (primary store until auth is implemented)
+ * Attempts sync to Supabase if enabled
  */
 export async function updateTaskStatus(
   taskId: string,
   completed: boolean
 ): Promise<boolean> {
-  if (!isSupabaseEnabled || !supabase) {
-    updateTaskInLocalStorage(taskId, completed);
-    return true;
-  }
+  // Always update localStorage first — it's the source of truth until auth is in place
+  updateTaskInLocalStorage(taskId, completed);
 
-  try {
-    const { error } = await supabase
-      .from("tasks")
-      .update({ completed })
-      .eq("id", taskId);
+  // If Supabase is enabled, try to sync (fire and forget for now)
+  if (isSupabaseEnabled && supabase) {
+    try {
+      const { error } = await supabase
+        .from("tasks")
+        .update({ completed })
+        .eq("id", taskId);
 
-    if (error) {
-      console.warn("Supabase update error:", error);
-      updateTaskInLocalStorage(taskId, completed);
-      return false;
+      if (error) {
+        console.warn("Supabase update failed (localStorage kept):", error);
+        // localStorage already updated, so UX is not broken
+      }
+    } catch (err) {
+      console.warn("Supabase sync failed (localStorage kept):", err);
+      // localStorage already updated, so UX is not broken
     }
-
-    return true;
-  } catch (err) {
-    console.error("Supabase error:", err);
-    updateTaskInLocalStorage(taskId, completed);
-    return false;
   }
+
+  // Always return success since localStorage was updated
+  return true;
 }
 
 /**
