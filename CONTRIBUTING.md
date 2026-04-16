@@ -1,51 +1,61 @@
-# CONTRIBUTING
+# Contributing to Naberza OS
 
-## Branching strategy
+## Branch Naming
 
-```text
-main        → producción
-develop     → integración
-feature/*   → nuevas funcionalidades
-bugfix/*    → correcciones no productivas
-hotfix/*    → correcciones urgentes en producción
-release/*   → estabilización de release si hiciera falta
-internal/*  → trabajo interno
+Use kebab-case after the prefix:
+
+```
+feature/add-inbox-classification
+bugfix/fix-task-filter-overflow
+hotfix/fix-auth-loop
+internal/update-prisma-schema
 ```
 
-## Flujo de trabajo
+## Code Style
 
-### Trabajo normal
-1. crear rama desde `develop`
-2. implementar cambio
-3. push a rama
-4. abrir PR a `develop`
-5. revisar
-6. mergear a `develop`
-7. `develop` ejecuta CI
-8. el despliegue a `pre` se lanza manualmente cuando haga falta
+- **Imports**: Grouped and sorted via `eslint-plugin-simple-import-sort`
+- **Naming**: kebab-case for files/folders, camelCase for vars, PascalCase for components/types
+- **Types**: Co-located with code, interface for objects, type for unions
+- **Components**: Default export, with co-located tests, styles, and types
 
-### Producción
-- no abrir PR manual de `develop` por defecto
-- usar el workflow **Release to Main** cuando toque promoción real
-- ese workflow promueve `develop` a `main` y dispara despliegue a `pro`
+See `instructions/` in copilot-instructions-test for full conventions.
 
-## Calidad mínima
-Antes de mergear:
-- detect-secrets
-- lint
-- type-check
-- tests (vitest)
-- build
+## Pull Request Process
 
-## Secrets opcionales
+1. Branch from `develop`
+2. Keep commits atomic and descriptive
+3. Run `npm run check` before pushing
+4. Open PR to `develop`
+5. Address review feedback
+6. Merge when approved
 
-| Secret | Workflow | Efecto sin él |
-|--------|----------|---------------|
-| `VERCEL_TOKEN` | deploy-pre, deploy-production | Deploy falla pero CI pasa |
-| `VERCEL_ORG_ID` | deploy-pre, deploy-production | Deploy falla pero CI pasa |
-| `VERCEL_PROJECT_ID` | deploy-pre, deploy-production | Deploy falla pero CI pasa |
-| `SNYK_TOKEN` | snyk.yml | Snyk se salta, CI pasa igualmente |
+## Testing
 
-Sin `SNYK_TOKEN` el workflow de seguridad Snyk existe pero no ejecuta el scan real.
-Para activarlo: Settings → Secrets and variables → Actions → añadir `SNYK_TOKEN`.
-Obténlo en [snyk.io](https://snyk.io) → Account Settings → Auth Token.
+Every module must have tests:
+- Unit tests for services
+- Component tests for UI
+- Integration tests for module flow
+
+Run: `npm run test`
+
+## Commits
+
+Keep commits small and descriptive:
+
+```
+feat: add inbox classification service
+fix: prevent task filter overflow
+docs: update architecture diagram
+chore: update dependencies
+```
+
+## Review Checklist
+
+Before merging:
+- [ ] Tests pass (`npm run test:run`)
+- [ ] Lint passes (`npm run lint`)
+- [ ] Types check (`npm run type-check`)
+- [ ] No duplicate code (`npm run check:duplication`)
+- [ ] Code reviewed
+- [ ] No secrets or hardcoded values
+- [ ] Documentation updated if needed

@@ -15,7 +15,7 @@
   --color-brand: #485422;
   --color-brand-strong: #3a4419;
   --color-brand-mid: #606c38;
-  --color-brand-soft: rgba(72, 84, 34, 0.10);
+  --color-brand-soft: rgba(72, 84, 34, 0.1);
   --color-brand-border: rgba(72, 84, 34, 0.18);
 
   /* Accent (green-grey) */
@@ -27,6 +27,8 @@
   --color-warning: #95683c;
   --color-warning-soft: rgba(149, 104, 60, 0.12);
   --color-success: #55735b;
+  --color-error: #a64a4a;
+  --color-error-soft: rgba(166, 74, 74, 0.12);
 
   /* Sidebar */
   --color-sidebar-bg: #f5f3f6;
