@@ -8,9 +8,12 @@ import "./login-form.css";
 
 export default function LoginForm({ callbackUrl = "/", error }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [formError, setFormError] = useState<string | null>(
-    error === "CredentialsSignin" ? "Email o contraseña incorrectos." : error ? `Configuration error: ${error}` : null
-  );
+  const getInitialError = () => {
+    if (!error) return null;
+    if (error === "CredentialsSignin") return "Email o contraseña incorrectos.";
+    return `Configuration error: ${error}`;
+  };
+  const [formError, setFormError] = useState<string | null>(getInitialError());
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

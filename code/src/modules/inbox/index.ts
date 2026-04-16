@@ -1,2 +1,14 @@
-// inbox module — public interface
-// Implementation lives in Phase 1+ (see README.md for details)
+export { InboxRepository } from "./inbox.repository";
+export { InboxService } from "./inbox.service";
+export type {
+  InboxItem,
+  InboxFilters,
+  InboxListResult,
+  CreateInboxItemDto,
+  UpdateInboxItemDto,
+  InboxStatus,
+  InboxSourceType,
+  InboxClassification,
+  Priority,
+  ClassifiedBy,
+} from "./inbox.types";
