@@ -1,0 +1,502 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// USERS module
+// ─────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // NextAuth relations
+  accounts Account[]
+  sessions Session[]
+
+  // Application relations
+  preferences UserPreference[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model UserPreference {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  key       String
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@map("user_preferences")
+}
+
+// ─────────────────────────────────────────────
+// INTEGRATIONS module
+// ─────────────────────────────────────────────
+
+model SourceConnection {
+  id               String           @id @default(cuid())
+  name             String
+  type             ConnectionType
+  status           ConnectionStatus @default(INACTIVE)
+  config           Json             // encrypted at application level
+  permissionRead   Boolean          @default(true) @map("permission_read")
+  permissionWrite  Boolean          @default(false) @map("permission_write")
+  lastHealthCheck  DateTime?        @map("last_health_check")
+  lastError        String?          @map("last_error")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  inboxItems InboxItem[]
+  homeEvents HomeEvent[]
+
+  @@map("source_connections")
+}
+
+enum ConnectionType {
+  PAPERLESS
+  HOME_ASSISTANT
+  EMAIL_IMAP
+  EMAIL_WEBHOOK
+  API
+  CUSTOM
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+}
+
+// ─────────────────────────────────────────────
+// INBOX module
+// ─────────────────────────────────────────────
+
+model InboxItem {
+  id                      String              @id @default(cuid())
+  title                   String
+  body                    String?             @db.Text
+  sourceType              InboxSourceType     @map("source_type")
+  sourceConnectionId      String?             @map("source_connection_id")
+  sourceExternalId        String?             @map("source_external_id")
+  sourceRawPayload        Json?               @map("source_raw_payload")
+  classification          InboxClassification?
+  classifiedBy            ClassifiedBy?       @map("classified_by")
+  classificationConfidence Float?             @map("classification_confidence")
+  status                  InboxStatus         @default(PENDING)
+  routedToModule          String?             @map("routed_to_module")
+  routedToEntityId        String?             @map("routed_to_entity_id")
+  priority                Priority            @default(NONE)
+  metadata                Json?
+  processedAt             DateTime?           @map("processed_at")
+  createdAt               DateTime            @default(now()) @map("created_at")
+  updatedAt               DateTime            @updatedAt @map("updated_at")
+
+  sourceConnection SourceConnection? @relation(fields: [sourceConnectionId], references: [id])
+
+  // Relations to entities this item was routed to
+  task     Task?
+  document Document?
+  invoice  Invoice?
+  idea     Idea?
+
+  @@index([status])
+  @@index([classification])
+  @@index([createdAt(sort: Desc)])
+  @@map("inbox_items")
+}
+
+enum InboxSourceType {
+  EMAIL
+  PAPERLESS
+  HOME_ASSISTANT
+  MANUAL
+  API
+}
+
+enum InboxClassification {
+  TASK
+  DOCUMENT
+  INVOICE
+  EVENT
+  ALERT
+  IDEA
+  FINANCIAL
+  REVIEW
+}
+
+enum ClassifiedBy {
+  RULE
+  AI_SUGGESTION
+  MANUAL
+}
+
+enum InboxStatus {
+  PENDING
+  CLASSIFIED
+  ROUTED
+  DISMISSED
+  FAILED
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+  NONE
+}
+
+// ─────────────────────────────────────────────
+// TASKS module
+// ─────────────────────────────────────────────
+
+model Task {
+  id             String     @id @default(cuid())
+  title          String
+  description    String?    @db.Text
+  priority       Priority   @default(NONE)
+  kind           TaskKind   @default(NORMAL)
+  status         TaskStatus @default(PENDING)
+  dueAt          DateTime?  @map("due_at")
+  recurrenceRule String?    @map("recurrence_rule")
+  tags           String[]
+  inboxItemId    String?    @unique @map("inbox_item_id")
+  completedAt    DateTime?  @map("completed_at")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  inboxItem InboxItem? @relation(fields: [inboxItemId], references: [id])
+
+  @@index([status])
+  @@index([dueAt])
+  @@index([kind])
+  @@map("tasks")
+}
+
+enum TaskKind {
+  NORMAL
+  PERSISTENT
+  RECURRING
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ─────────────────────────────────────────────
+// DOCUMENTS module
+// ─────────────────────────────────────────────
+
+model Document {
+  id                 String           @id @default(cuid())
+  title              String
+  externalId         String           @map("external_id")
+  externalUrl        String?          @map("external_url")
+  sourceConnectionId String           @map("source_connection_id")
+  documentType       DocumentType     @default(OTHER) @map("document_type")
+  correspondent      String?
+  tags               String[]
+  contentPreview     String?          @map("content_preview") @db.Text
+  archivedAt         DateTime?        @map("archived_at")
+  inboxItemId        String?          @unique @map("inbox_item_id")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  inboxItem InboxItem? @relation(fields: [inboxItemId], references: [id])
+  invoices  Invoice[]
+
+  @@unique([sourceConnectionId, externalId])
+  @@index([documentType])
+  @@map("documents")
+}
+
+enum DocumentType {
+  INVOICE
+  CONTRACT
+  RECEIPT
+  LETTER
+  CERTIFICATE
+  OTHER
+}
+
+// ─────────────────────────────────────────────
+// INVOICES module
+// ─────────────────────────────────────────────
+
+model Invoice {
+  id          String        @id @default(cuid())
+  issuer      String
+  amount      Decimal       @db.Decimal(12, 2)
+  currency    String        @default("EUR")
+  issueDate   DateTime      @map("issue_date") @db.Date
+  dueDate     DateTime?     @map("due_date") @db.Date
+  status      InvoiceStatus @default(PENDING)
+  category    String?
+  isRecurring Boolean       @default(false) @map("is_recurring")
+  documentId  String?       @map("document_id")
+  inboxItemId String?       @unique @map("inbox_item_id")
+  paidAt      DateTime?     @map("paid_at")
+  notes       String?       @db.Text
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  document         Document?        @relation(fields: [documentId], references: [id])
+  inboxItem        InboxItem?       @relation(fields: [inboxItemId], references: [id])
+  financialEntries FinancialEntry[]
+
+  @@index([status])
+  @@index([dueDate])
+  @@index([issuer])
+  @@map("invoices")
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  DISPUTED
+  CANCELLED
+}
+
+// ─────────────────────────────────────────────
+// FINANCE module
+// ─────────────────────────────────────────────
+
+model FinancialEntry {
+  id            String            @id @default(cuid())
+  type          FinancialEntryType
+  amount        Decimal           @db.Decimal(12, 2)
+  currency      String            @default("EUR")
+  category      String?
+  description   String?
+  date          DateTime          @db.Date
+  invoiceId     String?           @map("invoice_id")
+  isAnomaly     Boolean           @default(false) @map("is_anomaly")
+  anomalyReason String?           @map("anomaly_reason")
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  invoice Invoice? @relation(fields: [invoiceId], references: [id])
+
+  @@index([type])
+  @@index([date])
+  @@index([isAnomaly])
+  @@map("financial_entries")
+}
+
+enum FinancialEntryType {
+  INCOME
+  EXPENSE
+  BALANCE_SNAPSHOT
+  RECURRING_CHARGE
+}
+
+// ─────────────────────────────────────────────
+// HOME module
+// ─────────────────────────────────────────────
+
+model HomeEvent {
+  id                 String          @id @default(cuid())
+  eventType          String          @map("event_type")
+  entityId           String          @map("entity_id")
+  state              String?
+  previousState      String?         @map("previous_state")
+  attributes         Json?
+  sourceConnectionId String          @map("source_connection_id")
+  severity           HomeSeverity    @default(INFO)
+  acknowledgedAt     DateTime?       @map("acknowledged_at")
+  createdAt          DateTime        @default(now()) @map("created_at")
+
+  sourceConnection SourceConnection @relation(fields: [sourceConnectionId], references: [id])
+
+  @@index([eventType])
+  @@index([entityId])
+  @@index([severity])
+  @@index([createdAt(sort: Desc)])
+  @@map("home_events")
+}
+
+enum HomeSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+// ─────────────────────────────────────────────
+// IDEAS module
+// ─────────────────────────────────────────────
+
+model Idea {
+  id                String     @id @default(cuid())
+  title             String
+  body              String?    @db.Text
+  tags              String[]
+  status            IdeaStatus @default(CAPTURED)
+  promotedToModule  String?    @map("promoted_to_module")
+  promotedToEntityId String?   @map("promoted_to_entity_id")
+  inboxItemId       String?    @unique @map("inbox_item_id")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
+  inboxItem InboxItem? @relation(fields: [inboxItemId], references: [id])
+
+  @@index([status])
+  @@map("ideas")
+}
+
+enum IdeaStatus {
+  CAPTURED
+  REVIEWED
+  PROMOTED
+  ARCHIVED
+}
+
+// ─────────────────────────────────────────────
+// AUTOMATIONS module
+// ─────────────────────────────────────────────
+
+model AutomationRule {
+  id               String    @id @default(cuid())
+  name             String
+  description      String?
+  triggerEvent     String    @map("trigger_event")
+  conditions       Json
+  actions          Json
+  requiresApproval Boolean   @default(false) @map("requires_approval")
+  enabled          Boolean   @default(true)
+  priority         Int       @default(0)
+  lastTriggeredAt  DateTime? @map("last_triggered_at")
+  executionCount   Int       @default(0) @map("execution_count")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  approvalRequests ApprovalRequest[]
+
+  @@index([enabled])
+  @@index([triggerEvent])
+  @@map("automation_rules")
+}
+
+model ApprovalRequest {
+  id                   String          @id @default(cuid())
+  automationRuleId     String          @map("automation_rule_id")
+  triggerEventPayload  Json            @map("trigger_event_payload")
+  proposedActions      Json            @map("proposed_actions")
+  status               ApprovalStatus  @default(PENDING)
+  decidedAt            DateTime?       @map("decided_at")
+  expiresAt            DateTime        @map("expires_at")
+  reason               String?
+  createdAt            DateTime        @default(now()) @map("created_at")
+
+  automationRule AutomationRule @relation(fields: [automationRuleId], references: [id])
+
+  @@index([status])
+  @@index([expiresAt])
+  @@map("approval_requests")
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  DENIED
+  EXPIRED
+}
+
+// ─────────────────────────────────────────────
+// AUDIT module
+// ─────────────────────────────────────────────
+
+model AuditEvent {
+  id          String      @id @default(cuid())
+  module      String
+  action      String
+  entityType  String?     @map("entity_type")
+  entityId    String?     @map("entity_id")
+  actor       AuditActor
+  actorDetail String?     @map("actor_detail")
+  input       Json?
+  output      Json?
+  status      AuditStatus
+  errorMessage String?    @map("error_message")
+  metadata    Json?
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  // Append-only: no updatedAt, no soft delete
+  @@index([module])
+  @@index([entityType, entityId])
+  @@index([actor])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_events")
+}
+
+enum AuditActor {
+  USER
+  SYSTEM
+  AUTOMATION
+  INTEGRATION
+}
+
+enum AuditStatus {
+  SUCCESS
+  FAILURE
+  PENDING
+}
