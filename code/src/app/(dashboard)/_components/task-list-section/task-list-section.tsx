@@ -1,5 +1,6 @@
 import { getListChipLabel, getPriorityLabel } from "./utils/helpers";
 import type { TaskListItemProps, TaskListSectionProps } from "./utils/types";
+import "./task-list-section.css";
 
 const TaskListItem = ({ task, showPriorityChip = false, onToggleTask }: TaskListItemProps) => (
   <article

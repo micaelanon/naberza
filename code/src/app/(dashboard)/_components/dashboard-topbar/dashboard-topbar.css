@@ -1,0 +1,43 @@
+/* ─────────────────────────────────────────────────
+   dashboard-topbar · styles
+   Component styles for the top header bar
+   ───────────────────────────────────────────────── */
+
+.dashboard-page__canvas {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-canvas-bg);
+}
+
+.dashboard-page__topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: var(--size-32);
+  padding-bottom: var(--size-24);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-canvas-bg);
+}
+
+.dashboard-page__topbar-title {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.dashboard-page__topbar-date {
+  margin: 6px 0 0;
+  color: var(--color-sidebar-text);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+}
+
+.dashboard-page__topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}

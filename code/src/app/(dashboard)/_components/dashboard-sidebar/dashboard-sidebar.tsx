@@ -1,6 +1,7 @@
 import { isSupabaseEnabled } from "@/lib/supabase-client";
 
 import { DashboardSidebarProps, NAV_ITEMS } from "./utils/types";
+import "./dashboard-sidebar.css";
 
 const DashboardSidebar = ({ activeView, onSelectView }: DashboardSidebarProps) => (
   <aside className="dashboard-page__sidebar">
