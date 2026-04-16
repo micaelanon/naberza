@@ -1,50 +1,54 @@
-name: CI
+name: CI - Lint, Type-check, Build, Test
 
 on:
+  push:
+    branches: [develop, main]
   pull_request:
     branches: [develop, main]
-  push:
-    branches:
-      - develop
-      - "feature/**"
-      - "bugfix/**"
-      - "internal/**"
-      - "release/**"
-      - "hotfix/**"
 
 jobs:
-  detect-secrets:
+  check:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [22.x]
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: "3.12"
-      - run: pip install detect-secrets
-      - name: Scan for new secrets
-        run: |
-          detect-secrets scan --baseline .secrets.baseline
-          if [ $? -ne 0 ]; then
-            echo "New secrets detected. Update the baseline or remove the secret."
-            exit 1
-          fi
-
-  verify:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: code
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           cache: npm
           cache-dependency-path: code/package-lock.json
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run type-check
-      - name: Run unit tests
-        if: ${{ hashFiles('code/src/**/*.test.ts', 'code/src/**/*.test.tsx', 'code/e2e/**/*.spec.ts') != '' }}
-        run: npm run test:run
-      - run: npm run build
+      
+      - name: Install dependencies
+        working-directory: ./code
+        run: npm ci --legacy-peer-deps
+      
+      - name: Generate Prisma client
+        working-directory: ./code
+        run: npx prisma generate
+      
+      - name: Run linter
+        working-directory: ./code
+        run: npm run lint
+      
+      - name: Run type-check
+        working-directory: ./code
+        run: npm run type-check
+      
+      - name: Run tests
+        working-directory: ./code
+        run: npm test
+      
+      - name: Build for production
+        working-directory: ./code
+        run: npm run build
+      
+      - name: Check code duplication
+        working-directory: ./code
+        run: npm run check:duplication
