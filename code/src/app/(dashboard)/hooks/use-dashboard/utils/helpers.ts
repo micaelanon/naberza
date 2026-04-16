@@ -70,3 +70,14 @@ export function formatTodayLabel(): string {
     month: "long",
   }).format(new Date());
 }
+
+export function isFormDirty(form: typeof INITIAL_FORM): boolean {
+  return (
+    form.title.trim() !== "" ||
+    form.note.trim() !== "" ||
+    form.dueLabel.trim() !== "Sin fecha fija" ||
+    form.priority !== INITIAL_FORM.priority ||
+    form.kind !== INITIAL_FORM.kind ||
+    form.channel !== INITIAL_FORM.channel
+  );
+}

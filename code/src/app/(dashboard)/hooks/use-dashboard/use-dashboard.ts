@@ -11,6 +11,7 @@ import {
   getActiveTasks,
   getTaskCollections,
   INITIAL_FORM,
+  isFormDirty,
   VIEW_META,
 } from "./utils/helpers";
 import type { UseDashboardReturn } from "./utils/types";
@@ -23,6 +24,8 @@ const useDashboard = (): UseDashboardReturn => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [form, setForm] = useState<TaskFormState>(INITIAL_FORM);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [pendingView, setPendingView] = useState<DashboardView | null>(null);
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -46,7 +49,34 @@ const useDashboard = (): UseDashboardReturn => {
   const showPendingList = activeView === "today";
 
   const handleSelectView = useCallback((view: DashboardView) => {
+    if (isCreateOpen) {
+      if (isFormDirty(form)) {
+        setPendingView(view);
+        setShowDiscardModal(true);
+        return;
+      }
+      // panel open but form is clean — just close it silently
+      setIsCreateOpen(false);
+      setSubmitError(null);
+      setForm(INITIAL_FORM);
+    }
     setActiveView(view);
+  }, [isCreateOpen, form]);
+
+  const handleConfirmDiscard = useCallback(() => {
+    setShowDiscardModal(false);
+    setIsCreateOpen(false);
+    setForm(INITIAL_FORM);
+    setSubmitError(null);
+    if (pendingView) {
+      setActiveView(pendingView);
+      setPendingView(null);
+    }
+  }, [pendingView]);
+
+  const handleCancelDiscard = useCallback(() => {
+    setShowDiscardModal(false);
+    setPendingView(null);
   }, []);
 
   const handleToggleTask = useCallback(async (taskId: string) => {
@@ -122,12 +152,15 @@ const useDashboard = (): UseDashboardReturn => {
     showPersistentRail,
     showPendingList,
     viewMeta: VIEW_META[activeView],
+    showDiscardModal,
     handleSelectView,
     handleToggleTask,
     handleToggleCreate,
     handleFormChange,
     handleCreateTask,
     handleCancelCreate,
+    handleConfirmDiscard,
+    handleCancelDiscard,
   };
 };
 
