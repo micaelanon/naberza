@@ -18,3 +18,5 @@ build
 
 # OS
 Thumbs.db
+.env
+LOCAL-DEV-QUICK-START.sh
