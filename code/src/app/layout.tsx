@@ -13,7 +13,10 @@ export const metadata: Metadata = {
   title: "naBerza",
   description: "Sistema personal de tareas, recordatorios y citas.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
   },
 };
 
