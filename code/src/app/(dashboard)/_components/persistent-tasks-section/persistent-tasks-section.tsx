@@ -1,5 +1,6 @@
 import { getPriorityLabel } from "./utils/helpers";
 import type { PersistentTasksSectionProps } from "./utils/types";
+import "./persistent-tasks-section.css";
 
 const PersistentTasksSection = ({ tasks, onToggleTask }: PersistentTasksSectionProps) => (
   <section className="dashboard-page__section">
