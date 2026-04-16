@@ -21,7 +21,13 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install detect-secrets
-      - run: detect-secrets scan > .secrets.baseline.tmp
+      - name: Scan for new secrets
+        run: |
+          detect-secrets scan --baseline .secrets.baseline
+          if [ $? -ne 0 ]; then
+            echo "New secrets detected. Update the baseline or remove the secret."
+            exit 1
+          fi
 
   verify:
     runs-on: ubuntu-latest
