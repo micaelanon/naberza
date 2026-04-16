@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
 
-export default function InvoicesLayout({ children }: { children: ReactNode }): ReactNode {
+export default function invoicesLayout({ children }: { children: ReactNode }): ReactNode {
   return <>{children}</>;
 }

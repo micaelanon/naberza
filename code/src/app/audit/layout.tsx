@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
 
-export default function AuditLayout({ children }: { children: ReactNode }): ReactNode {
+export default function auditLayout({ children }: { children: ReactNode }): ReactNode {
   return <>{children}</>;
 }

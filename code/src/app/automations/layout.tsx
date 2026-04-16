@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
 
-export default function AutomationsLayout({ children }: { children: ReactNode }): ReactNode {
+export default function automationsLayout({ children }: { children: ReactNode }): ReactNode {
   return <>{children}</>;
 }
