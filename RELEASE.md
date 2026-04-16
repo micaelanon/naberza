@@ -1,49 +1,110 @@
-# RELEASE
+# Release Process
 
-## Flujo real
+## Versioning
 
-### Principio importante
-En este flujo es normal que `develop` y `main` no estén alineadas todo el tiempo.
-- `develop` representa integración y validación en `pre`
-- `main` representa lo que realmente ha salido a producción (`pro`)
-- por tanto, `develop` suele ir por delante de `main`
-- no hay que intentar igualarlas salvo cuando se hace una release real
+Naberza OS uses Semantic Versioning: `MAJOR.MINOR.PATCH`
 
-### Trabajo normal
-1. crear una rama `feature/*`, `bugfix/*` o `internal/*` desde `develop`
-2. abrir PR hacia `develop`
-3. revisar y mergear esa PR
-4. al llegar a `develop`, se ejecuta CI
-5. el deploy a `pre` se lanza manualmente cuando se quiera validar en entorno
+- **MAJOR**: Breaking changes, significant architecture shifts
+- **MINOR**: New features, new modules, backward-compatible changes
+- **PATCH**: Bug fixes, documentation, performance improvements
 
-### Producción
-No se abre una PR manual de `develop` por defecto.
-La promoción a producción se hace con el workflow manual **Release to Main**.
+## Release Process
 
-Ese workflow:
-1. toma `develop`
-2. hace fast-forward de `main` con `develop`
-3. empuja `main`
-4. dispara el workflow de producción
-
-## Requisitos para deploy real a Vercel
-Configurar estos secrets en GitHub:
-- `VERCEL_TOKEN`
-- `VERCEL_ORG_ID`
-- `VERCEL_PROJECT_ID`
-
-Sin esos secrets:
-- CI y build pueden pasar
-- `pre` falla si intentas lanzarlo
-- `pro` falla si intentas lanzarlo
-
-## Comandos útiles
-### Lanzar release manual desde GitHub CLI
+1. **Create release branch** from `main`:
 ```bash
-gh workflow run "Release to Main" --repo micaelanon/naberza --ref main -f run_deploy=true
+git checkout main
+git pull origin main
+git checkout -b release/VERSION
 ```
 
-### Lanzar deploy pre manual
+2. **Update version and changelog**:
+   - Update `code/package.json` version
+   - Update `CHANGELOG.md` with new features, fixes, deprecations
+   - Update `docs/roadmap.md` if needed
+
+3. **Final validation**:
 ```bash
-gh workflow run deploy-pre.yml --repo micaelanon/naberza --ref develop
+npm run check
 ```
+
+4. **Tag release**:
+```bash
+git add package.json CHANGELOG.md docs/
+git commit -m "release: v1.2.3"
+git tag -a v1.2.3 -m "Release version 1.2.3"
+```
+
+5. **Push and open PR**:
+```bash
+git push origin release/VERSION
+git push origin v1.2.3
+```
+
+6. **Merge to main** and `develop`:
+   - Create PR from `release/VERSION` to `main`
+   - Get approval and merge
+   - Back-merge to `develop`
+
+7. **Deploy to production**:
+   - CI/CD automatically deploys `main` to production
+   - Monitor logs and alerts
+
+## Hotfix Process
+
+For urgent production fixes:
+
+1. **Create hotfix branch** from `main`:
+```bash
+git checkout main
+git pull origin main
+git checkout -b hotfix/ISSUE-DESCRIPTION
+```
+
+2. **Fix the issue**, test thoroughly
+
+3. **Bump patch version** in `package.json`
+
+4. **Commit and tag**:
+```bash
+git add .
+git commit -m "fix: resolve critical issue"
+git tag -a v1.2.1 -m "Hotfix version 1.2.1"
+```
+
+5. **Merge to main and develop**:
+   - Merge hotfix to `main` (no PR needed for critical fixes)
+   - Back-merge to `develop`
+   - Cherry-pick to any active release branches
+
+## Changelog Format
+
+```markdown
+## [1.2.3] - 2026-04-16
+
+### Added
+- New feature X
+- New module Y
+
+### Changed
+- Improved performance of Z
+- Updated documentation
+
+### Fixed
+- Fixed bug in module A
+- Fixed regression in feature B
+
+### Deprecated
+- Old API endpoint (will be removed in 2.0)
+
+### Security
+- Patched vulnerability in adapter X
+```
+
+## Deployment Environments
+
+| Environment | Branch | Manual Approval | Frequency |
+|---|---|---|---|
+| Staging (pre) | `develop` | No | Auto on merge |
+| Production (pro) | `main` | Yes | Manual or tag-based |
+
+Monitor deployments and rollback if needed.

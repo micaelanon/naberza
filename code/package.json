@@ -1,25 +1,28 @@
 {
-  "name": "naberza",
-  "version": "0.1.0",
+  "name": "naberza-os",
+  "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "eslint . --cache",
     "type-check": "tsc --noEmit",
     "check:duplication": "jscpd --config .jscpd.json src",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "check": "npm run lint && npm run type-check && npm run test:run"
+    "check": "npm run lint && npm run type-check && npm run test:run && npm run check:duplication"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
     "next": "16.2.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "next-auth": "^5.0.0",
+    "@prisma/client": "^6.3.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.5",
@@ -34,9 +37,11 @@
     "eslint-config-next": "16.2.3",
     "eslint-plugin-regexp": "^3.1.0",
     "eslint-plugin-sonarjs": "^4.0.2",
+    "eslint-plugin-simple-import-sort": "^12.2.0",
     "jsdom": "^23.0.1",
     "jscpd": "^4.0.9",
     "typescript": "^5",
-    "vitest": "^1.1.0"
+    "vitest": "^1.1.0",
+    "prisma": "^6.3.1"
   }
 }

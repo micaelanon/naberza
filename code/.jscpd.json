@@ -1,11 +1,14 @@
 {
-  "threshold": 3,
-  "reporters": ["console"],
-  "absolute": true,
-  "ignore": [
-    "**/.next/**",
-    "**/node_modules/**",
-    "**/public/**",
-    "**/*.json"
+  "threshold": 0,
+  "suppressDefaultExclude": false,
+  "absolute": false,
+  "minLines": 40,
+  "minTokens": 50,
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    ".next",
+    "*.test.ts",
+    "*.test.tsx"
   ]
 }

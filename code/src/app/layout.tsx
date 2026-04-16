@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "naBerza",
-  description: "Sistema personal de tareas, recordatorios y citas.",
+  title: "Naberza OS",
+  description: "Personal home operations system. Inbox, tasks, documents, home automation, and more.",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -30,7 +30,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font -- Material Symbols is not available via next/font; link tag in RootLayout is the correct pattern for App Router */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font -- Material Symbols is not available via next/font */}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"

@@ -1,0 +1,15 @@
+version: 1
+disable_by_default: true
+
+rules:
+  - id: javascript
+    name: JavaScript pattern detection
+    languages:
+      - javascript
+      - typescript
+    severity: WARNING
+  - id: typescript
+    name: TypeScript pattern detection
+    languages:
+      - typescript
+    severity: WARNING
