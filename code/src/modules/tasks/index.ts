@@ -1,2 +1,12 @@
-// tasks module — public interface
-// Implementation lives in Phase 1+ (see README.md for details)
+export { TaskRepository } from "./task.repository";
+export { TaskService } from "./task.service";
+export type {
+  Task,
+  TaskStatus,
+  TaskKind,
+  Priority,
+  CreateTaskDto,
+  UpdateTaskDto,
+  TaskFilters,
+  TaskListResult,
+} from "./task.types";
