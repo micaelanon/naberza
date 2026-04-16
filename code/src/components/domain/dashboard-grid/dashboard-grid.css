@@ -1,0 +1,107 @@
+.dashboard-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard-grid--primary {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.dashboard-grid--secondary {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.dashboard-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.dashboard-grid--primary .dashboard-tile {
+  border-left: 4px solid var(--accent-color, var(--color-olive, #606c38));
+  padding-left: calc(1.5rem - 4px);
+}
+
+.dashboard-tile:hover {
+  border-color: var(--accent-color, var(--color-olive, #606c38));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.dashboard-tile__icon {
+  font-size: 2rem;
+  height: 2.5rem;
+}
+
+.dashboard-tile__content {
+  flex: 1;
+}
+
+.dashboard-tile__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.dashboard-tile__count {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #2a2a2a);
+  line-height: 1;
+}
+
+.dashboard-tile__arrow {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-size: 1.25rem;
+  color: var(--accent-color, var(--color-olive, #606c38));
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.dashboard-tile:hover .dashboard-tile__arrow {
+  opacity: 1;
+}
+
+.dashboard-grid--secondary .dashboard-tile {
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard-grid--secondary .dashboard-tile__icon {
+  font-size: 1.5rem;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.dashboard-grid--secondary .dashboard-tile__content {
+  min-width: 0;
+}
+
+.dashboard-grid--secondary .dashboard-tile__label {
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-grid--secondary .dashboard-tile__count {
+  font-size: 1.25rem;
+}
+
+.dashboard-grid--secondary .dashboard-tile__arrow {
+  display: none;
+}

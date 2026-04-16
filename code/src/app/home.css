@@ -1,0 +1,66 @@
+.home-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.home-page__hero {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.home-page__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-moss, #485422);
+  margin: 0 0 0.5rem;
+}
+
+.home-page__subtitle {
+  font-size: 1.25rem;
+  color: var(--color-text-muted, #888);
+  margin: 0 0 1rem;
+}
+
+.home-page__description {
+  font-size: 1rem;
+  color: var(--color-text-muted, #888);
+  margin: 0 0 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.home-page__cta {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: var(--color-olive, #606c38);
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.home-page__cta:hover {
+  background: var(--color-moss, #485422);
+}
+
+.home-page__header {
+  margin-bottom: 3rem;
+}
+
+.home-page__section {
+  margin-bottom: 3rem;
+}
+
+.home-page__section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2a2a2a);
+  margin: 0 0 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #888);
+}
