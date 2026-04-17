@@ -1,2 +1,9 @@
-// home module — public interface
-// Implementation lives in Phase 1+ (see README.md for details)
+export { HomeRepository } from "./home.repository";
+export { HomeService } from "./home.service";
+export type {
+  HomeEvent,
+  HomeSeverity,
+  HomeEventSummary,
+  CreateHomeEventInput,
+  ListHomeEventsOptions,
+} from "./home.types";
