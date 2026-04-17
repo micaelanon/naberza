@@ -1,2 +1,10 @@
-// ideas module — public interface
-// Implementation lives in Phase 1+ (see README.md for details)
+export { IdeasRepository } from "./ideas.repository";
+export { IdeasService } from "./ideas.service";
+export type {
+  IdeaStatus,
+  Idea,
+  CreateIdeaInput,
+  UpdateIdeaInput,
+  ListIdeasOptions,
+  IdeaSummary,
+} from "./ideas.types";
