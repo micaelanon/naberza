@@ -1,5 +1,5 @@
 export { auditService, AuditService, eventActorToAuditActor } from "./audit-service";
-export { InMemoryAuditStore } from "./audit-store";
+export { InMemoryAuditStore, PrismaAuditStore } from "./audit-store";
 export type { AuditStore } from "./audit-store";
 export type {
   AuditEntry,
