@@ -1,7 +1,18 @@
 # Naberza OS — Roadmap
 
-## Phase 0 — Foundation (current)
-**Status**: In progress
+## Estado actual
+
+- **Phase 0 — Foundation**: ✅ completada
+- **Phase 1 — Core Loop**: ✅ completada
+- **Phase 2 — Adapters & ingestion layer**: ✅ completada en la práctica
+- **Phase 3 — Alignment & hardening of current implementation**: 🔄 en curso
+
+> Nota importante: la ejecución real del proyecto se desvió del roadmap original.
+> En la práctica se implementó primero la capa de adapters (`Paperless`, `Home Assistant`, `IMAP`, `webhooks`) antes de cerrar módulos de dominio como `documents`, `invoices`, `home` o `finance`.
+> Este documento refleja el estado real, no el orden aspiracional inicial.
+
+## Phase 0 — Foundation
+**Status**: ✅ Complete
 
 - [x] Architecture documentation
 - [x] Module definitions and boundaries
@@ -11,86 +22,85 @@
 - [x] Decision records
 - [x] Project structure scaffolding
 - [x] Base types and interfaces
-- [x] Adapter stubs
+- [x] Initial adapter scaffolding
 - [x] Prisma schema (initial)
 - [x] Audit log base
 - [x] Inbox module base
 - [x] Page scaffolds for all modules
 - [x] Docker Compose for local dev
-- [x] env.example with all required vars
+- [x] env example with required vars
 
 ## Phase 1 — Core Loop
 **Goal**: Inbox → classify → route → persist → audit → dashboard
+**Status**: ✅ Complete
 
-- [ ] PostgreSQL + Prisma fully operational
-- [ ] NextAuth.js authentication (single-user)
-- [ ] Inbox CRUD (manual item creation)
-- [ ] Inbox classification (rule-based, manual)
-- [ ] Task module (CRUD, views: today/upcoming/persistent/completed)
-- [ ] Audit log recording and viewing
-- [ ] Dashboard: today view with inbox + tasks
-- [ ] Event bus wired for audit logging
+- [x] PostgreSQL + Prisma operational
+- [x] NextAuth.js authentication (single-user)
+- [x] Inbox CRUD (manual item creation)
+- [x] Inbox classification (rule-based, manual)
+- [x] Task module (CRUD, views: today/upcoming/persistent/completed)
+- [x] Audit log recording and viewing
+- [x] Dashboard: today view with inbox + tasks
+- [x] Event bus wired for audit logging
 
-## Phase 2 — Documents & Invoices
-**Goal**: Paperless-ngx integration, invoice tracking
+## Phase 2 — Adapters & ingestion layer
+**Goal**: establish external integration entry points before completing remaining domain modules
+**Status**: ✅ Complete
 
-- [ ] Paperless-ngx adapter (read-only: search, list, metadata)
+- [x] Paperless-ngx adapter (read-only: search, list, metadata)
+- [x] Home Assistant adapter (read states, call services, test connection)
+- [x] Home Assistant alerts → InboxItem pipeline
+- [x] IMAP mail adapter
+- [x] Email → InboxItem pipeline
+- [x] Invoice/document detection in emails
+- [x] Webhook ingestion API
+- [x] Adapter sync functions covered by tests
+
+## Phase 3 — Alignment & hardening of current implementation
+**Goal**: remove contradictions between docs, structure and implementation; harden the current base before new domain work
+**Status**: 🔄 In progress
+
+### Completed in Phase 3
+- [x] Phase 3 audit baseline (`docs/phase-3-audit.md`)
+- [x] CSS hardcoded colors replaced by tokens
+- [x] Default export alignment in component barrels/imports
+- [x] Legacy integration adapter stubs removed from `src/modules/integrations/adapters`
+- [x] Sync function tests added for Paperless, Home Assistant and Mail
+- [x] CI split into separate jobs (`lint`, `type-check`, `unit-test`, `build`)
+- [x] Semgrep workflow added
+
+### Remaining in Phase 3
+- [ ] `loading.tsx` and `error.tsx` for data-fetching segments
+- [ ] Webhook route tests
+- [ ] Props/type location review where applicable
+
+## Phase 4 — Domain modules completion
+**Goal**: close the domain gaps left behind by the adapter-first execution order
+
 - [ ] Document module: link internal entities to Paperless docs
 - [ ] Invoice module: create from inbox, link to documents
 - [ ] Invoice status tracking (pending/paid/overdue)
-- [ ] Inbox: auto-classify items that look like invoices
+- [ ] Home module: event log and dashboard cards
+- [ ] Finance module: financial entries and recurring detection
+- [ ] Ideas module: capture, tag, promote, archive
 
-## Phase 3 — Home & Events
-**Goal**: Home Assistant integration, event visibility
-
-- [ ] Home Assistant adapter (read states, subscribe events)
-- [ ] Home module: event log, dashboard cards
-- [ ] HA events → InboxItem pipeline (for important events)
-- [ ] Safe service calls with approval flow
-
-## Phase 4 — Email Ingestion
-**Goal**: Automated inbox population from email
-
-- [ ] IMAP mail adapter
-- [ ] Email → InboxItem pipeline
-- [ ] Attachment extraction and document detection
-- [ ] Invoice detection in emails
-- [ ] Polling job with configurable interval
-
-## Phase 5 — Finance & Intelligence
-**Goal**: Financial tracking, anomaly detection, AI classification
-
-- [ ] Financial entry logging (from invoices and manual)
-- [ ] Recurring charge detection
-- [ ] Anomaly flagging
-- [ ] AI-powered inbox classification
-- [ ] AI document summarization
-- [ ] Period summaries
-
-## Phase 6 — Automations
-**Goal**: Rule engine with approval workflow
+## Phase 5 — Automations & notifications
+**Goal**: rule engine, approval workflow and outbound communication
 
 - [ ] Automation rule CRUD
 - [ ] Rule evaluation engine
 - [ ] Approval request flow
 - [ ] Configurable triggers and conditions
-- [ ] Notification on rule execution
-
-## Phase 7 — Notifications & Ideas
-**Goal**: Multi-channel notifications, idea management
-
 - [ ] Telegram notification adapter
 - [ ] Email notification adapter
 - [ ] Notification preferences
-- [ ] Ideas module: capture, tag, promote, archive
-- [ ] Quick capture from dashboard
 
-## Phase 8 — Polish & Hardening
-**Goal**: Production-ready quality
+## Phase 6 — Polish & hardening
+**Goal**: production-readiness and operational reliability
 
 - [ ] Comprehensive error handling
-- [ ] Rate limiting on all API routes
-- [ ] Circuit breaker for all adapters
+- [ ] Rate limiting on relevant API routes
+- [ ] Circuit breaker strategy for adapters
 - [ ] Monitoring and health dashboard
 - [ ] Data export/import
 - [ ] Audit log retention policies
