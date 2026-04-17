@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SidebarVersion } from "./sidebar-version";
 import "./sidebar.css";
 
 const NAV_ITEMS = [
@@ -68,6 +69,8 @@ export default function Sidebar() {
           </li>
         ))}
       </ul>
+
+      <SidebarVersion />
     </nav>
   );
 }
