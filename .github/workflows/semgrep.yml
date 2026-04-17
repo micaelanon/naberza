@@ -1,0 +1,36 @@
+name: Semgrep
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main, "feature/**", "bugfix/**", "internal/**", "release/**", "hotfix/**"]
+
+concurrency:
+  group: semgrep-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: Semgrep OSS Scan
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Semgrep
+        run: |
+          semgrep ci \
+            --config p/typescript \
+            --config p/react \
+            --config p/owasp-top-ten \
+            --config p/nodejs \
+            --sarif \
+            --output semgrep.sarif
+        env:
+          SEMGREP_APP_TOKEN: ""
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep

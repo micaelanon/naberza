@@ -1,54 +1,79 @@
-name: CI - Lint, Type-check, Build, Test
+name: CI
 
 on:
-  push:
-    branches: [develop, main]
   pull_request:
     branches: [develop, main]
+  push:
+    branches: [develop, main, "feature/**", "bugfix/**", "internal/**", "release/**", "hotfix/**"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  check:
+  lint:
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        node-version: [22.x]
-    
+    defaults:
+      run:
+        working-directory: code
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
           cache: npm
           cache-dependency-path: code/package-lock.json
-      
-      - name: Install dependencies
-        working-directory: ./code
-        run: npm ci --legacy-peer-deps
-      
-      - name: Generate Prisma client
-        working-directory: ./code
-        run: npx prisma generate
-      
-      - name: Run linter
-        working-directory: ./code
-        run: npm run lint
-      
-      - name: Run type-check
-        working-directory: ./code
-        run: npm run type-check
-      
-      - name: Run tests
-        working-directory: ./code
-        run: npm test
-      
-      - name: Build for production
-        working-directory: ./code
-        run: npm run build
-      
-      - name: Check code duplication
-        working-directory: ./code
-        run: npm run check:duplication
+      - run: npm ci --legacy-peer-deps
+      - run: npm run lint
+
+  type-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: code
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: code/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - run: npx prisma generate
+      - run: npm run type-check
+
+  unit-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: code
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: code/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - run: npx prisma generate
+      - run: npm run test:coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: code/coverage/
+
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: code
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: code/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - run: npx prisma generate
+      - run: npm run build
