@@ -101,3 +101,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.sidebar__version {
+  padding: var(--size-8) var(--size-12);
+  margin-top: var(--size-4);
+}
+
+.sidebar__version-label {
+  font-size: 0.6875rem;
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
+}
