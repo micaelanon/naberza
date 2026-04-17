@@ -157,6 +157,8 @@ model InboxItem {
 
   @@index([status])
   @@index([classification])
+  @@index([sourceType])
+  @@index([priority])
   @@index([createdAt(sort: Desc)])
   @@map("inbox_items")
 }
@@ -265,6 +267,7 @@ model Document {
 
   @@unique([sourceConnectionId, externalId])
   @@index([documentType])
+  @@index([createdAt(sort: Desc)])
   @@map("documents")
 }
 
@@ -305,6 +308,8 @@ model Invoice {
   @@index([status])
   @@index([dueDate])
   @@index([issuer])
+  @@index([isRecurring])
+  @@index([createdAt(sort: Desc)])
   @@map("invoices")
 }
 
@@ -339,6 +344,7 @@ model FinancialEntry {
   @@index([type])
   @@index([date])
   @@index([isAnomaly])
+  @@index([createdAt(sort: Desc)])
   @@map("financial_entries")
 }
 
@@ -432,6 +438,7 @@ model AutomationRule {
 
   @@index([enabled])
   @@index([triggerEvent])
+  @@index([enabled, triggerEvent])
   @@map("automation_rules")
 }
 
@@ -481,6 +488,7 @@ model AuditEvent {
 
   // Append-only: no updatedAt, no soft delete
   @@index([module])
+  @@index([module, action])
   @@index([entityType, entityId])
   @@index([actor])
   @@index([status])
