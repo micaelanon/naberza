@@ -14,12 +14,26 @@ import { auditService, eventActorToAuditActor } from "./audit-service";
  * - status: success (events are emitted after successful operations)
  */
 export function registerAuditSubscriptions(): void {
-  // Helper to extract actor from any event that extends BaseEvent
-  function actorFrom(event: BaseEvent) {
-    return eventActorToAuditActor(event);
-  }
+  registerInboxSubscriptions();
+  registerTaskSubscriptions();
+  registerAutomationSubscriptions();
+  registerIntegrationSubscriptions();
+  registerDocumentSubscriptions();
+  registerInvoiceSubscriptions();
+  registerFinanceSubscriptions();
+  registerHomeSubscriptions();
+  registerIdeaSubscriptions();
+}
 
-  // Inbox
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function actorFrom(event: BaseEvent) {
+  return eventActorToAuditActor(event);
+}
+
+// ─── Inbox ────────────────────────────────────────────────────────────────────
+
+function registerInboxSubscriptions(): void {
   auditService.autoLog("inbox.item.created", (e) => ({
     module: "inbox",
     action: "item.created",
@@ -58,8 +72,11 @@ export function registerAuditSubscriptions(): void {
     ...actorFrom(e),
     status: "success",
   }));
+}
 
-  // Tasks
+// ─── Tasks ────────────────────────────────────────────────────────────────────
+
+function registerTaskSubscriptions(): void {
   auditService.autoLog("task.created", (e) => ({
     module: "tasks",
     action: "task.created",
@@ -78,8 +95,11 @@ export function registerAuditSubscriptions(): void {
     ...actorFrom(e),
     status: "success",
   }));
+}
 
-  // Automations
+// ─── Automations ──────────────────────────────────────────────────────────────
+
+function registerAutomationSubscriptions(): void {
   auditService.autoLog("automation.rule.matched", (e) => ({
     module: "automations",
     action: "rule.matched",
@@ -127,8 +147,11 @@ export function registerAuditSubscriptions(): void {
     errorMessage: e.error,
     output: { actionType: e.actionType },
   }));
+}
 
-  // Integrations
+// ─── Integrations ─────────────────────────────────────────────────────────────
+
+function registerIntegrationSubscriptions(): void {
   auditService.autoLog("integration.connected", (e) => ({
     module: "integrations",
     action: "connected",
@@ -157,5 +180,155 @@ export function registerAuditSubscriptions(): void {
     status: "failure",
     errorMessage: e.message,
     output: { latencyMs: e.latencyMs, healthy: e.healthy },
+  }));
+}
+
+// ─── Documents ────────────────────────────────────────────────────────────────
+
+function registerDocumentSubscriptions(): void {
+  auditService.autoLog("document.created", (e) => ({
+    module: "documents",
+    action: "document.created",
+    entityType: "Document",
+    entityId: e.documentId,
+    ...actorFrom(e),
+    status: "success",
+    output: { sourceConnectionId: e.sourceConnectionId, externalId: e.externalId },
+  }));
+
+  auditService.autoLog("document.updated", (e) => ({
+    module: "documents",
+    action: "document.updated",
+    entityType: "Document",
+    entityId: e.documentId,
+    ...actorFrom(e),
+    status: "success",
+    output: { sourceConnectionId: e.sourceConnectionId },
+  }));
+
+  auditService.autoLog("document.linked", (e) => ({
+    module: "documents",
+    action: "document.linked",
+    entityType: "Document",
+    entityId: e.documentId,
+    ...actorFrom(e),
+    status: "success",
+    output: { title: e.title },
+  }));
+
+  auditService.autoLog("document.uploaded", (e) => ({
+    module: "documents",
+    action: "document.uploaded",
+    entityType: "Document",
+    entityId: e.documentId,
+    ...actorFrom(e),
+    status: "success",
+    output: { title: e.title },
+  }));
+}
+
+// ─── Invoices ─────────────────────────────────────────────────────────────────
+
+function registerInvoiceSubscriptions(): void {
+  auditService.autoLog("invoice.created", (e) => ({
+    module: "invoices",
+    action: "invoice.created",
+    entityType: "Invoice",
+    entityId: e.invoiceId,
+    ...actorFrom(e),
+    status: "success",
+    output: { issuer: e.issuer, amount: e.amount, currency: e.currency },
+  }));
+
+  auditService.autoLog("invoice.paid", (e) => ({
+    module: "invoices",
+    action: "invoice.paid",
+    entityType: "Invoice",
+    entityId: e.invoiceId,
+    ...actorFrom(e),
+    status: "success",
+    output: { issuer: e.issuer, amount: e.amount },
+  }));
+
+  auditService.autoLog("invoice.overdue", (e) => ({
+    module: "invoices",
+    action: "invoice.overdue",
+    entityType: "Invoice",
+    entityId: e.invoiceId,
+    ...actorFrom(e),
+    status: "success",
+    output: { issuer: e.issuer, amount: e.amount },
+  }));
+
+  auditService.autoLog("invoice.anomaly_detected", (e) => ({
+    module: "invoices",
+    action: "invoice.anomaly_detected",
+    entityType: "Invoice",
+    entityId: e.invoiceId,
+    ...actorFrom(e),
+    status: "success",
+    output: { issuer: e.issuer, anomalyReason: e.anomalyReason },
+  }));
+}
+
+// ─── Finance ──────────────────────────────────────────────────────────────────
+
+function registerFinanceSubscriptions(): void {
+  auditService.autoLog("finance.entry.created", (e) => ({
+    module: "finance",
+    action: "entry.created",
+    entityType: "FinancialEntry",
+    entityId: e.entryId,
+    ...actorFrom(e),
+    status: "success",
+    output: { type: e.type, amount: e.amount, currency: e.currency },
+  }));
+
+  auditService.autoLog("finance.anomaly.detected", (e) => ({
+    module: "finance",
+    action: "anomaly.detected",
+    entityType: "FinancialEntry",
+    entityId: e.entryId,
+    ...actorFrom(e),
+    status: "success",
+    output: { anomalyReason: e.anomalyReason },
+  }));
+}
+
+// ─── Home ─────────────────────────────────────────────────────────────────────
+
+function registerHomeSubscriptions(): void {
+  auditService.autoLog("home.event.received", (e) => ({
+    module: "home",
+    action: "event.received",
+    entityType: "HomeEvent",
+    entityId: e.entityId,
+    ...actorFrom(e),
+    status: "success",
+    output: { eventType: e.eventType, severity: e.severity, state: e.state },
+  }));
+}
+
+// ─── Ideas ────────────────────────────────────────────────────────────────────
+
+function registerIdeaSubscriptions(): void {
+  auditService.autoLog("idea.created", (e) => ({
+    module: "ideas",
+    action: "idea.created",
+    entityType: "Idea",
+    entityId: e.ideaId,
+    ...actorFrom(e),
+    status: "success",
+    input: { title: e.title },
+  }));
+
+  auditService.autoLog("idea.promoted", (e) => ({
+    module: "ideas",
+    action: "idea.promoted",
+    entityType: "Idea",
+    entityId: e.ideaId,
+    ...actorFrom(e),
+    status: "success",
+    output: { targetModule: e.targetModule, targetEntityId: e.targetEntityId },
   }));
 }
