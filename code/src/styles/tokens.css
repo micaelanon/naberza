@@ -26,11 +26,22 @@
   /* Semantic */
   --color-warning: #95683c;
   --color-warning-soft: rgba(149, 104, 60, 0.12);
+  --color-warning-bg: #fffbeb;
+  --color-warning-text: #b45309;
   --color-success: #55735b;
+  --color-success-soft: rgba(85, 115, 91, 0.12);
+  --color-success-bg: #f0fdf4;
+  --color-success-text: #166534;
   --color-error: #a64a4a;
   --color-error-soft: rgba(166, 74, 74, 0.12);
+  --color-error-bg: #fef2f2;
+  --color-error-text: #c0392b;
 
-  /* Sidebar */
+  /* Neutral utility colors */
+  --color-white: #fff;
+  --color-neutral-bg-light: #f5f5f5;
+
+
   --color-sidebar-bg: #f5f3f6;
   --color-sidebar-text: #686765;
   --color-sidebar-text-active: #485422;
