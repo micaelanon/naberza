@@ -2,13 +2,21 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { IdeasRepository } from "@/modules/ideas/ideas.repository";
 import { IdeasService } from "@/modules/ideas/ideas.service";
+import type { IdeaStatus } from "@/modules/ideas";
 
 const repository = new IdeasRepository();
 const service = new IdeasService(repository);
 
+const VALID_STATUSES = new Set<IdeaStatus>(["CAPTURED", "REVIEWED", "PROMOTED", "ARCHIVED"]);
+
+function parseStatus(raw: string | null): IdeaStatus | undefined {
+  if (raw && VALID_STATUSES.has(raw as IdeaStatus)) return raw as IdeaStatus;
+  return undefined;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const status = searchParams.get("status") ?? undefined;
+  const status = parseStatus(searchParams.get("status"));
   const search = searchParams.get("search") ?? undefined;
   const tags = searchParams.getAll("tags");
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "50", 10), 100);
@@ -16,7 +24,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const result = await service.listIdeas({
-      status: (status as any), // eslint-disable-line @typescript-eslint/no-explicit-any
+      status,
       search,
       tags: tags.length > 0 ? tags : undefined,
       limit,
@@ -61,16 +69,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ data: idea }, { status: 201 });
   } catch (error) {
     console.error("[Ideas API] POST /ideas/api:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
-
-export async function GET_TAGS() {
-  try {
-    const tags = await service.getAllTags();
-    return NextResponse.json({ data: tags });
-  } catch (error) {
-    console.error("[Ideas API] GET /ideas/api/tags:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
