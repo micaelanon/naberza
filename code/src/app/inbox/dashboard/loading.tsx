@@ -1,0 +1,7 @@
+export default function InboxLoading() {
+  return (
+    <div className="page-loading">
+      <p>Loading inbox...</p>
+    </div>
+  );
+}
