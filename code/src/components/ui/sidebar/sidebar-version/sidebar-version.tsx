@@ -1,11 +1,9 @@
-import { getAppVersion } from "@/lib/app-version";
+import type { SidebarVersionProps } from "../utils/types";
 
-export default function SidebarVersion() {
-  const version = getAppVersion();
-
+export default function SidebarVersion({ versionLabel }: SidebarVersionProps) {
   return (
     <div className="sidebar__version">
-      <span className="sidebar__version-label">v{version}</span>
+      <span className="sidebar__version-label">{versionLabel}</span>
     </div>
   );
 }

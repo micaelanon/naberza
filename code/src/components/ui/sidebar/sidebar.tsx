@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { SidebarProps } from "./utils/types";
 import { SidebarVersion } from "./sidebar-version";
 import "./sidebar.css";
 
@@ -23,7 +24,7 @@ const BOTTOM_ITEMS = [
   { id: "users", label: "Ajustes", icon: "settings", href: "/users/dashboard" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ versionLabel }: SidebarProps) {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
@@ -70,7 +71,7 @@ export default function Sidebar() {
         ))}
       </ul>
 
-      <SidebarVersion />
+      <SidebarVersion versionLabel={versionLabel} />
     </nav>
   );
 }
