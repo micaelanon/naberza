@@ -1,1 +1,1 @@
-export { default as DashboardGrid } from "./dashboard-grid";
+export { default } from "./dashboard-grid";

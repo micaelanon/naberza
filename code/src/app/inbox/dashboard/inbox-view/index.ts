@@ -1,1 +1,1 @@
-export { default as InboxView } from './inbox-view';
+export { default } from './inbox-view';

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { HomeView } from '.';
+import HomeView from '.';
 
 export const metadata = {
   title: 'Home | Naberza OS',

@@ -1,1 +1,1 @@
-export { default as AutomationsView } from './automations-view';
+export { default } from './automations-view';

@@ -1,1 +1,1 @@
-export { default as IdeasView } from './ideas-view';
+export { default } from './ideas-view';

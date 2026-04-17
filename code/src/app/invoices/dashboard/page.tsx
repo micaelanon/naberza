@@ -1,5 +1,5 @@
 'use client';
 
-import { InvoicesView } from './invoices-view';
+import InvoicesView from './invoices-view';
 
 export default InvoicesView;

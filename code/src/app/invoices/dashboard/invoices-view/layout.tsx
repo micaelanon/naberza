@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { InvoicesView } from '.';
+import InvoicesView from '.';
 
 export const metadata = {
   title: 'Invoices | Naberza OS',

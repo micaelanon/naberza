@@ -1,5 +1,5 @@
 'use client';
 
-import { InboxView } from './inbox-view';
+import InboxView from './inbox-view';
 
 export default InboxView;

@@ -1,5 +1,5 @@
 'use client';
 
-import { IdeasView } from './ideas-view';
+import IdeasView from './ideas-view';
 
 export default IdeasView;
