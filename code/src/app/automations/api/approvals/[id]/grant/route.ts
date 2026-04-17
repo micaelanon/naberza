@@ -1,0 +1,21 @@
+import { NextResponse } from "next/server";
+import { AutomationRepository } from "@/modules/automations/automation.repository";
+import { AutomationService } from "@/modules/automations/automation.service";
+
+const repository = new AutomationRepository();
+const service = new AutomationService(repository);
+
+export async function POST(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  try {
+    const approval = await service.grantApproval(id);
+    if (!approval) return NextResponse.json({ error: "Approval not found or already decided" }, { status: 404 });
+    return NextResponse.json({ data: approval });
+  } catch (error) {
+    console.error("[Automations API] POST /automations/api/approvals/[id]/grant:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
