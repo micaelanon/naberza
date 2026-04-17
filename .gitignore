@@ -20,3 +20,6 @@ build
 Thumbs.db
 .env
 LOCAL-DEV-QUICK-START.sh
+
+# Local AI progress tracking
+.local/
