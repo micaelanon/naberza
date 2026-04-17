@@ -1,9 +1,17 @@
 import { InboxRepository } from "@/modules/inbox/inbox.repository";
 import { TaskRepository } from "@/modules/tasks/task.repository";
+import { DocumentRepository } from "@/modules/documents/document.repository";
+import { InvoiceRepository } from "@/modules/invoices/invoice.repository";
+import { HomeRepository } from "@/modules/home/home.repository";
 import type { DashboardStats, DashboardLayout } from "./dashboard.types";
 
 const inboxRepo = new InboxRepository();
 const taskRepo = new TaskRepository();
+const documentRepo = new DocumentRepository();
+const invoiceRepo = new InvoiceRepository();
+const homeRepo = new HomeRepository();
+
+const DOCUMENTS_RECENT_DAYS = 7;
 
 export async function getDashboardStats(): Promise<DashboardStats> {
   const today = new Date();
@@ -11,24 +19,31 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const [inboxResult, tasksResult, tasksDueResult] = await Promise.all([
-    inboxRepo.findAll({ status: "PENDING", pageSize: 1 }),
-    taskRepo.findAll({ status: "PENDING", pageSize: 1 }),
-    taskRepo.findAll({
-      status: "PENDING",
-      dueAfter: today,
-      dueBefore: tomorrow,
-      pageSize: 1,
-    }),
-  ]);
+  const recentDocsFrom = new Date(today);
+  recentDocsFrom.setDate(recentDocsFrom.getDate() - DOCUMENTS_RECENT_DAYS);
+
+  const [inboxResult, tasksResult, tasksDueResult, documentsCount, invoicesCount, homeAlertsCount] =
+    await Promise.all([
+      inboxRepo.findAll({ status: "PENDING", pageSize: 1 }),
+      taskRepo.findAll({ status: "PENDING", pageSize: 1 }),
+      taskRepo.findAll({
+        status: "PENDING",
+        dueAfter: today,
+        dueBefore: tomorrow,
+        pageSize: 1,
+      }),
+      documentRepo.count(),
+      invoiceRepo.count({ status: "PENDING" }),
+      homeRepo.count({ severity: "WARNING" }),
+    ]);
 
   return {
     inboxPending: inboxResult.total,
     tasksPending: tasksResult.total,
     tasksDueToday: tasksDueResult.total,
-    documentsRecent: 0,
-    invoicesUnpaid: 0,
-    homeAlerts: 0,
+    documentsRecent: documentsCount,
+    invoicesUnpaid: invoicesCount,
+    homeAlerts: homeAlertsCount,
   };
 }
 
