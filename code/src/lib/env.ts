@@ -14,4 +14,14 @@ export const env = {
   authAdminPassword: process.env.AUTH_ADMIN_PASSWORD,
   // API base URL — client safe
   apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api",
+  // Notification — Telegram
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
+  telegramDefaultChatId: process.env.TELEGRAM_DEFAULT_CHAT_ID,
+  // Notification — SMTP (email)
+  smtpHost: process.env.SMTP_HOST,
+  smtpPort: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
+  smtpUser: process.env.SMTP_USER,
+  smtpPassword: process.env.SMTP_PASSWORD,
+  smtpFromAddress: process.env.SMTP_FROM_ADDRESS ?? "naberza@localhost",
+  smtpDefaultTo: process.env.SMTP_DEFAULT_TO,
 } as const;
