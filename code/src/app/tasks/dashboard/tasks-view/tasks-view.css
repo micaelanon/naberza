@@ -63,7 +63,7 @@
 }
 
 .tasks-view__error {
-  color: #c0392b;
+  color: var(--color-error-text);
 }
 
 .tasks-view__empty {
@@ -100,8 +100,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: #fff;
-  border: 1px solid var(--color-border, #e5e5e5);
+  background: var(--color-white);
+  border: 1px solid var(--color-border-strong);
   border-radius: 8px;
   transition: border-color 0.15s;
 }
@@ -148,18 +148,18 @@
 }
 
 .task-item__priority--high {
-  background: #fef2f2;
-  color: #c0392b;
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
 }
 
 .task-item__priority--medium {
-  background: #fffbeb;
-  color: #b45309;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .task-item__priority--low {
-  background: #f0fdf4;
-  color: #166534;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
 }
 
 .task-item__title {
@@ -219,22 +219,22 @@
 }
 
 .task-item__btn--complete {
-  color: #166534;
+  color: var(--color-success-text);
 }
 
 .task-item__btn--complete:hover {
-  background: #f0fdf4;
-  border-color: #166534;
+  background: var(--color-success-bg);
+  border-color: var(--color-success-text);
 }
 
 .task-item__btn--cancel {
-  color: #888;
+  color: var(--color-text-secondary);
 }
 
 .task-item__btn--cancel:hover {
-  background: #fef2f2;
-  color: #c0392b;
-  border-color: #c0392b;
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border-color: var(--color-error-text);
 }
 
 .task-item__status-badge {

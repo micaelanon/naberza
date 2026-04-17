@@ -49,7 +49,7 @@
 .login-form__submit {
   padding: var(--size-12) var(--size-24);
   background: var(--color-brand);
-  color: #fff;
+  color: var(--color-white);
   border: none;
   border-radius: var(--radius-s);
   font-size: 15px;
