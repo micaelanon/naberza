@@ -1,52 +1,138 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { FinanceEntrySummary } from "@/modules/finance";
+
+type EntryType = "EXPENSE" | "INCOME" | "BALANCE_SNAPSHOT" | "RECURRING_CHARGE";
+
+const TYPE_LABELS: Record<string, string> = {
+  EXPENSE: "Gasto",
+  INCOME: "Ingreso",
+  BALANCE_SNAPSHOT: "Saldo",
+  RECURRING_CHARGE: "Recurrente",
+};
+
+// ─── Create form ──────────────────────────────────────────────────────────────
+
+function FinanceCreateForm({ onCreated, onCancel }: {
+  onCreated: () => void;
+  onCancel: () => void;
+}): ReactNode {
+  const [type, setType] = useState<EntryType>("EXPENSE");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!amount) { setError("El importe es obligatorio"); return; }
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/finance/api", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          amount: parseFloat(amount),
+          description: description.trim() || undefined,
+          category: category.trim() || undefined,
+          date,
+        }),
+      });
+      if (!res.ok) throw new Error("Error al crear el movimiento");
+      setAmount(""); setDescription(""); setCategory("");
+      onCreated();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form className="finance-form" onSubmit={(e) => void handleSubmit(e)}>
+      <div className="form-row">
+        <select className="form-select" value={type} onChange={(e) => setType(e.target.value as EntryType)}>
+          <option value="EXPENSE">Gasto</option>
+          <option value="INCOME">Ingreso</option>
+          <option value="RECURRING_CHARGE">Cargo recurrente</option>
+          <option value="BALANCE_SNAPSHOT">Snapshot de saldo</option>
+        </select>
+        <input className="form-input form-input--short" type="number" step="0.01" placeholder="Importe (€)" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
+        <input className="form-input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+      </div>
+      <input className="form-input" type="text" placeholder="Descripción" value={description} onChange={(e) => setDescription(e.target.value)} />
+      <input className="form-input" type="text" placeholder="Categoría (ej: Transporte, Comida)" value={category} onChange={(e) => setCategory(e.target.value)} />
+      {error && <p className="form-error">{error}</p>}
+      <div className="form-actions">
+        <button className="form-btn form-btn--save" type="submit" disabled={saving}>{saving ? "Guardando..." : "Registrar"}</button>
+        <button className="form-btn form-btn--cancel" type="button" onClick={onCancel}>Cancelar</button>
+      </div>
+    </form>
+  );
+}
+
+// ─── List ─────────────────────────────────────────────────────────────────────
+
+function EntryList({ entries }: { entries: FinanceEntrySummary[] }): ReactNode {
+  return (
+    <ul className="page-list">
+      {entries.map((entry) => (
+        <li key={entry.id} className="page-list-item">
+          <span className={`page-badge page-badge--${entry.type.toLowerCase()}`}>{TYPE_LABELS[entry.type] ?? entry.type}</span>
+          <span className="page-amount">{Number(entry.amount).toFixed(2)} €</span>
+          {entry.description && <span>{entry.description}</span>}
+          {entry.category && <span className="page-tags">{entry.category}</span>}
+          <time>{new Date(entry.date).toLocaleDateString("es-ES")}</time>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ─── Main view ────────────────────────────────────────────────────────────────
 
 export default function FinanceView(): ReactNode {
   const [entries, setEntries] = useState<FinanceEntrySummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    fetch("/finance/api")
-      .then((res) => res.json())
-      .then((body: { data: FinanceEntrySummary[]; total: number }) => {
-        setEntries(body.data);
-        setTotal(body.total);
-      })
-      .catch(() => setError("Failed to load finance entries"))
-      .finally(() => setLoading(false));
+  const fetchEntries = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/finance/api");
+      const body = (await res.json()) as { data: FinanceEntrySummary[]; total: number };
+      setEntries(body.data);
+      setTotal(body.total);
+    } catch {
+      setError("Error al cargar movimientos");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { void fetchEntries(); }, [fetchEntries]);
 
   if (loading) return null;
   if (error) return <p className="page-error">{error}</p>;
 
   return (
     <div className="page-container">
-      <h1>Finance <span className="count">({total})</span></h1>
-      {entries.length === 0 ? (
-        <p className="page-empty">No finance entries yet.</p>
-      ) : (
-        <ul className="finance-list">
-          {entries.map((entry) => (
-            <li key={entry.id} className="finance-item">
-              <span className={`finance-item__type finance-item__type--${entry.type.toLowerCase()}`}>
-                {entry.type}
-              </span>
-              <span className="finance-item__amount">{entry.amount} {entry.currency}</span>
-              {entry.category && (
-                <span className="finance-item__category">{entry.category}</span>
-              )}
-              {entry.isAnomaly && (
-                <span className="finance-item__anomaly">⚠ anomaly</span>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="page-header">
+        <h1>Finanzas <span className="count">({total})</span></h1>
+        <button className="page-add-btn" onClick={() => setShowForm(!showForm)}>{showForm ? "✕" : "+ Nuevo movimiento"}</button>
+      </div>
+      {showForm && <FinanceCreateForm onCreated={() => { setShowForm(false); void fetchEntries(); }} onCancel={() => setShowForm(false)} />}
+      {entries.length === 0
+        ? <p className="page-empty">No hay movimientos. Haz clic en &quot;+ Nuevo movimiento&quot; para registrar uno.</p>
+        : <EntryList entries={entries} />}
     </div>
   );
 }
