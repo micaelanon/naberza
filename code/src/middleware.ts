@@ -1,6 +1,19 @@
 import { withAuth } from "next-auth/middleware";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { applySecurityHeaders, validateOrigin } from "@/lib/security";
 
-export default withAuth({
+function middleware(request: NextRequest) {
+  // CSRF origin validation for state-changing requests
+  const csrfError = validateOrigin(request);
+  if (csrfError) return applySecurityHeaders(csrfError);
+
+  // Default: pass through (withAuth handles redirect below)
+  const response = NextResponse.next();
+  return applySecurityHeaders(response);
+}
+
+export default withAuth(middleware, {
   pages: {
     signIn: "/login",
   },
@@ -9,6 +22,6 @@ export default withAuth({
 export const config = {
   // Protect all routes except public ones
   matcher: [
-    "/((?!login|api/auth|_next/static|_next/image|favicon\\.ico|favicon\\.svg).*)",
+    "/((?!login|api/auth|api/health|_next/static|_next/image|favicon\\.ico|favicon\\.svg).*)",
   ],
 };
