@@ -1,1 +1,1 @@
-export { default as TasksView } from './tasks-view';
+export { default } from './tasks-view';

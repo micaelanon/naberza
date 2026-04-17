@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { InboxView } from '.';
+import InboxView from '.';
 
 export const metadata = {
   title: 'Inbox | Naberza OS',

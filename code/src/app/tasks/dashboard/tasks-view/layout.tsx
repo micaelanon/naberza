@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { TasksView } from '.';
+import TasksView from '.';
 
 export const metadata = {
   title: 'Tasks | Naberza OS',

@@ -1,3 +1,3 @@
-import { AuditView } from './audit-view';
+import AuditView from './audit-view';
 
 export default AuditView;

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { IntegrationsView } from '.';
+import IntegrationsView from '.';
 
 export const metadata = {
   title: 'Integrations | Naberza OS',

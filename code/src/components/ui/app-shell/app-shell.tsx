@@ -1,5 +1,5 @@
-import { Sidebar } from "@/components/ui/sidebar";
-import { Topbar } from "@/components/ui/topbar";
+import Sidebar from "@/components/ui/sidebar";
+import Topbar from "@/components/ui/topbar";
 import "./app-shell.css";
 
 interface AppShellProps {

@@ -1,6 +1,6 @@
 // Shared UI components barrel
-export { Sidebar } from "./sidebar";
-export { Topbar } from "./topbar";
-export { AppShell } from "./app-shell";
+export { default as Sidebar } from "./sidebar";
+export { default as Topbar } from "./topbar";
+export { default as AppShell } from "./app-shell";
 // Pure presentational components live in subdirectories here
 // e.g.: import Button from "@/components/ui/button"

@@ -1,1 +1,1 @@
-export { default as InvoicesView } from './invoices-view';
+export { default } from './invoices-view';

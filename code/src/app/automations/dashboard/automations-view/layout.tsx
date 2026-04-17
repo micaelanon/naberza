@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { AutomationsView } from '.';
+import AutomationsView from '.';
 
 export const metadata = {
   title: 'Automations | Naberza OS',

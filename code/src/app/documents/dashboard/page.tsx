@@ -1,5 +1,5 @@
 'use client';
 
-import { DocumentsView } from './documents-view';
+import DocumentsView from './documents-view';
 
 export default DocumentsView;

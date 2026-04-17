@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { SettingsView } from '.';
+import SettingsView from '.';
 
 export const metadata = {
   title: 'Settings | Naberza OS',
