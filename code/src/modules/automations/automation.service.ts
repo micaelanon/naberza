@@ -2,6 +2,7 @@ import { eventBus } from "@/lib/events";
 import type { DomainEventName } from "@/lib/events";
 import type { AutomationRepository } from "./automation.repository";
 import { AutomationRepository as Repo } from "./automation.repository";
+import { dispatchAction } from "./action-dispatcher";
 import type {
   AutomationRule,
   ApprovalRequest,
@@ -12,7 +13,6 @@ import type {
   ListAutomationRulesOptions,
   ListApprovalRequestsOptions,
   RuleCondition,
-  RuleAction,
   RuleEvaluationContext,
   RuleEvaluationResult,
   ActionExecutionResult,
@@ -215,7 +215,7 @@ export class AutomationService {
     const results: ActionExecutionResult[] = [];
 
     for (const action of actions) {
-      const result = await this.executeAction(action, payload);
+      const result = await dispatchAction(action, payload);
       results.push(result);
     }
 
@@ -232,23 +232,6 @@ export class AutomationService {
     });
 
     return results;
-  }
-
-  private async executeAction(
-    action: RuleAction,
-    payload: Record<string, unknown>,
-  ): Promise<ActionExecutionResult> {
-    try {
-      // Action execution is delegated to specific handlers in Phase 5 sub-tasks.
-      // For now, we log the intent and return success — real dispatchers
-      // will be wired in P5-03 (rule engine handlers).
-      console.info(`[AutomationService] Executing action: ${action.type}`, action.params, { payload });
-      return { action, success: true };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown error";
-      console.error(`[AutomationService] Action failed: ${action.type}`, error);
-      return { action, success: false, error: message };
-    }
   }
 
   // ─── Approval CRUD ────────────────────────────────────────────────────────────
