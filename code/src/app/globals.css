@@ -29,3 +29,89 @@ textarea,
 select {
   font: inherit;
 }
+
+/* ─── Shared form styles (P7-01) ──────────────────────────────────────── */
+
+.page-container { max-width: 900px; }
+.page-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem; }
+.page-header h1 { font-size: 1.75rem; font-weight: 700; margin: 0; }
+.count { font-size: 0.875rem; color: var(--color-text-muted, #888); font-weight: 400; }
+.page-add-btn {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background: var(--color-olive, #606c38);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.page-add-btn:hover { background: var(--color-olive-dark, #4a5428); }
+.page-empty { color: var(--color-text-muted, #888); font-size: 0.9rem; }
+.page-error { color: var(--color-error, #d32f2f); }
+
+.page-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.page-list-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface, #fafaf7);
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+.page-badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-border, #e5e5e5);
+}
+.page-badge--pending { background: #fff3cd; color: #856404; }
+.page-badge--paid { background: #d4edda; color: #155724; }
+.page-badge--overdue { background: #f8d7da; color: #721c24; }
+.page-badge--expense { background: #f8d7da; color: #721c24; }
+.page-badge--income { background: #d4edda; color: #155724; }
+.page-badge--recurring_charge { background: #fff3cd; color: #856404; }
+.page-amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+.page-tags { color: var(--color-text-muted, #888); font-size: 0.8rem; }
+
+/* ─── Shared form components ────────────────────────────────────────── */
+
+.form-row { display: flex; gap: 0.5rem; align-items: center; }
+.form-label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8rem; color: var(--color-text-muted, #888); }
+.form-input, .form-textarea, .form-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: white;
+}
+.form-input:focus, .form-textarea:focus { outline: none; border-color: var(--color-olive, #606c38); }
+.form-input--short { max-width: 150px; }
+.form-textarea { resize: vertical; min-height: 60px; }
+.form-error { color: var(--color-error, #d32f2f); font-size: 0.8rem; margin: 0; }
+.form-actions { display: flex; gap: 0.5rem; }
+.form-btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+.form-btn--save { background: var(--color-olive, #606c38); color: white; }
+.form-btn--save:hover { background: var(--color-olive-dark, #4a5428); }
+.form-btn--save:disabled { opacity: 0.6; cursor: not-allowed; }
+.form-btn--cancel { background: var(--color-border, #e5e5e5); }
+
+.idea-form, .invoice-form, .finance-form {
+  display: flex; flex-direction: column; gap: 0.75rem;
+  padding: 1.25rem;
+  background: var(--color-surface, #fafaf7);
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.idea-form__input, .idea-form__textarea { padding: 0.5rem 0.75rem; border: 1px solid var(--color-border, #e5e5e5); border-radius: 6px; font-size: 0.875rem; font-family: inherit; background: white; }
+.idea-form__input:focus, .idea-form__textarea:focus { outline: none; border-color: var(--color-olive, #606c38); }
+.idea-form__textarea { resize: vertical; min-height: 60px; }
+.idea-form__error { color: var(--color-error, #d32f2f); font-size: 0.8rem; margin: 0; }
+.idea-form__actions { display: flex; gap: 0.5rem; }
+.idea-form__btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+.idea-form__btn--save { background: var(--color-olive, #606c38); color: white; }
+.idea-form__btn--cancel { background: var(--color-border, #e5e5e5); }

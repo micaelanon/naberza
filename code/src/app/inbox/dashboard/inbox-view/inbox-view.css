@@ -196,3 +196,86 @@
   color: var(--color-error-text);
   background: var(--color-error-bg);
 }
+
+/* ─── Create form ────────────────────────────────────────────────────────── */
+
+.inbox-view__add-btn {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background: var(--color-olive, #606c38);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.inbox-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: var(--color-surface, #fafaf7);
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 8px;
+}
+
+.inbox-form__input,
+.inbox-form__textarea {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: white;
+}
+
+.inbox-form__input:focus,
+.inbox-form__textarea:focus {
+  outline: none;
+  border-color: var(--color-olive, #606c38);
+}
+
+.inbox-form__textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.inbox-form__row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.inbox-form__select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: white;
+}
+
+.inbox-form__btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.inbox-form__btn--save {
+  background: var(--color-olive, #606c38);
+  color: white;
+}
+
+.inbox-form__btn--cancel {
+  background: var(--color-border, #e5e5e5);
+}
+
+.inbox-form__error {
+  color: var(--color-error, #d32f2f);
+  font-size: 0.8rem;
+  margin: 0;
+}
