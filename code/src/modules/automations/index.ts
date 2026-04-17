@@ -1,5 +1,6 @@
 export { AutomationRepository } from "./automation.repository";
 export { AutomationService } from "./automation.service";
+export { registerAutomationSubscriptions } from "./automation-subscriptions";
 export type {
   ApprovalStatus,
   AutomationRule,
