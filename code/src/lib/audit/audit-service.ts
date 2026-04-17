@@ -2,7 +2,7 @@ import { eventBus } from "@/lib/events";
 import type { DomainEventName, DomainEventPayload, BaseEvent } from "@/lib/events";
 
 import type { AuditStore } from "./audit-store";
-import { PrismaAuditStore } from "./audit-store";
+import { InMemoryAuditStore, PrismaAuditStore } from "./audit-store";
 import type { AuditActor, AuditQueryParams, AuditQueryResult, CreateAuditEntry, AuditEntry } from "./audit-types";
 
 /**
@@ -18,7 +18,7 @@ class AuditService {
   private store: AuditStore;
 
   constructor(store?: AuditStore) {
-    this.store = store ?? new PrismaAuditStore();
+    this.store = store ?? (process.env.NODE_ENV === "test" ? new InMemoryAuditStore() : new PrismaAuditStore());
   }
 
   /**
