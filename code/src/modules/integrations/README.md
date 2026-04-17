@@ -1,14 +1,13 @@
 # Integrations Module
 
 ## Purpose
-Adapter registry and lifecycle management for external services.
+Provider contracts and integration-facing shared types for external services.
 
-## Phase Implementation
-- Phase 0 (now): Adapter stubs and provider interfaces
-- Phase 2+: Concrete adapters for Paperless, HA, Mail, Notifications
+## Current State
+- Provider interfaces live in `src/modules/integrations/providers`
+- Concrete adapters are implemented in `src/lib/adapters`
 
 ## TODO
-- [ ] Adapter registry
-- [ ] Provider interfaces
-- [ ] Health check logic
-- [ ] Adapter lifecycle management
+- [ ] Adapter registry orchestration
+- [ ] Health check lifecycle policies
+- [ ] Integration lifecycle management
