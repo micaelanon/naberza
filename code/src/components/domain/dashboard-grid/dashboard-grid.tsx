@@ -1,13 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import type { DashboardTile } from "@/lib/dashboard";
+import type { DashboardGridProps } from "./utils/types";
 import "./dashboard-grid.css";
-
-interface DashboardGridProps {
-  tiles: DashboardTile[];
-  variant?: "primary" | "secondary";
-}
 
 export default function DashboardGrid({ tiles, variant = "primary" }: DashboardGridProps) {
   return (

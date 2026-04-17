@@ -1,11 +1,7 @@
+import type { AppShellProps } from "./utils/types";
 import Sidebar from "@/components/ui/sidebar";
 import Topbar from "@/components/ui/topbar";
 import "./app-shell.css";
-
-interface AppShellProps {
-  children: React.ReactNode;
-  title: string;
-}
 
 export default function AppShell({ children, title }: AppShellProps) {
   return (

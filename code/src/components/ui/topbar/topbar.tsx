@@ -1,10 +1,7 @@
 import { getServerSession } from "next-auth";
+import type { TopbarProps } from "./utils/types";
 import { authOptions } from "@/lib/auth";
 import "./topbar.css";
-
-interface TopbarProps {
-  title: string;
-}
 
 export default async function Topbar({ title }: TopbarProps) {
   const session = await getServerSession(authOptions);
