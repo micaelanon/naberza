@@ -14,6 +14,8 @@ export interface DomainEventMap {
   "task.overdue": TaskEvent;
 
   // Document events
+  "document.created": DocumentCreatedEvent;
+  "document.updated": DocumentUpdatedEvent;
   "document.linked": DocumentEvent;
   "document.uploaded": DocumentEvent;
 
@@ -91,6 +93,17 @@ export interface TaskEvent extends BaseEvent {
 }
 
 // Document
+export interface DocumentCreatedEvent extends BaseEvent {
+  documentId: string;
+  sourceConnectionId: string;
+  externalId: string;
+}
+
+export interface DocumentUpdatedEvent extends BaseEvent {
+  documentId: string;
+  sourceConnectionId: string;
+}
+
 export interface DocumentEvent extends BaseEvent {
   documentId: string;
   title: string;
