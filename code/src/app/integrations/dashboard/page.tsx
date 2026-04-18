@@ -1,5 +1,5 @@
-'use client';
+import IntegrationsView from './integrations-view/integrations-view';
 
-import IntegrationsView from './integrations-view';
-
-export default IntegrationsView;
+export default function IntegrationsPage() {
+  return <IntegrationsView />;
+}
