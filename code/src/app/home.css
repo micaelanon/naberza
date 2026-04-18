@@ -2,6 +2,61 @@
   max-width: 1100px;
 }
 
+/* ─── Welcome + greeting ────────────────────────────────────── */
+
+.home-page__welcome {
+  margin-bottom: var(--size-40);
+}
+
+.home-page__greeting {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--size-16);
+  letter-spacing: -0.02em;
+}
+
+/* ─── Stats bar ──────────────────────────────────────────────── */
+
+.stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.stats-bar__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.4rem 0.875rem;
+  background: var(--color-surface, #fafaf7);
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: var(--radius-pill, 999px);
+  font-size: 0.875rem;
+}
+
+.stats-bar__item--urgent {
+  background: #fef3cd;
+  border-color: #f5c842;
+}
+
+.stats-bar__value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.stats-bar__item--urgent .stats-bar__value {
+  color: #856404;
+}
+
+.stats-bar__label {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
 .home-page__section {
   margin-bottom: var(--size-40);
 }

@@ -11,9 +11,12 @@ export interface DashboardStats {
   inboxPending: number;
   tasksPending: number;
   tasksDueToday: number;
-  documentsRecent: number;
+  documentsTotal: number;
   invoicesUnpaid: number;
   homeAlerts: number;
+  ideasCaptured: number;
+  approvalsPending: number;
+  financeAnomalies: number;
 }
 
 export interface DashboardLayout {
