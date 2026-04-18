@@ -95,4 +95,10 @@ export class InvoiceService {
     );
     return overdue.length;
   }
+
+  async deleteInvoice(id: string): Promise<void> {
+    const existing = await this.repository.findById(id);
+    if (!existing) throw new Error(`Invoice not found: ${id}`);
+    await this.repository.delete(id);
+  }
 }

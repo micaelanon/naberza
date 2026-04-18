@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { Task, TaskStatus, Priority, TaskKind } from "@/modules/tasks/task.types";
 import { useFormSubmit } from "@/hooks";
+import { ConfirmDeleteModal } from "@/components/ui";
 import "./tasks-view.css";
 
 type StatusTab = "ALL" | TaskStatus;
@@ -215,12 +216,13 @@ function TaskEditForm({ task, onSaved, onCancel }: { task: Task; onSaved: () => 
 
 // ─── Task item actions ───────────────────────────────────────────────────────
 
-function TaskItemActions({ task, isActive, onEdit, onComplete, onCancel }: {
+function TaskItemActions({ task, isActive, onEdit, onComplete, onCancel, onDelete }: {
   task: Task;
   isActive: boolean;
   onEdit: () => void;
   onComplete: (id: string) => void;
   onCancel: (id: string) => void;
+  onDelete: () => void;
 }): ReactNode {
   return (
     <div className="task-item__actions">
@@ -229,6 +231,9 @@ function TaskItemActions({ task, isActive, onEdit, onComplete, onCancel }: {
           {new Date(task.dueAt).toLocaleDateString("es-ES")}
         </time>
       )}
+      <button className="task-item__btn task-item__btn--delete" onClick={onDelete} title="Eliminar">
+        <span className="material-symbols-outlined">delete</span>
+      </button>
       {isActive ? (
         <>
           <button className="task-item__btn task-item__btn--edit" onClick={onEdit} title="Editar">✎</button>
@@ -244,14 +249,25 @@ function TaskItemActions({ task, isActive, onEdit, onComplete, onCancel }: {
 
 // ─── Task list item ───────────────────────────────────────────────────────────
 
-function TaskListItem({ task, onComplete, onCancel, onEdited }: {
+function TaskListItem({ task, onComplete, onCancel, onEdited, onDeleted }: {
   task: Task;
   onComplete: (id: string) => void;
   onCancel: (id: string) => void;
   onEdited: () => void;
+  onDeleted: () => void;
 }): ReactNode {
   const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const isActive = task.status === "PENDING" || task.status === "IN_PROGRESS";
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await fetch(`/tasks/api/${task.id}`, { method: "DELETE" });
+    setDeleting(false);
+    setConfirmDelete(false);
+    onDeleted();
+  };
 
   if (editing) {
     return (
@@ -263,6 +279,13 @@ function TaskListItem({ task, onComplete, onCancel, onEdited }: {
 
   return (
     <li className={`task-item task-item--${task.status.toLowerCase()}`}>
+      <ConfirmDeleteModal
+        isOpen={confirmDelete}
+        itemName={task.title}
+        onConfirm={() => void handleDelete()}
+        onCancel={() => setConfirmDelete(false)}
+        deleting={deleting}
+      />
       <div className="task-item__main">
         <div className="task-item__meta-top">
           <span className="task-item__kind">{KIND_LABELS[task.kind] ?? task.kind}</span>
@@ -282,16 +305,16 @@ function TaskListItem({ task, onComplete, onCancel, onEdited }: {
           </div>
         )}
       </div>
-      <TaskItemActions task={task} isActive={isActive} onEdit={() => setEditing(true)} onComplete={onComplete} onCancel={onCancel} />
+      <TaskItemActions task={task} isActive={isActive} onEdit={() => setEditing(true)} onComplete={onComplete} onCancel={onCancel} onDelete={() => setConfirmDelete(true)} />
     </li>
   );
 }
 
 // ─── Content area ─────────────────────────────────────────────────────────────
 
-function TasksContent({ isLoading, error, tasks, onComplete, onCancel, onEdited }: {
+function TasksContent({ isLoading, error, tasks, onComplete, onCancel, onEdited, onDeleted }: {
   isLoading: boolean; error: string | null; tasks: Task[];
-  onComplete: (id: string) => void; onCancel: (id: string) => void; onEdited: () => void;
+  onComplete: (id: string) => void; onCancel: (id: string) => void; onEdited: () => void; onDeleted: () => void;
 }): ReactNode {
   if (isLoading) return <div className="tasks-view__loading">Cargando...</div>;
   if (error) return <div className="tasks-view__error" role="alert">{error}</div>;
@@ -306,7 +329,7 @@ function TasksContent({ isLoading, error, tasks, onComplete, onCancel, onEdited 
   return (
     <ul className="tasks-view__list">
       {tasks.map((task) => (
-        <TaskListItem key={task.id} task={task} onComplete={onComplete} onCancel={onCancel} onEdited={onEdited} />
+        <TaskListItem key={task.id} task={task} onComplete={onComplete} onCancel={onCancel} onEdited={onEdited} onDeleted={onDeleted} />
       ))}
     </ul>
   );
@@ -397,6 +420,7 @@ export default function TasksView(): ReactNode {
           onComplete={(id) => void handleComplete(id)}
           onCancel={(id) => void handleCancel(id)}
           onEdited={() => void fetchTasks(activeTab)}
+          onDeleted={() => void fetchTasks(activeTab)}
         />
       </div>
     </div>

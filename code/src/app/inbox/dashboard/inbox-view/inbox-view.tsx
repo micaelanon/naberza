@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import type { InboxItem, InboxStatus, InboxClassification } from "@/modules/inbox/inbox.types";
 import type { Priority } from "@/modules/tasks/task.types";
 import { useFormSubmit } from "@/hooks";
+import { ConfirmDeleteModal } from "@/components/ui";
 import "./inbox-view.css";
 
 type StatusTab = "ALL" | InboxStatus;
@@ -135,12 +136,23 @@ function InboxEditForm({ item, onSaved, onCancel }: { item: InboxItem; onSaved: 
 
 // ─── List item ────────────────────────────────────────────────────────────────
 
-function InboxListItem({ item, onDismiss, onEdited }: {
+function InboxListItem({ item, onDismiss, onEdited, onDeleted }: {
   item: InboxItem;
   onDismiss: (id: string) => void;
   onEdited: () => void;
+  onDeleted: () => void;
 }): ReactNode {
   const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await fetch(`/inbox/api/${item.id}`, { method: "DELETE" });
+    setDeleting(false);
+    setConfirmDelete(false);
+    onDeleted();
+  };
 
   if (editing) {
     return (
@@ -152,6 +164,7 @@ function InboxListItem({ item, onDismiss, onEdited }: {
 
   return (
     <li className="inbox-item">
+      <ConfirmDeleteModal isOpen={confirmDelete} itemName={item.title} onConfirm={() => void handleDelete()} onCancel={() => setConfirmDelete(false)} deleting={deleting} />
       <div className="inbox-item__main">
         <span className="inbox-item__source">{SOURCE_LABELS[item.sourceType] ?? item.sourceType}</span>
         <h3 className="inbox-item__title">{item.title}</h3>
@@ -169,6 +182,7 @@ function InboxListItem({ item, onDismiss, onEdited }: {
         {item.status !== "DISMISSED" && (
           <>
             <button className="inbox-item__edit" onClick={() => setEditing(true)} title="Editar">✎</button>
+            <button className="inbox-item__btn inbox-item__btn--delete" onClick={() => setConfirmDelete(true)} title="Eliminar"><span className="material-symbols-outlined">delete</span></button>
             <button className="inbox-item__dismiss" onClick={() => onDismiss(item.id)} title="Descartar">✕</button>
           </>
         )}
@@ -179,9 +193,9 @@ function InboxListItem({ item, onDismiss, onEdited }: {
 
 // ─── Content area ─────────────────────────────────────────────────────────────
 
-function InboxContent({ isLoading, error, items, onDismiss, onEdited }: {
+function InboxContent({ isLoading, error, items, onDismiss, onEdited, onDeleted }: {
   isLoading: boolean; error: string | null; items: InboxItem[];
-  onDismiss: (id: string) => void; onEdited: () => void;
+  onDismiss: (id: string) => void; onEdited: () => void; onDeleted: () => void;
 }): ReactNode {
   if (isLoading) return <div className="inbox-view__loading">Cargando...</div>;
   if (error) return <div className="inbox-view__error" role="alert">{error}</div>;
@@ -195,7 +209,7 @@ function InboxContent({ isLoading, error, items, onDismiss, onEdited }: {
   }
   return (
     <ul className="inbox-view__list">
-      {items.map((item) => <InboxListItem key={item.id} item={item} onDismiss={onDismiss} onEdited={onEdited} />)}
+      {items.map((item) => <InboxListItem key={item.id} item={item} onDismiss={onDismiss} onEdited={onEdited} onDeleted={onDeleted} />)}
     </ul>
   );
 }
@@ -279,6 +293,7 @@ export default function InboxView(): ReactNode {
           items={items}
           onDismiss={(id) => void handleDismiss(id)}
           onEdited={() => void fetchItems(activeTab)}
+          onDeleted={() => void fetchItems(activeTab)}
         />
       </div>
     </div>
