@@ -115,3 +115,119 @@ select {
 .idea-form__btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
 .idea-form__btn--save { background: var(--color-olive, #606c38); color: white; }
 .idea-form__btn--cancel { background: var(--color-border, #e5e5e5); }
+
+/* ─── Ideas edit styles (P7-02) ────────────────────────────────────────── */
+
+.idea-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.idea-item__main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.idea-item--editing {
+  padding: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-brand-border);
+}
+
+.idea-form--edit {
+  border: none;
+  padding: 0.75rem;
+  background: transparent;
+}
+
+.idea-form__row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.idea-form__select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: white;
+}
+
+.idea-item__edit-btn {
+  background: none;
+  border: 1px solid var(--color-border, #e5e5e5);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.idea-item__edit-btn:hover {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+}
+
+/* ─── Invoice & Finance item edit styles (P7-02) ───────────────────────── */
+
+.invoice-item__main,
+.finance-item__main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.invoice-item__actions {
+  display: flex;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.invoice-item__btn,
+.finance-item__edit-btn {
+  background: none;
+  border: 1px solid var(--color-border, #e5e5e5);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  transition: background 0.15s;
+}
+
+.invoice-item__btn:hover,
+.finance-item__edit-btn:hover {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+}
+
+.invoice-item__btn--pay:hover {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border-color: var(--color-success-text);
+}
+
+.invoice-item--editing,
+.finance-item--editing {
+  padding: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-brand-border);
+}
+
+.finance-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

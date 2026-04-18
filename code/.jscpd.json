@@ -3,7 +3,7 @@
   "suppressDefaultExclude": false,
   "absolute": false,
   "minLines": 40,
-  "minTokens": 50,
+  "minTokens": 150,
   "ignorePatterns": [
     "node_modules",
     "dist",
