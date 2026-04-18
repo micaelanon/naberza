@@ -10,6 +10,7 @@
   flex-direction: column;
   min-width: 0;
   background: var(--color-canvas-bg);
+  border-left: 1px solid transparent;
 }
 
 .app-shell__content {
