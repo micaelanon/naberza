@@ -7,6 +7,20 @@ import type { IdeaStatus } from "@/modules/ideas/ideas.types";
 import { useFormSubmit } from "@/hooks";
 import { ConfirmDeleteModal } from "@/components/ui";
 
+function filterIdeas(ideas: IdeaSummary[], query: string, status: IdeaStatus | "ALL"): IdeaSummary[] {
+  return ideas.filter((idea) => {
+    if (status !== "ALL" && idea.status !== status) return false;
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      const inTitle = idea.title.toLowerCase().includes(q);
+      const inBody = idea.body?.toLowerCase().includes(q) ?? false;
+      const inTags = idea.tags.some((t) => t.toLowerCase().includes(q));
+      if (!inTitle && !inBody && !inTags) return false;
+    }
+    return true;
+  });
+}
+
 // ─── Create form ──────────────────────────────────────────────────────────────
 
 function IdeaCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
@@ -146,6 +160,8 @@ export default function IdeasView(): ReactNode {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<IdeaStatus | "ALL">("ALL");
 
   const fetchIdeas = useCallback(async () => {
     setLoading(true);
@@ -172,6 +188,9 @@ export default function IdeasView(): ReactNode {
   if (loading) return null;
   if (error) return <p className="page-error">{error}</p>;
 
+  const filteredIdeas = filterIdeas(ideas, searchQuery, filterStatus);
+  const hasFilters = searchQuery.trim() !== "" || filterStatus !== "ALL";
+
   return (
     <div className="page-container">
       <div className="page-header">
@@ -184,11 +203,39 @@ export default function IdeasView(): ReactNode {
           onCancel={() => setShowForm(false)}
         />
       )}
-      {ideas.length === 0
-        ? <p className="page-empty">No hay ideas. Haz clic en &quot;+ Nueva idea&quot; para capturar algo.</p>
+      <div className="filter-bar">
+        <input
+          className="filter-bar__search"
+          type="search"
+          placeholder="Buscar ideas..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className="filter-bar__select"
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value as IdeaStatus | "ALL")}
+        >
+          <option value="ALL">Todos los estados</option>
+          <option value="CAPTURED">Capturadas</option>
+          <option value="REVIEWING">En revisión</option>
+          <option value="PROMOTED">Promovidas</option>
+          <option value="ARCHIVED">Archivadas</option>
+        </select>
+        {hasFilters && (
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterStatus("ALL"); }}>
+            Limpiar filtros
+          </button>
+        )}
+        {hasFilters && (
+          <span className="filter-bar__count">{filteredIdeas.length} de {ideas.length}</span>
+        )}
+      </div>
+      {filteredIdeas.length === 0
+        ? <p className="page-empty">{hasFilters ? "No hay ideas que coincidan con los filtros." : "No hay ideas. Haz clic en \"+ Nueva idea\" para capturar algo."}</p>
         : (
           <ul className="page-list">
-            {ideas.map((idea) => (
+            {filteredIdeas.map((idea) => (
               <IdeaListItem key={idea.id} idea={idea} onEdited={() => void fetchIdeas()} onDeleted={() => void fetchIdeas()} />
             ))}
           </ul>

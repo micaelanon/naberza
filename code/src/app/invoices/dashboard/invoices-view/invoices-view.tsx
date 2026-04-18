@@ -6,6 +6,17 @@ import type { ReactNode } from "react";
 import type { InvoiceSummary } from "@/modules/invoices";
 import type { InvoiceStatus } from "@/modules/invoices/invoice.types";
 
+function filterInvoices(invoices: InvoiceSummary[], query: string, status: InvoiceStatus | "ALL"): InvoiceSummary[] {
+  return invoices.filter((inv) => {
+    if (status !== "ALL" && inv.status !== status) return false;
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      if (!inv.issuer.toLowerCase().includes(q) && !(inv.category?.toLowerCase().includes(q) ?? false)) return false;
+    }
+    return true;
+  });
+}
+
 // ─── Create form ──────────────────────────────────────────────────────────────
 
 function InvoiceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
@@ -199,6 +210,8 @@ export default function InvoicesView(): ReactNode {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<InvoiceStatus | "ALL">("ALL");
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
@@ -230,6 +243,9 @@ export default function InvoicesView(): ReactNode {
   if (loading) return null;
   if (error) return <p className="page-error">{error}</p>;
 
+  const filteredInvoices = filterInvoices(invoices, searchQuery, filterStatus);
+  const hasFilters = searchQuery.trim() !== "" || filterStatus !== "ALL";
+
   return (
     <div className="page-container">
       <div className="page-header">
@@ -242,11 +258,39 @@ export default function InvoicesView(): ReactNode {
           onCancel={() => setShowForm(false)}
         />
       )}
-      {invoices.length === 0
-        ? <p className="page-empty">No hay facturas. Haz clic en &quot;+ Nueva factura&quot; para registrar una.</p>
+      <div className="filter-bar">
+        <input
+          className="filter-bar__search"
+          type="search"
+          placeholder="Buscar facturas..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className="filter-bar__select"
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value as InvoiceStatus | "ALL")}
+        >
+          <option value="ALL">Todos los estados</option>
+          <option value="PENDING">Pendientes</option>
+          <option value="PAID">Pagadas</option>
+          <option value="OVERDUE">Vencidas</option>
+          <option value="CANCELLED">Canceladas</option>
+        </select>
+        {hasFilters && (
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterStatus("ALL"); }}>
+            Limpiar filtros
+          </button>
+        )}
+        {hasFilters && (
+          <span className="filter-bar__count">{filteredInvoices.length} de {invoices.length}</span>
+        )}
+      </div>
+      {filteredInvoices.length === 0
+        ? <p className="page-empty">{hasFilters ? "No hay facturas que coincidan con los filtros." : "No hay facturas. Haz clic en \"+ Nueva factura\" para registrar una."}</p>
         : (
           <ul className="page-list">
-            {invoices.map((inv) => (
+            {filteredInvoices.map((inv) => (
               <InvoiceListItem
                 key={inv.id}
                 invoice={inv}

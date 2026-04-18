@@ -22,6 +22,17 @@ const SOURCE_LABELS: Record<string, string> = {
   EMAIL: "Email", PAPERLESS: "Paperless", HOME_ASSISTANT: "Home", MANUAL: "Manual", API: "API",
 };
 
+function filterInboxItems(items: InboxItem[], query: string, priority: Priority | "ALL"): InboxItem[] {
+  return items.filter((item) => {
+    if (priority !== "ALL" && item.priority !== priority) return false;
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      if (!item.title.toLowerCase().includes(q) && !(item.body?.toLowerCase().includes(q) ?? false)) return false;
+    }
+    return true;
+  });
+}
+
 interface InboxApiResponse {
   data: InboxItem[];
   meta: { total: number; page: number; pageSize: number };
@@ -193,17 +204,17 @@ function InboxListItem({ item, onDismiss, onEdited, onDeleted }: {
 
 // ─── Content area ─────────────────────────────────────────────────────────────
 
-function InboxContent({ isLoading, error, items, onDismiss, onEdited, onDeleted }: {
+function InboxContent({ isLoading, error, items, onDismiss, onEdited, onDeleted, hasActiveFilters }: {
   isLoading: boolean; error: string | null; items: InboxItem[];
-  onDismiss: (id: string) => void; onEdited: () => void; onDeleted: () => void;
+  onDismiss: (id: string) => void; onEdited: () => void; onDeleted: () => void; hasActiveFilters: boolean;
 }): ReactNode {
   if (isLoading) return <div className="inbox-view__loading">Cargando...</div>;
   if (error) return <div className="inbox-view__error" role="alert">{error}</div>;
   if (items.length === 0) {
     return (
       <div className="inbox-view__empty">
-        <p className="inbox-view__empty-title">Sin elementos</p>
-        <p className="inbox-view__empty-text">Haz clic en &quot;+ Nuevo item&quot; para añadir algo al inbox.</p>
+        <p className="inbox-view__empty-title">{hasActiveFilters ? "Sin resultados" : "Sin elementos"}</p>
+        <p className="inbox-view__empty-text">{hasActiveFilters ? "No hay items que coincidan con los filtros." : "Haz clic en \"+ Nuevo item\" para añadir algo al inbox."}</p>
       </div>
     );
   }
@@ -223,6 +234,8 @@ export default function InboxView(): ReactNode {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterPriority, setFilterPriority] = useState<Priority | "ALL">("ALL");
 
   const fetchItems = useCallback(async (status: StatusTab) => {
     setIsLoading(true);
@@ -255,6 +268,9 @@ export default function InboxView(): ReactNode {
     if (response.ok) void fetchItems(activeTab);
   };
 
+  const filteredItems = filterInboxItems(items, searchQuery, filterPriority);
+  const hasFilters = searchQuery.trim() !== "" || filterPriority !== "ALL";
+
   return (
     <div className="inbox-view">
       <header className="inbox-view__header">
@@ -286,14 +302,44 @@ export default function InboxView(): ReactNode {
         ))}
       </nav>
 
+      <div className="filter-bar">
+        <input
+          className="filter-bar__search"
+          type="search"
+          placeholder="Buscar en inbox..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className="filter-bar__select"
+          value={filterPriority}
+          onChange={(e) => setFilterPriority(e.target.value as Priority | "ALL")}
+        >
+          <option value="ALL">Todas las prioridades</option>
+          <option value="HIGH">Alta</option>
+          <option value="MEDIUM">Media</option>
+          <option value="LOW">Baja</option>
+          <option value="NONE">Sin prioridad</option>
+        </select>
+        {hasFilters && (
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterPriority("ALL"); }}>
+            Limpiar filtros
+          </button>
+        )}
+        {hasFilters && (
+          <span className="filter-bar__count">{filteredItems.length} de {items.length}</span>
+        )}
+      </div>
+
       <div className="inbox-view__content">
         <InboxContent
           isLoading={isLoading}
           error={error}
-          items={items}
+          items={filteredItems}
           onDismiss={(id) => void handleDismiss(id)}
           onEdited={() => void fetchItems(activeTab)}
           onDeleted={() => void fetchItems(activeTab)}
+          hasActiveFilters={hasFilters}
         />
       </div>
     </div>
