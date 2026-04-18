@@ -34,7 +34,6 @@ describe("PaperlessAdapter", () => {
   });
 
   it("strips trailing slash from baseUrl", () => {
-    // eslint-disable-next-line sonarjs/no-clear-text-protocols
     const adapter = new PaperlessAdapter({
       ...baseConnection,
       // eslint-disable-next-line sonarjs/no-clear-text-protocols
