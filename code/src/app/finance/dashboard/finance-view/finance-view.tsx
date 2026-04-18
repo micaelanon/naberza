@@ -13,6 +13,17 @@ const TYPE_LABELS: Record<string, string> = {
   RECURRING_CHARGE: "Recurrente",
 };
 
+function filterFinanceEntries(entries: FinanceEntrySummary[], query: string, type: FinancialEntryType | "ALL"): FinanceEntrySummary[] {
+  return entries.filter((entry) => {
+    if (type !== "ALL" && entry.type !== type) return false;
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      if (!(entry.description?.toLowerCase().includes(q) ?? false) && !(entry.category?.toLowerCase().includes(q) ?? false)) return false;
+    }
+    return true;
+  });
+}
+
 // ─── Create form ──────────────────────────────────────────────────────────────
 
 function FinanceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
@@ -188,6 +199,8 @@ export default function FinanceView(): ReactNode {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<FinancialEntryType | "ALL">("ALL");
 
   const fetchEntries = useCallback(async () => {
     setLoading(true);
@@ -214,6 +227,9 @@ export default function FinanceView(): ReactNode {
   if (loading) return null;
   if (error) return <p className="page-error">{error}</p>;
 
+  const filteredEntries = filterFinanceEntries(entries, searchQuery, filterType);
+  const hasFilters = searchQuery.trim() !== "" || filterType !== "ALL";
+
   return (
     <div className="page-container">
       <div className="page-header">
@@ -226,11 +242,39 @@ export default function FinanceView(): ReactNode {
           onCancel={() => setShowForm(false)}
         />
       )}
-      {entries.length === 0
-        ? <p className="page-empty">No hay movimientos. Haz clic en &quot;+ Nuevo movimiento&quot; para registrar uno.</p>
+      <div className="filter-bar">
+        <input
+          className="filter-bar__search"
+          type="search"
+          placeholder="Buscar movimientos..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className="filter-bar__select"
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value as FinancialEntryType | "ALL")}
+        >
+          <option value="ALL">Todos los tipos</option>
+          <option value="EXPENSE">Gastos</option>
+          <option value="INCOME">Ingresos</option>
+          <option value="RECURRING_CHARGE">Recurrentes</option>
+          <option value="BALANCE_SNAPSHOT">Snapshots de saldo</option>
+        </select>
+        {hasFilters && (
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterType("ALL"); }}>
+            Limpiar filtros
+          </button>
+        )}
+        {hasFilters && (
+          <span className="filter-bar__count">{filteredEntries.length} de {entries.length}</span>
+        )}
+      </div>
+      {filteredEntries.length === 0
+        ? <p className="page-empty">{hasFilters ? "No hay movimientos que coincidan con los filtros." : "No hay movimientos. Haz clic en \"+ Nuevo movimiento\" para registrar uno."}</p>
         : (
           <ul className="page-list">
-            {entries.map((entry) => (
+            {filteredEntries.map((entry) => (
               <FinanceEntryItem key={entry.id} entry={entry} onEdited={() => void fetchEntries()} onDeleted={() => void fetchEntries()} />
             ))}
           </ul>

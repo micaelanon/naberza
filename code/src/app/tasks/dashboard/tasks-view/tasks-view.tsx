@@ -46,6 +46,20 @@ function taskToForm(task: Task): TaskFormState {
   };
 }
 
+function filterTasks(tasks: Task[], query: string, priority: Priority | "ALL"): Task[] {
+  return tasks.filter((task) => {
+    if (priority !== "ALL" && task.priority !== priority) return false;
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      const inTitle = task.title.toLowerCase().includes(q);
+      const inDesc = task.description?.toLowerCase().includes(q) ?? false;
+      const inTags = task.tags.some((t) => t.toLowerCase().includes(q));
+      if (!inTitle && !inDesc && !inTags) return false;
+    }
+    return true;
+  });
+}
+
 // ─── Shared form fields ───────────────────────────────────────────────────────
 
 function TaskFormFields({
@@ -312,17 +326,22 @@ function TaskListItem({ task, onComplete, onCancel, onEdited, onDeleted }: {
 
 // ─── Content area ─────────────────────────────────────────────────────────────
 
-function TasksContent({ isLoading, error, tasks, onComplete, onCancel, onEdited, onDeleted }: {
+function TasksContent({ isLoading, error, tasks, onComplete, onCancel, onEdited, onDeleted, hasActiveFilters }: {
   isLoading: boolean; error: string | null; tasks: Task[];
-  onComplete: (id: string) => void; onCancel: (id: string) => void; onEdited: () => void; onDeleted: () => void;
+  onComplete: (id: string) => void; onCancel: (id: string) => void;
+  onEdited: () => void; onDeleted: () => void; hasActiveFilters: boolean;
 }): ReactNode {
   if (isLoading) return <div className="tasks-view__loading">Cargando...</div>;
   if (error) return <div className="tasks-view__error" role="alert">{error}</div>;
   if (tasks.length === 0) {
     return (
       <div className="tasks-view__empty">
-        <p className="tasks-view__empty-title">Sin tareas</p>
-        <p className="tasks-view__empty-text">Haz clic en &quot;+ Nueva tarea&quot; para crear tu primera tarea.</p>
+        <p className="tasks-view__empty-title">{hasActiveFilters ? "Sin resultados" : "Sin tareas"}</p>
+        <p className="tasks-view__empty-text">
+          {hasActiveFilters
+            ? "No hay tareas que coincidan con los filtros."
+            : "Haz clic en \"+ Nueva tarea\" para crear tu primera tarea."}
+        </p>
       </div>
     );
   }
@@ -344,6 +363,8 @@ export default function TasksView(): ReactNode {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterPriority, setFilterPriority] = useState<Priority | "ALL">("ALL");
 
   const fetchTasks = useCallback(async (status: StatusTab) => {
     setIsLoading(true);
@@ -381,6 +402,9 @@ export default function TasksView(): ReactNode {
     if (response.ok) void fetchTasks(activeTab);
   };
 
+  const filteredTasks = filterTasks(tasks, searchQuery, filterPriority);
+  const hasFilters = searchQuery.trim() !== "" || filterPriority !== "ALL";
+
   return (
     <div className="tasks-view">
       <header className="tasks-view__header">
@@ -412,15 +436,45 @@ export default function TasksView(): ReactNode {
         ))}
       </nav>
 
+      <div className="filter-bar">
+        <input
+          className="filter-bar__search"
+          type="search"
+          placeholder="Buscar tareas..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className="filter-bar__select"
+          value={filterPriority}
+          onChange={(e) => setFilterPriority(e.target.value as Priority | "ALL")}
+        >
+          <option value="ALL">Todas las prioridades</option>
+          <option value="HIGH">Alta</option>
+          <option value="MEDIUM">Media</option>
+          <option value="LOW">Baja</option>
+          <option value="NONE">Sin prioridad</option>
+        </select>
+        {hasFilters && (
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterPriority("ALL"); }}>
+            Limpiar filtros
+          </button>
+        )}
+        {hasFilters && (
+          <span className="filter-bar__count">{filteredTasks.length} de {tasks.length}</span>
+        )}
+      </div>
+
       <div className="tasks-view__content">
         <TasksContent
           isLoading={isLoading}
           error={error}
-          tasks={tasks}
+          tasks={filteredTasks}
           onComplete={(id) => void handleComplete(id)}
           onCancel={(id) => void handleCancel(id)}
           onEdited={() => void fetchTasks(activeTab)}
           onDeleted={() => void fetchTasks(activeTab)}
+          hasActiveFilters={hasFilters}
         />
       </div>
     </div>
