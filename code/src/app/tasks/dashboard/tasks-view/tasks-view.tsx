@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { Task, TaskStatus, Priority, TaskKind } from "@/modules/tasks/task.types";
+import { useFormSubmit } from "@/hooks";
 import "./tasks-view.css";
 
 type StatusTab = "ALL" | TaskStatus;
@@ -127,15 +128,12 @@ function TaskFormFields({
 
 function TaskCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
   const [form, setForm] = useState<TaskFormState>(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { saving, error, setError, submit } = useFormSubmit();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) { setError("El título es obligatorio"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch("/tasks/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -154,15 +152,11 @@ function TaskCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
       }
       setForm(EMPTY_FORM);
       onCreated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
-    <form className="task-form" onSubmit={(e) => void handleSubmit(e)}>
+    <form className="task-form" onSubmit={handleSubmit}>
       <TaskFormFields
         form={form}
         onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
@@ -179,15 +173,12 @@ function TaskCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
 
 function TaskEditForm({ task, onSaved, onCancel }: { task: Task; onSaved: () => void; onCancel: () => void }): ReactNode {
   const [form, setForm] = useState<TaskFormState>(() => taskToForm(task));
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { saving, error, setError, submit } = useFormSubmit();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) { setError("El título es obligatorio"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch(`/tasks/api/${task.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -205,15 +196,11 @@ function TaskEditForm({ task, onSaved, onCancel }: { task: Task; onSaved: () => 
         throw new Error(body?.error ?? "Error al guardar");
       }
       onSaved();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
-    <form className="task-form task-form--edit" onSubmit={(e) => void handleSubmit(e)}>
+    <form className="task-form task-form--edit" onSubmit={handleSubmit}>
       <TaskFormFields
         form={form}
         onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}

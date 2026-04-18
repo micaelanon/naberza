@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { InboxItem, InboxStatus, InboxClassification } from "@/modules/inbox/inbox.types";
 import type { Priority } from "@/modules/tasks/task.types";
+import { useFormSubmit } from "@/hooks";
 import "./inbox-view.css";
 
 type StatusTab = "ALL" | InboxStatus;
@@ -31,15 +32,12 @@ function InboxCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCan
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [priority, setPriority] = useState<Priority>("NONE");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { saving, error, setError, submit } = useFormSubmit();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) { setError("El título es obligatorio"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch("/inbox/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -48,15 +46,11 @@ function InboxCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCan
       if (!res.ok) throw new Error("Error al crear el item");
       setTitle(""); setBody(""); setPriority("NONE");
       onCreated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
-    <form className="inbox-form" onSubmit={(e) => void handleSubmit(e)}>
+    <form className="inbox-form" onSubmit={handleSubmit}>
       <input className="inbox-form__input" type="text" placeholder="¿Qué quieres anotar?" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
       <textarea className="inbox-form__textarea" placeholder="Detalles (opcional)" value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
       <div className="inbox-form__row">
@@ -83,15 +77,12 @@ function InboxEditForm({ item, onSaved, onCancel }: { item: InboxItem; onSaved: 
   const [body, setBody] = useState(item.body ?? "");
   const [priority, setPriority] = useState<Priority>(item.priority);
   const [classification, setClassification] = useState<InboxClassification | "">(item.classification ?? "");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { saving, error, setError, submit } = useFormSubmit();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) { setError("El título es obligatorio"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch(`/inbox/api/${item.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -107,15 +98,11 @@ function InboxEditForm({ item, onSaved, onCancel }: { item: InboxItem; onSaved: 
         throw new Error(b?.error ?? "Error al guardar");
       }
       onSaved();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
-    <form className="inbox-form inbox-form--edit" onSubmit={(e) => void handleSubmit(e)}>
+    <form className="inbox-form inbox-form--edit" onSubmit={handleSubmit}>
       <input className="inbox-form__input" type="text" placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
       <textarea className="inbox-form__textarea" placeholder="Detalles (opcional)" value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
       <div className="inbox-form__row">

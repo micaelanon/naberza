@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { IdeaSummary } from "@/modules/ideas";
 import type { IdeaStatus } from "@/modules/ideas/ideas.types";
+import { useFormSubmit } from "@/hooks";
 
 // ─── Create form ──────────────────────────────────────────────────────────────
 
@@ -11,15 +12,12 @@ function IdeaCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [tags, setTags] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { saving, error, setError, submit } = useFormSubmit();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) { setError("El título es obligatorio"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch("/ideas/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,15 +30,11 @@ function IdeaCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
       if (!res.ok) throw new Error("Error al crear la idea");
       setTitle(""); setBody(""); setTags("");
       onCreated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
-    <form className="idea-form" onSubmit={(e) => void handleSubmit(e)}>
+    <form className="idea-form" onSubmit={handleSubmit}>
       <input className="idea-form__input" type="text" placeholder="¿Qué se te ocurre?" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
       <textarea className="idea-form__textarea" placeholder="Describe la idea (opcional)" value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
       <input className="idea-form__input" type="text" placeholder="Etiquetas (separadas por coma)" value={tags} onChange={(e) => setTags(e.target.value)} />
@@ -60,15 +54,12 @@ function IdeaEditForm({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved:
   const [body, setBody] = useState(idea.body ?? "");
   const [tags, setTags] = useState(idea.tags.join(", "));
   const [status, setStatus] = useState<IdeaStatus>(idea.status);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { saving, error, setError, submit } = useFormSubmit();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) { setError("El título es obligatorio"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch(`/ideas/api/${idea.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -84,15 +75,11 @@ function IdeaEditForm({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved:
         throw new Error(b?.error ?? "Error al guardar");
       }
       onSaved();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
-    <form className="idea-form idea-form--edit" onSubmit={(e) => void handleSubmit(e)}>
+    <form className="idea-form idea-form--edit" onSubmit={handleSubmit}>
       <input className="idea-form__input" type="text" placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
       <textarea className="idea-form__textarea" placeholder="Descripción (opcional)" value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
       <div className="idea-form__row">
