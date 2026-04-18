@@ -218,6 +218,28 @@
   transition: background 0.15s, color 0.15s;
 }
 
+.task-item--editing {
+  padding: 0;
+  border: 1px solid var(--color-brand-border);
+  background: var(--color-surface);
+}
+
+.task-form--edit {
+  border: none;
+  padding: 1rem;
+  background: transparent;
+}
+
+.task-item__btn--edit {
+  color: var(--color-text-secondary);
+}
+
+.task-item__btn--edit:hover {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+}
+
 .task-item__btn--complete {
   color: var(--color-success-text);
 }

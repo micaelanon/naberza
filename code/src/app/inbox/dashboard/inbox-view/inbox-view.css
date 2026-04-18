@@ -279,3 +279,35 @@
   font-size: 0.8rem;
   margin: 0;
 }
+
+.inbox-item--editing {
+  padding: 0;
+  border: 1px solid var(--color-brand-border);
+  background: var(--color-surface);
+}
+
+.inbox-form--edit {
+  border: none;
+  padding: 0.75rem;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inbox-item__edit {
+  background: none;
+  border: 1px solid var(--color-border, #e5e5e5);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  transition: background 0.15s;
+}
+
+.inbox-item__edit:hover {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+}
