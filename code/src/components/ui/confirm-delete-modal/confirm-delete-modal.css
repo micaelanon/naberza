@@ -1,0 +1,85 @@
+.cdm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.cdm {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-m);
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.cdm__icon {
+  font-size: 2rem;
+  color: var(--color-error);
+  margin-bottom: 0.75rem;
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.cdm__title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.cdm__message {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 1.25rem;
+  line-height: 1.5;
+}
+
+.cdm__item-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.cdm__actions {
+  display: flex;
+  gap: 0.625rem;
+  justify-content: flex-end;
+}
+
+.cdm__btn {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-s);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+
+.cdm__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cdm__btn--cancel {
+  background: var(--color-bg-muted);
+  color: var(--color-text-secondary);
+}
+
+.cdm__btn--cancel:hover:not(:disabled) {
+  background: var(--color-border);
+}
+
+.cdm__btn--delete {
+  background: var(--color-error);
+  color: #fff;
+}
+
+.cdm__btn--delete:hover:not(:disabled) {
+  opacity: 0.85;
+}

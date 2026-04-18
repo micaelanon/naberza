@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ConfirmDeleteModal } from "@/components/ui";
 import type { ReactNode } from "react";
 import type { InvoiceSummary } from "@/modules/invoices";
 import type { InvoiceStatus } from "@/modules/invoices/invoice.types";
@@ -140,12 +141,23 @@ function InvoiceEditForm({ invoice, onSaved, onCancel }: {
 
 // ─── List item ────────────────────────────────────────────────────────────────
 
-function InvoiceListItem({ invoice, onEdited, onPaid }: {
+function InvoiceListItem({ invoice, onEdited, onPaid, onDeleted }: {
   invoice: InvoiceSummary;
   onEdited: () => void;
   onPaid: (id: string) => void;
+  onDeleted: () => void;
 }): ReactNode {
   const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await fetch(`/invoices/api/${invoice.id}`, { method: "DELETE" });
+    setDeleting(false);
+    setConfirmDelete(false);
+    onDeleted();
+  };
 
   if (editing) {
     return (
@@ -161,6 +173,7 @@ function InvoiceListItem({ invoice, onEdited, onPaid }: {
 
   return (
     <li className="page-list-item">
+      <ConfirmDeleteModal isOpen={confirmDelete} itemName={invoice.issuer} onConfirm={() => void handleDelete()} onCancel={() => setConfirmDelete(false)} deleting={deleting} />
       <div className="invoice-item__main">
         <strong>{invoice.issuer}</strong>
         <span className="page-amount">{Number(invoice.amount).toFixed(2)} {invoice.currency}</span>
@@ -168,6 +181,7 @@ function InvoiceListItem({ invoice, onEdited, onPaid }: {
         {invoice.dueDate && <time>{new Date(invoice.dueDate).toLocaleDateString("es-ES")}</time>}
       </div>
       <div className="invoice-item__actions">
+        <button className="invoice-item__btn invoice-item__btn--delete" onClick={() => setConfirmDelete(true)} title="Eliminar"><span className="material-symbols-outlined">delete</span></button>
         <button className="invoice-item__btn" onClick={() => setEditing(true)} title="Editar">✎</button>
         {invoice.status === "PENDING" && (
           <button className="invoice-item__btn invoice-item__btn--pay" onClick={() => onPaid(invoice.id)} title="Marcar como pagada">✓</button>
@@ -238,6 +252,7 @@ export default function InvoicesView(): ReactNode {
                 invoice={inv}
                 onEdited={() => void fetchInvoices()}
                 onPaid={(id) => void handlePaid(id)}
+                onDeleted={() => void fetchInvoices()}
               />
             ))}
           </ul>

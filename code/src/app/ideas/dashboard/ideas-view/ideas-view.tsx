@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import type { IdeaSummary } from "@/modules/ideas";
 import type { IdeaStatus } from "@/modules/ideas/ideas.types";
 import { useFormSubmit } from "@/hooks";
+import { ConfirmDeleteModal } from "@/components/ui";
 
 // ─── Create form ──────────────────────────────────────────────────────────────
 
@@ -102,8 +103,18 @@ function IdeaEditForm({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved:
 
 // ─── List item ────────────────────────────────────────────────────────────────
 
-function IdeaListItem({ idea, onEdited }: { idea: IdeaSummary; onEdited: () => void }): ReactNode {
+function IdeaListItem({ idea, onEdited, onDeleted }: { idea: IdeaSummary; onEdited: () => void; onDeleted: () => void }): ReactNode {
   const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await fetch(`/ideas/api/${idea.id}`, { method: "DELETE" });
+    setDeleting(false);
+    setConfirmDelete(false);
+    onDeleted();
+  };
 
   if (editing) {
     return (
@@ -115,11 +126,13 @@ function IdeaListItem({ idea, onEdited }: { idea: IdeaSummary; onEdited: () => v
 
   return (
     <li className="page-list-item idea-item">
+      <ConfirmDeleteModal isOpen={confirmDelete} itemName={idea.title} onConfirm={() => void handleDelete()} onCancel={() => setConfirmDelete(false)} deleting={deleting} />
       <div className="idea-item__main">
         <strong>{idea.title}</strong>
         {idea.status !== "CAPTURED" && <span className="page-badge">{idea.status}</span>}
         {idea.tags.length > 0 && <span className="page-tags">{idea.tags.join(", ")}</span>}
       </div>
+      <button className="idea-item__btn-delete" onClick={() => setConfirmDelete(true)} title="Eliminar"><span className="material-symbols-outlined">delete</span></button>
       <button className="idea-item__edit-btn" onClick={() => setEditing(true)} title="Editar">✎</button>
     </li>
   );
@@ -176,7 +189,7 @@ export default function IdeasView(): ReactNode {
         : (
           <ul className="page-list">
             {ideas.map((idea) => (
-              <IdeaListItem key={idea.id} idea={idea} onEdited={() => void fetchIdeas()} />
+              <IdeaListItem key={idea.id} idea={idea} onEdited={() => void fetchIdeas()} onDeleted={() => void fetchIdeas()} />
             ))}
           </ul>
         )

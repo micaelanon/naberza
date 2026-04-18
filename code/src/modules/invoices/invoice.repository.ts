@@ -107,6 +107,10 @@ export class InvoiceRepository {
     return this.update(id, { status: "OVERDUE" });
   }
 
+  async delete(id: string): Promise<void> {
+    await prisma.invoice.delete({ where: { id } });
+  }
+
   async findOverdue(): Promise<Invoice[]> {
     return prisma.invoice.findMany({
       where: {

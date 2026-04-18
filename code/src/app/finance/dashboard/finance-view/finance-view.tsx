@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ConfirmDeleteModal } from "@/components/ui";
 import type { ReactNode } from "react";
 import type { FinanceEntrySummary } from "@/modules/finance";
 import type { FinancialEntryType } from "@/modules/finance/finance.types";
@@ -142,8 +143,18 @@ function FinanceEditForm({ entry, onSaved, onCancel }: {
 
 // ─── List item ────────────────────────────────────────────────────────────────
 
-function FinanceEntryItem({ entry, onEdited }: { entry: FinanceEntrySummary; onEdited: () => void }): ReactNode {
+function FinanceEntryItem({ entry, onEdited, onDeleted }: { entry: FinanceEntrySummary; onEdited: () => void; onDeleted: () => void }): ReactNode {
   const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await fetch(`/finance/api/${entry.id}`, { method: "DELETE" });
+    setDeleting(false);
+    setConfirmDelete(false);
+    onDeleted();
+  };
 
   if (editing) {
     return (
@@ -155,6 +166,7 @@ function FinanceEntryItem({ entry, onEdited }: { entry: FinanceEntrySummary; onE
 
   return (
     <li className="page-list-item finance-item">
+      <ConfirmDeleteModal isOpen={confirmDelete} itemName={entry.description ?? entry.category ?? entry.type} onConfirm={() => void handleDelete()} onCancel={() => setConfirmDelete(false)} deleting={deleting} />
       <div className="finance-item__main">
         <span className={`page-badge page-badge--${entry.type.toLowerCase()}`}>{TYPE_LABELS[entry.type] ?? entry.type}</span>
         <span className="page-amount">{Number(entry.amount).toFixed(2)} {entry.currency}</span>
@@ -162,6 +174,7 @@ function FinanceEntryItem({ entry, onEdited }: { entry: FinanceEntrySummary; onE
         {entry.category && <span className="page-tags">{entry.category}</span>}
         <time>{new Date(entry.date).toLocaleDateString("es-ES")}</time>
       </div>
+      <button className="finance-item__btn-delete" onClick={() => setConfirmDelete(true)} title="Eliminar"><span className="material-symbols-outlined">delete</span></button>
       <button className="finance-item__edit-btn" onClick={() => setEditing(true)} title="Editar">✎</button>
     </li>
   );
@@ -218,7 +231,7 @@ export default function FinanceView(): ReactNode {
         : (
           <ul className="page-list">
             {entries.map((entry) => (
-              <FinanceEntryItem key={entry.id} entry={entry} onEdited={() => void fetchEntries()} />
+              <FinanceEntryItem key={entry.id} entry={entry} onEdited={() => void fetchEntries()} onDeleted={() => void fetchEntries()} />
             ))}
           </ul>
         )

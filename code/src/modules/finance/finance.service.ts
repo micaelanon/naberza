@@ -99,4 +99,10 @@ export class FinanceService {
       anomalyReason: e.anomalyReason,
     }));
   }
+
+  async deleteEntry(id: string): Promise<void> {
+    const existing = await this.repository.findById(id);
+    if (!existing) throw new Error(`Finance entry not found: ${id}`);
+    await this.repository.delete(id);
+  }
 }

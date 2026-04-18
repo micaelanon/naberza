@@ -81,4 +81,8 @@ export class FinanceRepository {
       orderBy: { date: "desc" },
     });
   }
+
+  async delete(id: string): Promise<void> {
+    await prisma.financialEntry.delete({ where: { id } });
+  }
 }
