@@ -15,10 +15,10 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const ACTOR_ICONS: Record<string, string> = {
-  user: "👤",
-  system: "⚙️",
-  automation: "🤖",
-  integration: "🔗",
+  user: "person",
+  system: "settings",
+  automation: "smart_toy",
+  integration: "hub",
 };
 
 export default async function AuditView() {
@@ -46,7 +46,7 @@ export default async function AuditView() {
           {entries.map((entry: AuditEntry) => (
             <div key={entry.id} className="audit-entry">
               <div className="audit-entry__icon">
-                {ACTOR_ICONS[entry.actor] ?? "📌"}
+                <span className="material-symbols-outlined">{ACTOR_ICONS[entry.actor] ?? "push_pin"}</span>
               </div>
 
               <div className="audit-entry__main">

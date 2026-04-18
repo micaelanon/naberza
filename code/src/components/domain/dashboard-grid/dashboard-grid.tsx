@@ -14,7 +14,7 @@ export default function DashboardGrid({ tiles, variant = "primary" }: DashboardG
           className="dashboard-tile"
           style={variant === "primary" && tile.color ? { "--accent-color": tile.color } as React.CSSProperties : undefined}
         >
-          <div className="dashboard-tile__icon">{tile.icon}</div>
+          <span className="material-symbols-outlined dashboard-tile__icon">{tile.icon}</span>
           <div className="dashboard-tile__content">
             <h3 className="dashboard-tile__label">{tile.label}</h3>
             <div className="dashboard-tile__count">{tile.count}</div>
