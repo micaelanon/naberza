@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import type { InboxItem, InboxStatus, InboxClassification } from "@/modules/inbox/inbox.types";
 import type { Priority } from "@/modules/tasks/task.types";
 import { useFormSubmit } from "@/hooks";
-import { ConfirmDeleteModal, useToast } from "@/components/ui";
+import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
 import "./inbox-view.css";
 
 type StatusTab = "ALL" | InboxStatus;
@@ -32,6 +32,8 @@ function filterInboxItems(items: InboxItem[], query: string, priority: Priority 
     return true;
   });
 }
+
+const PAGE_SIZE = 10;
 
 interface InboxApiResponse {
   data: InboxItem[];
@@ -251,6 +253,7 @@ export default function InboxView(): ReactNode {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterPriority, setFilterPriority] = useState<Priority | "ALL">("ALL");
+  const [page, setPage] = useState(1);
 
   const fetchItems = useCallback(async (status: StatusTab) => {
     setIsLoading(true);
@@ -285,6 +288,8 @@ export default function InboxView(): ReactNode {
 
   const filteredItems = filterInboxItems(items, searchQuery, filterPriority);
   const hasFilters = searchQuery.trim() !== "" || filterPriority !== "ALL";
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE)));
+  const paginatedItems = filteredItems.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="inbox-view">
@@ -323,12 +328,12 @@ export default function InboxView(): ReactNode {
           type="search"
           placeholder="Buscar en inbox..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
         />
         <select
           className="filter-bar__select"
           value={filterPriority}
-          onChange={(e) => setFilterPriority(e.target.value as Priority | "ALL")}
+          onChange={(e) => { setFilterPriority(e.target.value as Priority | "ALL"); setPage(1); }}
         >
           <option value="ALL">Todas las prioridades</option>
           <option value="HIGH">Alta</option>
@@ -337,7 +342,7 @@ export default function InboxView(): ReactNode {
           <option value="NONE">Sin prioridad</option>
         </select>
         {hasFilters && (
-          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterPriority("ALL"); }}>
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterPriority("ALL"); setPage(1); }}>
             Limpiar filtros
           </button>
         )}
@@ -350,13 +355,14 @@ export default function InboxView(): ReactNode {
         <InboxContent
           isLoading={isLoading}
           error={error}
-          items={filteredItems}
+          items={paginatedItems}
           onDismiss={(id) => void handleDismiss(id)}
           onEdited={() => void fetchItems(activeTab)}
           onDeleted={() => void fetchItems(activeTab)}
           hasActiveFilters={hasFilters}
         />
       </div>
+      <Pagination currentPage={currentPage} totalItems={filteredItems.length} pageSize={PAGE_SIZE} itemLabel="items" onPageChange={setPage} />
     </div>
   );
 }

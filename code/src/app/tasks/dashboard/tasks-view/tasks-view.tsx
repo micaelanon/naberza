@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { Task, TaskStatus, Priority, TaskKind } from "@/modules/tasks/task.types";
 import { useFormSubmit } from "@/hooks";
-import { ConfirmDeleteModal, useToast } from "@/components/ui";
+import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
 import "./tasks-view.css";
 
 type StatusTab = "ALL" | TaskStatus;
@@ -18,6 +18,8 @@ const STATUS_TABS: { value: StatusTab; label: string }[] = [
 
 const PRIORITY_LABELS: Record<string, string> = { HIGH: "Alta", MEDIUM: "Media", LOW: "Baja", NONE: "" };
 const KIND_LABELS: Record<string, string> = { NORMAL: "Normal", PERSISTENT: "Persistente", RECURRING: "Recurrente" };
+
+const PAGE_SIZE = 10;
 
 interface TasksApiResponse {
   data: Task[];
@@ -379,6 +381,7 @@ export default function TasksView(): ReactNode {
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [filterPriority, setFilterPriority] = useState<Priority | "ALL">("ALL");
 
   const fetchTasks = useCallback(async (status: StatusTab) => {
@@ -419,6 +422,8 @@ export default function TasksView(): ReactNode {
 
   const filteredTasks = filterTasks(tasks, searchQuery, filterPriority);
   const hasFilters = searchQuery.trim() !== "" || filterPriority !== "ALL";
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(filteredTasks.length / PAGE_SIZE)));
+  const paginatedTasks = filteredTasks.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="tasks-view">
@@ -457,12 +462,12 @@ export default function TasksView(): ReactNode {
           type="search"
           placeholder="Buscar tareas..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
         />
         <select
           className="filter-bar__select"
           value={filterPriority}
-          onChange={(e) => setFilterPriority(e.target.value as Priority | "ALL")}
+          onChange={(e) => { setFilterPriority(e.target.value as Priority | "ALL"); setPage(1); }}
         >
           <option value="ALL">Todas las prioridades</option>
           <option value="HIGH">Alta</option>
@@ -471,7 +476,7 @@ export default function TasksView(): ReactNode {
           <option value="NONE">Sin prioridad</option>
         </select>
         {hasFilters && (
-          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterPriority("ALL"); }}>
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterPriority("ALL"); setPage(1); }}>
             Limpiar filtros
           </button>
         )}
@@ -484,7 +489,7 @@ export default function TasksView(): ReactNode {
         <TasksContent
           isLoading={isLoading}
           error={error}
-          tasks={filteredTasks}
+          tasks={paginatedTasks}
           onComplete={(id) => void handleComplete(id)}
           onCancel={(id) => void handleCancel(id)}
           onEdited={() => void fetchTasks(activeTab)}
@@ -492,6 +497,7 @@ export default function TasksView(): ReactNode {
           hasActiveFilters={hasFilters}
         />
       </div>
+      <Pagination currentPage={currentPage} totalItems={filteredTasks.length} pageSize={PAGE_SIZE} itemLabel="tareas" onPageChange={setPage} />
     </div>
   );
 }

@@ -5,7 +5,9 @@ import type { ReactNode } from "react";
 import type { IdeaSummary } from "@/modules/ideas";
 import type { IdeaStatus } from "@/modules/ideas/ideas.types";
 import { useFormSubmit } from "@/hooks";
-import { ConfirmDeleteModal, useToast } from "@/components/ui";
+import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
+
+const PAGE_SIZE = 10;
 
 function filterIdeas(ideas: IdeaSummary[], query: string, status: IdeaStatus | "ALL"): IdeaSummary[] {
   return ideas.filter((idea) => {
@@ -177,6 +179,7 @@ export default function IdeasView(): ReactNode {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<IdeaStatus | "ALL">("ALL");
+  const [page, setPage] = useState(1);
 
   const fetchIdeas = useCallback(async () => {
     setLoading(true);
@@ -205,6 +208,8 @@ export default function IdeasView(): ReactNode {
 
   const filteredIdeas = filterIdeas(ideas, searchQuery, filterStatus);
   const hasFilters = searchQuery.trim() !== "" || filterStatus !== "ALL";
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(filteredIdeas.length / PAGE_SIZE)));
+  const paginatedIdeas = filteredIdeas.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="page-container">
@@ -224,12 +229,12 @@ export default function IdeasView(): ReactNode {
           type="search"
           placeholder="Buscar ideas..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
         />
         <select
           className="filter-bar__select"
           value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value as IdeaStatus | "ALL")}
+          onChange={(e) => { setFilterStatus(e.target.value as IdeaStatus | "ALL"); setPage(1); }}
         >
           <option value="ALL">Todos los estados</option>
           <option value="CAPTURED">Capturadas</option>
@@ -238,7 +243,7 @@ export default function IdeasView(): ReactNode {
           <option value="ARCHIVED">Archivadas</option>
         </select>
         {hasFilters && (
-          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterStatus("ALL"); }}>
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterStatus("ALL"); setPage(1); }}>
             Limpiar filtros
           </button>
         )}
@@ -250,12 +255,13 @@ export default function IdeasView(): ReactNode {
         ? <p className="page-empty">{hasFilters ? "No hay ideas que coincidan con los filtros." : "No hay ideas. Haz clic en \"+ Nueva idea\" para capturar algo."}</p>
         : (
           <ul className="page-list">
-            {filteredIdeas.map((idea) => (
+            {paginatedIdeas.map((idea) => (
               <IdeaListItem key={idea.id} idea={idea} onEdited={() => void fetchIdeas()} onDeleted={() => void fetchIdeas()} />
             ))}
           </ul>
         )
       }
+      <Pagination currentPage={currentPage} totalItems={filteredIdeas.length} pageSize={PAGE_SIZE} itemLabel="ideas" onPageChange={setPage} />
     </div>
   );
 }
