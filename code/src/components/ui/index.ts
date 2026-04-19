@@ -8,3 +8,5 @@ export { ToastProvider, useToast } from "./toast";
 export type { Toast, ToastKind } from "./toast";
 // Pure presentational components live in subdirectories here
 // e.g.: import Button from "@/components/ui/button"
+export { Pagination } from "./pagination";
+export type { PaginationProps } from "./pagination";
