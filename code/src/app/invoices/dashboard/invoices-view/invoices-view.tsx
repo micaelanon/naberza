@@ -1,10 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ConfirmDeleteModal, useToast } from "@/components/ui";
+import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
+import { useFormSubmit } from "@/hooks";
 import type { ReactNode } from "react";
 import type { InvoiceSummary } from "@/modules/invoices";
 import type { InvoiceStatus } from "@/modules/invoices/invoice.types";
+
+const PAGE_SIZE = 10;
 
 function filterInvoices(invoices: InvoiceSummary[], query: string, status: InvoiceStatus | "ALL"): InvoiceSummary[] {
   return invoices.filter((inv) => {
@@ -26,15 +29,16 @@ function InvoiceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onC
   const [dueDate, setDueDate] = useState("");
   const [category, setCategory] = useState("");
   const [notes, setNotes] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Factura creada"),
+    onError: (m) => showToast(m, "error"),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!issuer.trim() || !amount) { setError("Emisor y importe son obligatorios"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch("/invoices/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -50,15 +54,11 @@ function InvoiceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onC
       if (!res.ok) throw new Error("Error al crear la factura");
       setIssuer(""); setAmount(""); setDueDate(""); setCategory(""); setNotes("");
       onCreated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
-    <form className="invoice-form" onSubmit={(e) => void handleSubmit(e)}>
+    <form className="invoice-form" onSubmit={handleSubmit}>
       <div className="form-row">
         <input className="form-input" type="text" placeholder="Emisor (ej: Endesa)" value={issuer} onChange={(e) => setIssuer(e.target.value)} autoFocus />
         <input className="form-input form-input--short" type="number" step="0.01" placeholder="Importe (€)" value={amount} onChange={(e) => setAmount(e.target.value)} />
@@ -91,15 +91,16 @@ function InvoiceEditForm({ invoice, onSaved, onCancel }: {
   const [dueDate, setDueDate] = useState(invoice.dueDate ? new Date(invoice.dueDate).toISOString().slice(0, 10) : "");
   const [category, setCategory] = useState(invoice.category ?? "");
   const [status, setStatus] = useState<InvoiceStatus>(invoice.status);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Cambios guardados"),
+    onError: (m) => showToast(m, "error"),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!issuer.trim() || !amount) { setError("Emisor y importe son obligatorios"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch(`/invoices/api/${invoice.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -117,15 +118,11 @@ function InvoiceEditForm({ invoice, onSaved, onCancel }: {
         throw new Error(b?.error ?? "Error al guardar");
       }
       onSaved();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
-    <form className="invoice-form" onSubmit={(e) => void handleSubmit(e)}>
+    <form className="invoice-form" onSubmit={handleSubmit}>
       <div className="form-row">
         <input className="form-input" type="text" placeholder="Emisor" value={issuer} onChange={(e) => setIssuer(e.target.value)} autoFocus />
         <input className="form-input form-input--short" type="number" step="0.01" placeholder="Importe (€)" value={amount} onChange={(e) => setAmount(e.target.value)} />
@@ -219,6 +216,7 @@ export default function InvoicesView(): ReactNode {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<InvoiceStatus | "ALL">("ALL");
+  const [page, setPage] = useState(1);
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
@@ -252,6 +250,8 @@ export default function InvoicesView(): ReactNode {
 
   const filteredInvoices = filterInvoices(invoices, searchQuery, filterStatus);
   const hasFilters = searchQuery.trim() !== "" || filterStatus !== "ALL";
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(filteredInvoices.length / PAGE_SIZE)));
+  const paginatedInvoices = filteredInvoices.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="page-container">
@@ -271,12 +271,12 @@ export default function InvoicesView(): ReactNode {
           type="search"
           placeholder="Buscar facturas..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
         />
         <select
           className="filter-bar__select"
           value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value as InvoiceStatus | "ALL")}
+          onChange={(e) => { setFilterStatus(e.target.value as InvoiceStatus | "ALL"); setPage(1); }}
         >
           <option value="ALL">Todos los estados</option>
           <option value="PENDING">Pendientes</option>
@@ -285,7 +285,7 @@ export default function InvoicesView(): ReactNode {
           <option value="CANCELLED">Canceladas</option>
         </select>
         {hasFilters && (
-          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterStatus("ALL"); }}>
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterStatus("ALL"); setPage(1); }}>
             Limpiar filtros
           </button>
         )}
@@ -294,13 +294,13 @@ export default function InvoicesView(): ReactNode {
         )}
       </div>
       {filteredInvoices.length === 0
-        ? <p className="page-empty">{hasFilters ? "No hay facturas que coincidan con los filtros." : "No hay facturas. Haz clic en \"+ Nueva factura\" para registrar una."}</p>
+        ? <p className="page-empty">{hasFilters ? "No hay facturas que coincidan con los filtros." : "No hay facturas. Haz clic en \"+ Nueva factura\" para añadir una."}</p>
         : (
           <ul className="page-list">
-            {filteredInvoices.map((inv) => (
+            {paginatedInvoices.map((invoice) => (
               <InvoiceListItem
-                key={inv.id}
-                invoice={inv}
+                key={invoice.id}
+                invoice={invoice}
                 onEdited={() => void fetchInvoices()}
                 onPaid={(id) => void handlePaid(id)}
                 onDeleted={() => void fetchInvoices()}
@@ -309,6 +309,7 @@ export default function InvoicesView(): ReactNode {
           </ul>
         )
       }
+      <Pagination currentPage={currentPage} totalItems={filteredInvoices.length} pageSize={PAGE_SIZE} itemLabel="facturas" onPageChange={setPage} />
     </div>
   );
 }
