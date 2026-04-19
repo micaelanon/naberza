@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import ClientProviders from "./_providers/client-providers";
 import "@/app/globals.css";
 
 const inter = Inter({
@@ -36,7 +37,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
       </head>
-      <body>{children}</body>
+      <body><ClientProviders>{children}</ClientProviders></body>
     </html>
   );
 }

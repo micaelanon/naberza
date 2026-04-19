@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { Task, TaskStatus, Priority, TaskKind } from "@/modules/tasks/task.types";
 import { useFormSubmit } from "@/hooks";
-import { ConfirmDeleteModal } from "@/components/ui";
+import { ConfirmDeleteModal, useToast } from "@/components/ui";
 import "./tasks-view.css";
 
 type StatusTab = "ALL" | TaskStatus;
@@ -143,7 +143,11 @@ function TaskFormFields({
 
 function TaskCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
   const [form, setForm] = useState<TaskFormState>(EMPTY_FORM);
-  const { saving, error, setError, submit } = useFormSubmit();
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Tarea creada"),
+    onError: (m) => showToast(m, "error"),
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,7 +192,11 @@ function TaskCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
 
 function TaskEditForm({ task, onSaved, onCancel }: { task: Task; onSaved: () => void; onCancel: () => void }): ReactNode {
   const [form, setForm] = useState<TaskFormState>(() => taskToForm(task));
-  const { saving, error, setError, submit } = useFormSubmit();
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Cambios guardados"),
+    onError: (m) => showToast(m, "error"),
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -273,14 +281,21 @@ function TaskListItem({ task, onComplete, onCancel, onEdited, onDeleted }: {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { showToast } = useToast();
   const isActive = task.status === "PENDING" || task.status === "IN_PROGRESS";
 
   const handleDelete = async () => {
     setDeleting(true);
-    await fetch(`/tasks/api/${task.id}`, { method: "DELETE" });
-    setDeleting(false);
-    setConfirmDelete(false);
-    onDeleted();
+    try {
+      await fetch(`/tasks/api/${task.id}`, { method: "DELETE" });
+      setConfirmDelete(false);
+      showToast("Tarea eliminada");
+      onDeleted();
+    } catch {
+      showToast("Error al eliminar la tarea", "error");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (editing) {

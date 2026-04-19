@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ConfirmDeleteModal } from "@/components/ui";
+import { ConfirmDeleteModal, useToast } from "@/components/ui";
 import type { ReactNode } from "react";
+import { useFormSubmit } from "@/hooks";
 import type { FinanceEntrySummary } from "@/modules/finance";
 import type { FinancialEntryType } from "@/modules/finance/finance.types";
 
@@ -32,15 +33,16 @@ function FinanceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onC
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Movimiento registrado"),
+    onError: (m) => showToast(m, "error"),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount) { setError("El importe es obligatorio"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch("/finance/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,13 +55,11 @@ function FinanceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onC
         }),
       });
       if (!res.ok) throw new Error("Error al crear el movimiento");
-      setAmount(""); setDescription(""); setCategory("");
+      setAmount("");
+      setDescription("");
+      setCategory("");
       onCreated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
@@ -97,15 +97,16 @@ function FinanceEditForm({ entry, onSaved, onCancel }: {
   const [description, setDescription] = useState(entry.description ?? "");
   const [category, setCategory] = useState(entry.category ?? "");
   const [date, setDate] = useState(new Date(entry.date).toISOString().slice(0, 10));
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Cambios guardados"),
+    onError: (m) => showToast(m, "error"),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount) { setError("El importe es obligatorio"); return; }
-    setSaving(true);
-    setError(null);
-    try {
+    void submit(async () => {
       const res = await fetch(`/finance/api/${entry.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -122,11 +123,7 @@ function FinanceEditForm({ entry, onSaved, onCancel }: {
         throw new Error(b?.error ?? "Error al guardar");
       }
       onSaved();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
@@ -158,13 +155,20 @@ function FinanceEntryItem({ entry, onEdited, onDeleted }: { entry: FinanceEntryS
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { showToast } = useToast();
 
   const handleDelete = async () => {
     setDeleting(true);
-    await fetch(`/finance/api/${entry.id}`, { method: "DELETE" });
-    setDeleting(false);
-    setConfirmDelete(false);
-    onDeleted();
+    try {
+      await fetch(`/finance/api/${entry.id}`, { method: "DELETE" });
+      setConfirmDelete(false);
+      showToast("Movimiento eliminado");
+      onDeleted();
+    } catch {
+      showToast("Error al eliminar el movimiento", "error");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (editing) {
