@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ConfirmDeleteModal, useToast } from "@/components/ui";
+import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
 import type { ReactNode } from "react";
 import { useFormSubmit } from "@/hooks";
 import type { FinanceEntrySummary } from "@/modules/finance";
@@ -13,6 +13,8 @@ const TYPE_LABELS: Record<string, string> = {
   BALANCE_SNAPSHOT: "Saldo",
   RECURRING_CHARGE: "Recurrente",
 };
+
+const PAGE_SIZE = 10;
 
 function filterFinanceEntries(entries: FinanceEntrySummary[], query: string, type: FinancialEntryType | "ALL"): FinanceEntrySummary[] {
   return entries.filter((entry) => {
@@ -205,6 +207,7 @@ export default function FinanceView(): ReactNode {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<FinancialEntryType | "ALL">("ALL");
+  const [page, setPage] = useState(1);
 
   const fetchEntries = useCallback(async () => {
     setLoading(true);
@@ -233,6 +236,8 @@ export default function FinanceView(): ReactNode {
 
   const filteredEntries = filterFinanceEntries(entries, searchQuery, filterType);
   const hasFilters = searchQuery.trim() !== "" || filterType !== "ALL";
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(filteredEntries.length / PAGE_SIZE)));
+  const paginatedEntries = filteredEntries.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="page-container">
@@ -252,12 +257,12 @@ export default function FinanceView(): ReactNode {
           type="search"
           placeholder="Buscar movimientos..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
         />
         <select
           className="filter-bar__select"
           value={filterType}
-          onChange={(e) => setFilterType(e.target.value as FinancialEntryType | "ALL")}
+          onChange={(e) => { setFilterType(e.target.value as FinancialEntryType | "ALL"); setPage(1); }}
         >
           <option value="ALL">Todos los tipos</option>
           <option value="EXPENSE">Gastos</option>
@@ -266,7 +271,7 @@ export default function FinanceView(): ReactNode {
           <option value="BALANCE_SNAPSHOT">Snapshots de saldo</option>
         </select>
         {hasFilters && (
-          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterType("ALL"); }}>
+          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterType("ALL"); setPage(1); }}>
             Limpiar filtros
           </button>
         )}
@@ -278,12 +283,13 @@ export default function FinanceView(): ReactNode {
         ? <p className="page-empty">{hasFilters ? "No hay movimientos que coincidan con los filtros." : "No hay movimientos. Haz clic en \"+ Nuevo movimiento\" para registrar uno."}</p>
         : (
           <ul className="page-list">
-            {filteredEntries.map((entry) => (
+            {paginatedEntries.map((entry) => (
               <FinanceEntryItem key={entry.id} entry={entry} onEdited={() => void fetchEntries()} onDeleted={() => void fetchEntries()} />
             ))}
           </ul>
         )
       }
+      <Pagination currentPage={currentPage} totalItems={filteredEntries.length} pageSize={PAGE_SIZE} itemLabel="movimientos" onPageChange={setPage} />
     </div>
   );
 }
