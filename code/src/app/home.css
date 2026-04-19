@@ -133,3 +133,43 @@
   background: var(--color-brand-strong);
   transform: translateY(-1px);
 }
+
+.digest-section {
+  margin-top: 2rem;
+}
+
+.digest-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.digest-card {
+  display: block;
+  padding: 1rem;
+  border-radius: 14px;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border-default);
+  text-decoration: none;
+  color: inherit;
+}
+
+.digest-card--warning {
+  border-color: #d6a34d;
+  background: #fff6e7;
+}
+
+.digest-card--urgent {
+  border-color: #d46b6b;
+  background: #fff0f0;
+}
+
+.digest-card__title {
+  font-weight: 600;
+  margin-bottom: .35rem;
+}
+
+.digest-card__detail {
+  font-size: .9rem;
+  color: var(--color-text-secondary);
+}
