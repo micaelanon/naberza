@@ -1,18 +1,24 @@
 # Naberza OS — Roadmap
 
-## Estado actual
+## Estado actual (2026-04-19)
 
 - **Phase 0 — Foundation**: ✅ completada
 - **Phase 1 — Core Loop**: ✅ completada
-- **Phase 2 — Adapters & ingestion layer**: ✅ completada en la práctica
-- **Phase 3 — Alignment & hardening of current implementation**: 🔄 en curso
+- **Phase 2 — Adapters & ingestion layer**: ✅ completada
+- **Phase 3 — Alignment & hardening**: ✅ completada
+- **Phase 4 — Domain modules**: ✅ completada
+- **Phase 5 — Automations & notifications**: ✅ completada
+- **Phase 6 — Polish & hardening**: ✅ completada
+- **Phase 7 — Make the app actually usable**: 🔄 en curso
 
-> Nota importante: la ejecución real del proyecto se desvió del roadmap original.
-> En la práctica se implementó primero la capa de adapters (`Paperless`, `Home Assistant`, `IMAP`, `webhooks`) antes de cerrar módulos de dominio como `documents`, `invoices`, `home` o `finance`.
-> Este documento refleja el estado real, no el orden aspiracional inicial.
+> Nota de ejecución: la ejecución real del proyecto se desvió del roadmap original.
+> En la práctica se implementó primero la capa de adapters antes de cerrar módulos de dominio.
+> Este documento refleja el estado real confirmado en código y PRs mergeados.
+
+---
 
 ## Phase 0 — Foundation
-**Status**: ✅ Complete
+**Status**: ✅ Complete (PRs #24–#30)
 
 - [x] Architecture documentation
 - [x] Module definitions and boundaries
@@ -30,22 +36,26 @@
 - [x] Docker Compose for local dev
 - [x] env example with required vars
 
+---
+
 ## Phase 1 — Core Loop
 **Goal**: Inbox → classify → route → persist → audit → dashboard
-**Status**: ✅ Complete
+**Status**: ✅ Complete (PRs #32–#36)
 
 - [x] PostgreSQL + Prisma operational
 - [x] NextAuth.js authentication (single-user)
-- [x] Inbox CRUD (manual item creation)
-- [x] Inbox classification (rule-based, manual)
-- [x] Task module (CRUD, views: today/upcoming/persistent/completed)
+- [x] Inbox CRUD (manual item creation + classification)
+- [x] Task module (CRUD, status: PENDING/IN_PROGRESS/COMPLETED)
 - [x] Audit log recording and viewing
-- [x] Dashboard: today view with inbox + tasks
+- [x] Dashboard with today view
 - [x] Event bus wired for audit logging
+- [x] 110 tests passing
+
+---
 
 ## Phase 2 — Adapters & ingestion layer
-**Goal**: establish external integration entry points before completing remaining domain modules
-**Status**: ✅ Complete
+**Goal**: Establish external integration entry points
+**Status**: ✅ Complete (PRs #38–#40)
 
 - [x] Paperless-ngx adapter (read-only: search, list, metadata)
 - [x] Home Assistant adapter (read states, call services, test connection)
@@ -56,56 +66,88 @@
 - [x] Webhook ingestion API
 - [x] Adapter sync functions covered by tests
 
-## Phase 3 — Alignment & hardening of current implementation
-**Goal**: remove contradictions between docs, structure and implementation; harden the current base before new domain work
-**Status**: 🔄 In progress
+---
 
-### Completed in Phase 3
-- [x] Phase 3 audit baseline (`docs/phase-3-audit.md`)
-- [x] CSS hardcoded colors replaced by tokens
-- [x] Default export alignment in component barrels/imports
-- [x] Legacy integration adapter stubs removed from `src/modules/integrations/adapters`
-- [x] Sync function tests added for Paperless, Home Assistant and Mail
-- [x] CI split into separate jobs (`lint`, `type-check`, `unit-test`, `build`)
-- [x] Semgrep workflow added
+## Phase 3 — Alignment & hardening
+**Goal**: Remove contradictions between docs, structure and implementation
+**Status**: ✅ Complete (PRs #41–#50)
 
-### Remaining in Phase 3
-- [ ] `loading.tsx` and `error.tsx` for data-fetching segments
-- [ ] Webhook route tests
-- [ ] Props/type location review where applicable
+- [x] Phase 3 audit baseline
+- [x] CSS hardcoded colors replaced by design tokens
+- [x] Default export alignment
+- [x] Legacy adapter stubs removed
+- [x] Sync tests for Paperless, Home Assistant, Mail
+- [x] CI: 4-job pipeline (lint, type-check, unit-test, build)
+- [x] Semgrep workflow
+- [x] loading.tsx and error.tsx for all data-fetching segments
+- [x] Webhook route tests
+- [x] Props/type location alignment
 
-## Phase 4 — Domain modules completion
-**Goal**: close the domain gaps left behind by the adapter-first execution order
+---
 
-- [ ] Document module: link internal entities to Paperless docs
-- [ ] Invoice module: create from inbox, link to documents
-- [ ] Invoice status tracking (pending/paid/overdue)
-- [ ] Home module: event log and dashboard cards
-- [ ] Finance module: financial entries and recurring detection
-- [ ] Ideas module: capture, tag, promote, archive
+## Phase 4 — Domain modules
+**Goal**: Close domain gaps left behind by adapter-first execution
+**Status**: ✅ Complete (PRs #51–#56)
+
+- [x] Document module: internal entities linked to Paperless docs
+- [x] Invoice module: create from inbox, link to documents
+- [x] Invoice status tracking (PENDING/PAID/OVERDUE/CANCELLED)
+- [x] Home module: event log and dashboard cards
+- [x] Finance module: financial entries and recurring detection
+- [x] Ideas module: capture, tag, promote, archive
+- [x] Architecture review (Opus)
+
+---
 
 ## Phase 5 — Automations & notifications
-**Goal**: rule engine, approval workflow and outbound communication
+**Goal**: Rule engine, approval workflow and outbound communication
+**Status**: ✅ Complete (PRs #57–#64, ~409 tests)
 
-- [ ] Automation rule CRUD
-- [ ] Rule evaluation engine
-- [ ] Approval request flow
-- [ ] Configurable triggers and conditions
-- [ ] Telegram notification adapter
-- [ ] Email notification adapter
-- [ ] Notification preferences
+- [x] Automation rule CRUD
+- [x] Rule evaluation engine
+- [x] Approval request flow
+- [x] Configurable triggers and conditions
+- [x] Telegram notification adapter
+- [x] Email notification adapter
+- [x] Integration tests for automations
+
+---
 
 ## Phase 6 — Polish & hardening
-**Goal**: production-readiness and operational reliability
+**Goal**: Production-readiness and operational reliability
+**Status**: ✅ Complete (PRs #65–#72, ~420 tests)
 
-- [ ] Comprehensive error handling
-- [ ] Rate limiting on relevant API routes
-- [ ] Circuit breaker strategy for adapters
-- [ ] Monitoring and health dashboard
-- [ ] Data export/import
-- [ ] Audit log retention policies
-- [ ] Performance optimization
-- [ ] Accessibility review
+- [x] Dashboard stats with real data from all repos
+- [x] PrismaAuditStore (replaces in-memory)
+- [x] Service factory pattern (8 singletons)
+- [x] Database indexes (8 new indexes on critical queries)
+- [x] Rate limiting (in-memory, 100 req/min)
+- [x] Adapter retry + circuit breaker (exponential backoff + jitter)
+- [x] Health check API (`GET /api/health`)
+- [x] Security audit + CSRF protection + 6 HTTP security headers
+
+---
+
+## Phase 7 — Make the app actually usable
+**Goal**: Full CRUD UI, UX polish, and real usability across all modules
+**Status**: 🔄 In progress (470 tests)
+
+- [x] Create forms: tasks, inbox, ideas, invoices, finance (PR #73)
+- [x] Sidebar visual polish + warm palette tokens (PR #74)
+- [x] Emoji → Material Symbols migration (PR #75)
+- [x] Edit forms: tasks, inbox, ideas, invoices, finance (PR #76)
+- [x] Integrations setup guide (step-by-step) (PR #76)
+- [x] Delete with confirmation modal: all modules (PR #79)
+- [x] Integrations live status (ping + env check + pills) (PR #80)
+- [x] Client-side filters + search: tasks, inbox, ideas, invoices, finance (PR #81)
+- [x] Dashboard with real data for all modules + StatsBar (PR #82)
+- [x] Toast notifications for all CRUD actions (PR #83)
+- [x] Reusable Pagination component; documents + home paginated (PR #84)
+- [ ] invoices-view: migrate to useFormSubmit + pagination (P7-08)
+- [ ] Settings page with session info, theme toggle, version (P7-09)
+- [ ] Pagination for CRUD-heavy list views (tasks, inbox, ideas, finance) (P7-11)
+
+---
 
 ## Out of Scope (indefinitely)
 
