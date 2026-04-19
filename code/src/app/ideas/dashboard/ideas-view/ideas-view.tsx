@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import type { IdeaSummary } from "@/modules/ideas";
 import type { IdeaStatus } from "@/modules/ideas/ideas.types";
 import { useFormSubmit } from "@/hooks";
-import { ConfirmDeleteModal } from "@/components/ui";
+import { ConfirmDeleteModal, useToast } from "@/components/ui";
 
 function filterIdeas(ideas: IdeaSummary[], query: string, status: IdeaStatus | "ALL"): IdeaSummary[] {
   return ideas.filter((idea) => {
@@ -27,7 +27,11 @@ function IdeaCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [tags, setTags] = useState("");
-  const { saving, error, setError, submit } = useFormSubmit();
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Idea capturada"),
+    onError: (m) => showToast(m, "error"),
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +73,11 @@ function IdeaEditForm({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved:
   const [body, setBody] = useState(idea.body ?? "");
   const [tags, setTags] = useState(idea.tags.join(", "));
   const [status, setStatus] = useState<IdeaStatus>(idea.status);
-  const { saving, error, setError, submit } = useFormSubmit();
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Cambios guardados"),
+    onError: (m) => showToast(m, "error"),
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,13 +129,20 @@ function IdeaListItem({ idea, onEdited, onDeleted }: { idea: IdeaSummary; onEdit
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { showToast } = useToast();
 
   const handleDelete = async () => {
     setDeleting(true);
-    await fetch(`/ideas/api/${idea.id}`, { method: "DELETE" });
-    setDeleting(false);
-    setConfirmDelete(false);
-    onDeleted();
+    try {
+      await fetch(`/ideas/api/${idea.id}`, { method: "DELETE" });
+      setConfirmDelete(false);
+      showToast("Idea eliminada");
+      onDeleted();
+    } catch {
+      showToast("Error al eliminar la idea", "error");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (editing) {

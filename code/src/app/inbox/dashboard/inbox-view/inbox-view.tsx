@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import type { InboxItem, InboxStatus, InboxClassification } from "@/modules/inbox/inbox.types";
 import type { Priority } from "@/modules/tasks/task.types";
 import { useFormSubmit } from "@/hooks";
-import { ConfirmDeleteModal } from "@/components/ui";
+import { ConfirmDeleteModal, useToast } from "@/components/ui";
 import "./inbox-view.css";
 
 type StatusTab = "ALL" | InboxStatus;
@@ -44,7 +44,11 @@ function InboxCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCan
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [priority, setPriority] = useState<Priority>("NONE");
-  const { saving, error, setError, submit } = useFormSubmit();
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Añadido al inbox"),
+    onError: (m) => showToast(m, "error"),
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,7 +93,11 @@ function InboxEditForm({ item, onSaved, onCancel }: { item: InboxItem; onSaved: 
   const [body, setBody] = useState(item.body ?? "");
   const [priority, setPriority] = useState<Priority>(item.priority);
   const [classification, setClassification] = useState<InboxClassification | "">(item.classification ?? "");
-  const { saving, error, setError, submit } = useFormSubmit();
+  const { showToast } = useToast();
+  const { saving, error, setError, submit } = useFormSubmit({
+    onSuccess: () => showToast("Cambios guardados"),
+    onError: (m) => showToast(m, "error"),
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,13 +164,20 @@ function InboxListItem({ item, onDismiss, onEdited, onDeleted }: {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { showToast } = useToast();
 
   const handleDelete = async () => {
     setDeleting(true);
-    await fetch(`/inbox/api/${item.id}`, { method: "DELETE" });
-    setDeleting(false);
-    setConfirmDelete(false);
-    onDeleted();
+    try {
+      await fetch(`/inbox/api/${item.id}`, { method: "DELETE" });
+      setConfirmDelete(false);
+      showToast("Item eliminado");
+      onDeleted();
+    } catch {
+      showToast("Error al eliminar el item", "error");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (editing) {

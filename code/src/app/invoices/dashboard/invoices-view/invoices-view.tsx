@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ConfirmDeleteModal } from "@/components/ui";
+import { ConfirmDeleteModal, useToast } from "@/components/ui";
 import type { ReactNode } from "react";
 import type { InvoiceSummary } from "@/modules/invoices";
 import type { InvoiceStatus } from "@/modules/invoices/invoice.types";
@@ -161,13 +161,20 @@ function InvoiceListItem({ invoice, onEdited, onPaid, onDeleted }: {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { showToast } = useToast();
 
   const handleDelete = async () => {
     setDeleting(true);
-    await fetch(`/invoices/api/${invoice.id}`, { method: "DELETE" });
-    setDeleting(false);
-    setConfirmDelete(false);
-    onDeleted();
+    try {
+      await fetch(`/invoices/api/${invoice.id}`, { method: "DELETE" });
+      setConfirmDelete(false);
+      showToast("Factura eliminada");
+      onDeleted();
+    } catch {
+      showToast("Error al eliminar la factura", "error");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (editing) {
