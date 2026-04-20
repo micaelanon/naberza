@@ -2,6 +2,8 @@ import { AppShell } from "@/components/ui";
 import { analyzeMailInbox } from "@/lib/mail-analysis/mail-analysis";
 import "../home.css";
 
+export const dynamic = "force-dynamic";
+
 function Section({ title, empty, children }: { title: string; empty?: string; children: React.ReactNode }) {
   return (
     <section className="digest-section">
