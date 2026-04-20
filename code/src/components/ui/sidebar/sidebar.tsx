@@ -35,7 +35,7 @@ export default function Sidebar({ versionLabel }: SidebarProps) {
   return (
     <nav className="sidebar" aria-label="Navegación principal">
       <div className="sidebar__brand">
-        <span className="sidebar__brand-icon">⬡</span>
+        <span className="sidebar__brand-icon">🍃</span>
         <span className="sidebar__brand-name">Naberza</span>
       </div>
 

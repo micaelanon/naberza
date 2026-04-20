@@ -2,16 +2,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: 60px;
   padding: 0 var(--size-28);
   border-bottom: 1px solid #e8e6e1;
-  background: linear-gradient(180deg, rgba(250, 250, 248, 0.98) 0%, rgba(245, 243, 240, 0.95) 100%);
+  background: linear-gradient(180deg, #fdfcfb 0%, #fbf9f7 100%);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 10;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .topbar__title {
@@ -29,17 +29,17 @@
 }
 
 .topbar__avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, #a8d84f 0%, #a8d84f 100%);
-  color: #2d3a1f;
-  font-size: 0.85rem;
+  background: #e8ddd0;
+  color: #485422;
+  font-size: 0.8rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: default;
   user-select: none;
-  box-shadow: 0 4px 12px rgba(168, 216, 79, 0.3);
+  border: 1px solid #ddd2c5;
 }
