@@ -46,9 +46,9 @@
   --color-sidebar-text: #5c5449;
   --color-sidebar-text-active: #3a4419;
 
-  /* Canvas */
-  --color-canvas-bg: #fbf8fc;
-  --color-canvas-topbar: rgba(251, 248, 252, 0.82);
+  /* Canvas - moderno y limpio */
+  --color-canvas-bg: #fafaf8;
+  --color-canvas-topbar: rgba(250, 250, 248, 0.95);
 
   /* Cards */
   --color-card-bg: #f0edf1;

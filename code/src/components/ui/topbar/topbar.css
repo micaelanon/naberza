@@ -2,41 +2,44 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
-  padding: 0 var(--size-24);
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-canvas-topbar);
+  height: 64px;
+  padding: 0 var(--size-28);
+  border-bottom: 1px solid #e8e6e1;
+  background: linear-gradient(180deg, rgba(250, 250, 248, 0.98) 0%, rgba(245, 243, 240, 0.95) 100%);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 10;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .topbar__title {
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-primary);
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .topbar__right {
   display: flex;
   align-items: center;
-  gap: var(--size-12);
+  gap: var(--size-16);
 }
 
 .topbar__avatar {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-pill);
-  background: var(--color-brand-soft);
-  color: var(--color-brand);
-  font-size: 0.75rem;
+  background: linear-gradient(135deg, #a8d84f 0%, #a8d84f 100%);
+  color: #2d3a1f;
+  font-size: 0.85rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: default;
   user-select: none;
+  box-shadow: 0 4px 12px rgba(168, 216, 79, 0.3);
 }
