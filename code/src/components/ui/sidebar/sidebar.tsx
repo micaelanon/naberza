@@ -8,7 +8,7 @@ import "./sidebar.css";
 
 const NAV_ITEMS = [
   { id: "home", label: "Dashboard", icon: "grid_view", href: "/" },
-  { id: "inbox", label: "Inbox", icon: "inbox", href: "/inbox/dashboard" },
+  { id: "mail", label: "Correo", icon: "mark_email_unread", href: "/mail-analysis" },
   { id: "tasks", label: "Tareas", icon: "check_circle", href: "/tasks/dashboard" },
   { id: "documents", label: "Documentos", icon: "description", href: "/documents/dashboard" },
   { id: "invoices", label: "Facturas", icon: "receipt_long", href: "/invoices/dashboard" },
