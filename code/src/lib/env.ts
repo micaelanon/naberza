@@ -14,6 +14,9 @@ export const env = {
   authAdminPassword: process.env.AUTH_ADMIN_PASSWORD,
   // API base URL — client safe
   apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api",
+  // Home Assistant — server only
+  homeAssistantUrl: process.env.HOME_ASSISTANT_URL,
+  homeAssistantToken: process.env.HOME_ASSISTANT_TOKEN,
   // Notification — Telegram
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
   telegramDefaultChatId: process.env.TELEGRAM_DEFAULT_CHAT_ID,
