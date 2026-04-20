@@ -9,15 +9,11 @@
 }
 
 .home-page__greeting {
-  font-size: 2rem;
+  font-size: 1.875rem;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: #241f1a;
   margin: 0 0 var(--size-20);
-  letter-spacing: -0.03em;
-  background: linear-gradient(135deg, #2d3a1f 0%, #485422 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: -0.02em;
 }
 
 /* ─── Stats bar ──────────────────────────────────────────────── */
@@ -42,8 +38,8 @@
 }
 
 .stats-bar__item:hover {
-  border-color: #a8d84f;
-  box-shadow: 0 4px 12px rgba(168, 216, 79, 0.15);
+  border-color: #d4cdc0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .stats-bar__item--urgent {
@@ -73,14 +69,14 @@
 }
 
 .home-page__section-title {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #a8d84f;
-  margin: 0 0 var(--size-20);
+  color: #485422;
+  margin: 0 0 var(--size-16);
   padding-bottom: var(--size-12);
-  border-bottom: 2px solid #a8d84f;
+  border-bottom: 1px solid #e8e6e1;
 }
 
 /* Guest / unauthenticated */
