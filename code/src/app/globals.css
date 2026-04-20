@@ -51,20 +51,39 @@ a:focus-visible {
 
 .page-container { max-width: 900px; }
 .page-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem; }
-.page-header h1 { font-size: 1.75rem; font-weight: 700; margin: 0; }
-.count { font-size: 0.875rem; color: var(--color-text-muted, #888); font-weight: 400; }
+.page-header h1 {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  margin: 0;
+  color: var(--color-text-primary);
+}
+.count {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--weight-regular);
+}
 .page-add-btn {
   margin-left: auto;
   padding: 0.5rem 1rem;
-  background: var(--color-olive, #606c38);
+  background: var(--color-brand, #606c38);
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  border-radius: var(--radius-s);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-button);
 }
-.page-add-btn:hover { background: var(--color-olive-dark, #4a5428); }
+.page-add-btn:hover {
+  background: var(--color-brand-strong, #4a5428);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(72, 84, 34, 0.25);
+}
+.page-add-btn:active {
+  transform: translateY(0);
+}
 .page-empty { color: var(--color-text-muted, #888); font-size: 0.9rem; }
 .page-error { color: var(--color-error, #d32f2f); }
 
@@ -100,12 +119,21 @@ a:focus-visible {
 .form-input, .form-textarea, .form-select {
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border, #e5e5e5);
-  border-radius: 6px;
+  border-radius: var(--radius-s);
   font-size: 0.875rem;
   font-family: inherit;
   background: white;
+  transition: var(--transition-fast);
 }
-.form-input:focus, .form-textarea:focus { outline: none; border-color: var(--color-olive, #606c38); }
+.form-input:hover:not(:disabled), .form-textarea:hover:not(:disabled), .form-select:hover:not(:disabled) {
+  border-color: var(--color-brand, #606c38);
+  background: #fdfcfb;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--color-brand, #606c38);
+  box-shadow: 0 0 0 3px rgba(72, 84, 34, 0.1);
+}
 .form-input--short { max-width: 150px; }
 .form-textarea { resize: vertical; min-height: 60px; }
 .form-error { color: var(--color-error, #d32f2f); font-size: 0.8rem; margin: 0; }
