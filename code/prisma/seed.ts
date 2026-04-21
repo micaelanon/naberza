@@ -21,6 +21,22 @@ const { PrismaClient } = require("../node_modules/@prisma/client/index.js") as t
 
 const prisma = new PrismaClient();
 
+async function seedUser() {
+  const email = process.env.AUTH_ADMIN_EMAIL ?? "admin@naberza.local";
+
+  const user = await prisma.user.upsert({
+    where: { email },
+    update: { name: "Admin" },
+    create: {
+      email,
+      name: "Admin",
+    },
+  });
+
+  console.log(`  ✓ admin user (${user.email})`);
+  return user;
+}
+
 async function seedInbox() {
   const items = await prisma.$transaction([
     prisma.inboxItem.create({
@@ -271,6 +287,7 @@ async function seedIdeas() {
 async function main() {
   console.log("🌱 Seeding Naberza OS database...\n");
 
+  await seedUser();
   const inboxItems = await seedInbox();
   const tasks = await seedTasks();
   await seedAuditEvents(inboxItems[0].id, tasks[1].id);

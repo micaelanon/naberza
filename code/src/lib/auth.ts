@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "@/lib/db";
 
 /**
  * NextAuth configuration for Naberza OS.
@@ -43,10 +44,20 @@ export const authOptions: NextAuthOptions = {
           credentials.email === adminEmail &&
           credentials.password === adminPassword
         ) {
+          const user = await prisma.user.upsert({
+            where: { email: adminEmail },
+            update: { name: "Admin" },
+            create: {
+              email: adminEmail,
+              name: "Admin",
+            },
+            select: { id: true, name: true, email: true },
+          });
+
           return {
-            id: "admin",
-            name: "Admin",
-            email: adminEmail,
+            id: user.id,
+            name: user.name ?? "Admin",
+            email: user.email,
           };
         }
 

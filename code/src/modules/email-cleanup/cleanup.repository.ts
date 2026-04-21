@@ -1,8 +1,8 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import {
   EmailCleanupRule,
   EmailCleanupLog,
-  CleanupRuleConfig,
   CreateCleanupRuleInput,
   UpdateCleanupRuleInput,
   CleanupRuleFilter,
@@ -10,37 +10,41 @@ import {
   CleanupAction,
 } from "./cleanup.types";
 
+/**
+ * CleanupRepository — thin wrapper around Prisma for email cleanup rules & logs.
+ *
+ * NOTE: If TypeScript complains about `prisma.emailCleanupRule` not existing,
+ * run `npx prisma generate` to regenerate the Prisma client from the schema.
+ */
 export class CleanupRepository {
-  constructor() {}
-
   // ─────────────────────────────────────────────
   // Rule Management
   // ─────────────────────────────────────────────
 
   async createRule(userId: string, input: CreateCleanupRuleInput): Promise<EmailCleanupRule> {
-    return prisma.emailCleanupRule.create({
+    const rule = await prisma.emailCleanupRule.create({
       data: {
         userId,
         name: input.name,
         description: input.description,
         matchType: input.matchType,
-        config: input.config,
+        config: input.config as unknown as Prisma.InputJsonValue,
         action: input.action,
-        priority: input.priority || 0,
+        priority: input.priority ?? 0,
         dryRunEnabled: input.dryRunEnabled !== false,
         enabled: true,
       },
     });
+    return rule as unknown as EmailCleanupRule;
   }
 
   async getRule(id: string): Promise<EmailCleanupRule | null> {
-    return prisma.emailCleanupRule.findUnique({
-      where: { id },
-    });
+    const rule = await prisma.emailCleanupRule.findUnique({ where: { id } });
+    return rule as unknown as EmailCleanupRule | null;
   }
 
   async listRules(userId: string, filter?: CleanupRuleFilter): Promise<EmailCleanupRule[]> {
-    return prisma.emailCleanupRule.findMany({
+    const rules = await prisma.emailCleanupRule.findMany({
       where: {
         userId,
         ...(filter?.enabled !== undefined && { enabled: filter.enabled }),
@@ -49,26 +53,39 @@ export class CleanupRepository {
       },
       orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
     });
+    return rules as unknown as EmailCleanupRule[];
   }
 
   async updateRule(id: string, input: UpdateCleanupRuleInput): Promise<EmailCleanupRule> {
-    return prisma.emailCleanupRule.update({
+    const data: Record<string, unknown> = {
+      ...(input.name !== undefined && { name: input.name }),
+      ...(input.description !== undefined && { description: input.description }),
+      ...(input.action !== undefined && { action: input.action }),
+      ...(input.enabled !== undefined && { enabled: input.enabled }),
+      ...(input.priority !== undefined && { priority: input.priority }),
+      ...(input.dryRunEnabled !== undefined && { dryRunEnabled: input.dryRunEnabled }),
+    };
+    if (input.config !== undefined) {
+      data["config"] = input.config as unknown as Prisma.InputJsonValue;
+    }
+
+    const rule = await prisma.emailCleanupRule.update({
       where: { id },
-      data: input,
+      data: data as Prisma.EmailCleanupRuleUpdateInput,
     });
+    return rule as unknown as EmailCleanupRule;
   }
 
   async deleteRule(id: string): Promise<void> {
-    await prisma.emailCleanupRule.delete({
-      where: { id },
-    });
+    await prisma.emailCleanupRule.delete({ where: { id } });
   }
 
   async toggleRule(id: string, enabled: boolean): Promise<EmailCleanupRule> {
-    return prisma.emailCleanupRule.update({
+    const rule = await prisma.emailCleanupRule.update({
       where: { id },
       data: { enabled },
     });
+    return rule as unknown as EmailCleanupRule;
   }
 
   async updateExecutionStats(
@@ -77,7 +94,7 @@ export class CleanupRepository {
     executedCount: number,
     lastExecutedAt?: Date
   ): Promise<EmailCleanupRule> {
-    return prisma.emailCleanupRule.update({
+    const rule = await prisma.emailCleanupRule.update({
       where: { id },
       data: {
         matchedCount,
@@ -85,6 +102,7 @@ export class CleanupRepository {
         ...(lastExecutedAt && { lastExecutedAt }),
       },
     });
+    return rule as unknown as EmailCleanupRule;
   }
 
   // ─────────────────────────────────────────────
@@ -97,7 +115,7 @@ export class CleanupRepository {
     action: CleanupAction,
     wasPreview: boolean
   ): Promise<EmailCleanupLog> {
-    return prisma.emailCleanupLog.create({
+    const log = await prisma.emailCleanupLog.create({
       data: {
         ruleId,
         inboxItemId,
@@ -105,10 +123,11 @@ export class CleanupRepository {
         wasPreview,
       },
     });
+    return log as unknown as EmailCleanupLog;
   }
 
   async listLogs(ruleId: string, filter?: CleanupLogFilter): Promise<EmailCleanupLog[]> {
-    return prisma.emailCleanupLog.findMany({
+    const logs = await prisma.emailCleanupLog.findMany({
       where: {
         ruleId,
         ...(filter?.action && { action: filter.action }),
@@ -119,6 +138,7 @@ export class CleanupRepository {
       },
       orderBy: { executedAt: "desc" },
     });
+    return logs as unknown as EmailCleanupLog[];
   }
 
   async deleteOldLogs(beforeDate: Date): Promise<number> {
@@ -136,16 +156,16 @@ export class CleanupRepository {
   // ─────────────────────────────────────────────
 
   async getRuleStats(userId: string) {
-    const rules = await prisma.emailCleanupRule.findMany({
+    const rules = (await prisma.emailCleanupRule.findMany({
       where: { userId },
-    });
+    })) as unknown as EmailCleanupRule[];
 
-    const totalMatched = rules.reduce((sum, r) => sum + r.matchedCount, 0);
-    const totalExecuted = rules.reduce((sum, r) => sum + r.executedCount, 0);
+    const totalMatched = rules.reduce((sum: number, r: EmailCleanupRule) => sum + r.matchedCount, 0);
+    const totalExecuted = rules.reduce((sum: number, r: EmailCleanupRule) => sum + r.executedCount, 0);
 
     return {
       totalRules: rules.length,
-      enabledRules: rules.filter((r) => r.enabled).length,
+      enabledRules: rules.filter((r: EmailCleanupRule) => r.enabled).length,
       totalMatched,
       totalExecuted,
       rules,
@@ -162,24 +182,23 @@ export class CleanupRepository {
       executed: number;
     }>
   > {
-    const logs = await prisma.emailCleanupLog.findMany({
+    const logs = (await prisma.emailCleanupLog.findMany({
       where: { ruleId },
       take: limit,
       orderBy: { executedAt: "desc" },
-    });
+    })) as unknown as EmailCleanupLog[];
 
     // Group by date
     const grouped = new Map<string, { matched: number; executed: number }>();
     for (const log of logs) {
       const date = log.executedAt.toISOString().split("T")[0];
-      const key = date;
-      if (!grouped.has(key)) {
-        grouped.set(key, { matched: 0, executed: 0 });
+      if (!grouped.has(date)) {
+        grouped.set(date, { matched: 0, executed: 0 });
       }
-      const stats = grouped.get(key)!;
-      stats.executed++;
+      const stats = grouped.get(date)!;
+      stats.matched++;
       if (!log.wasPreview) {
-        stats.matched++;
+        stats.executed++;
       }
     }
 

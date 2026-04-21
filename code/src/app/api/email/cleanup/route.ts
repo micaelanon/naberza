@@ -14,20 +14,19 @@ import { unauthorized, success, badRequest } from "@/lib/api-responses";
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    // Parse query parameters for filtering
     const url = new URL(request.url);
     const enabled = url.searchParams.get("enabled");
     const matchType = url.searchParams.get("matchType");
     const action = url.searchParams.get("action");
 
-    const rules = await service.listRules(session.user.email, {
+    const rules = await service.listRules(session.user.id, {
       ...(enabled !== null && { enabled: enabled === "true" }),
       ...(matchType && { matchType: matchType as any }),
       ...(action && { action: action as any }),
@@ -39,10 +38,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error listing cleanup rules:", error);
-    return NextResponse.json(
-      { error: "Failed to list rules" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to list rules" }, { status: 500 });
   }
 }
 
@@ -53,13 +49,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
     const body = await request.json();
 
-    // Validate required fields
     if (!body.name || !body.matchType || !body.action || !body.config) {
       return badRequest("Missing required fields: name, matchType, action, config");
     }
@@ -67,7 +62,13 @@ export async function POST(request: NextRequest) {
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.createRule(session.user.email, {
+    console.log("[email-cleanup][create] session user", {
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.name,
+    });
+
+    const rule = await service.createRule(session.user.id, {
       name: body.name,
       description: body.description,
       matchType: body.matchType,
@@ -80,9 +81,6 @@ export async function POST(request: NextRequest) {
     return success(rule, 201);
   } catch (error) {
     console.error("Error creating cleanup rule:", error);
-    return NextResponse.json(
-      { error: "Failed to create rule" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to create rule" }, { status: 500 });
   }
 }

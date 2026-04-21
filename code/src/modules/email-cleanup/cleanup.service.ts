@@ -1,7 +1,8 @@
-import { InboxItem } from "@prisma/client";
+import type { InboxItem } from "@prisma/client";
 import { eventBus } from "@/lib/events/event-bus";
-import { AuditService } from "@/lib/audit";
-import { InboxRepository } from "@/modules/inbox/inbox.repository";
+import type { AuditService } from "@/lib/audit";
+import type { InboxRepository } from "@/modules/inbox/inbox.repository";
+import type { InboxService } from "@/modules/inbox/inbox.service";
 import { CleanupRepository } from "./cleanup.repository";
 import {
   EmailCleanupRule,
@@ -13,17 +14,29 @@ import {
   CleanupPreviewResult,
   CleanupExecutionResult,
   CleanupRuleFilter,
-  CleanupLogFilter,
   SenderConfig,
   KeywordConfig,
   OldEmailsConfig,
+  NewsletterConfig,
+  ReadStatusConfig,
 } from "./cleanup.types";
 
+/**
+ * CleanupService
+ *
+ * Orchestrates email cleanup rules: CRUD, previewing matches,
+ * executing cleanups and maintaining audit + event logs.
+ *
+ * IMPORTANT: The service depends on the Inbox module for reading/mutating
+ * inbox items. The actual destructive action (DELETE / dismiss) goes through
+ * InboxService when available; otherwise we use the repository directly.
+ */
 export class CleanupService {
   constructor(
-    private repository: CleanupRepository,
-    private inboxRepository: InboxRepository,
-    private auditService: AuditService
+    private readonly repository: CleanupRepository,
+    private readonly inboxRepository: InboxRepository,
+    private readonly auditService: AuditService,
+    private readonly inboxService?: InboxService
   ) {}
 
   // ─────────────────────────────────────────────
@@ -38,18 +51,23 @@ export class CleanupService {
       action: "rule.created",
       entityType: "EmailCleanupRule",
       entityId: rule.id,
+      actor: "user",
       actorDetail: userId,
-      status: "SUCCESS",
+      status: "success",
       input: { name: input.name, matchType: input.matchType, action: input.action },
       output: { ruleId: rule.id },
     });
 
-    eventBus.emit("email-cleanup.rule.created", {
-      ruleId: rule.id,
-      userId,
-      matchType: input.matchType,
-      action: input.action,
-    });
+    // Use untyped emit since cleanup events are not yet registered in DomainEventMap
+    (eventBus as unknown as { emit: (name: string, payload: unknown) => void }).emit(
+      "email-cleanup.rule.created",
+      {
+        ruleId: rule.id,
+        userId,
+        matchType: input.matchType,
+        action: input.action,
+      }
+    );
 
     return rule;
   }
@@ -57,7 +75,7 @@ export class CleanupService {
   async getRule(userId: string, ruleId: string): Promise<EmailCleanupRule | null> {
     const rule = await this.repository.getRule(ruleId);
     if (rule && rule.userId !== userId) {
-      return null; // Unauthorized
+      return null; // Unauthorized — treat as not-found to avoid leaking existence
     }
     return rule;
   }
@@ -83,16 +101,20 @@ export class CleanupService {
       action: "rule.updated",
       entityType: "EmailCleanupRule",
       entityId: ruleId,
+      actor: "user",
       actorDetail: userId,
-      status: "SUCCESS",
-      input,
+      status: "success",
+      input: input as unknown as Record<string, unknown>,
     });
 
-    eventBus.emit("email-cleanup.rule.updated", {
-      ruleId,
-      userId,
-      changes: input,
-    });
+    (eventBus as unknown as { emit: (name: string, payload: unknown) => void }).emit(
+      "email-cleanup.rule.updated",
+      {
+        ruleId,
+        userId,
+        changes: input,
+      }
+    );
 
     return updated;
   }
@@ -110,14 +132,18 @@ export class CleanupService {
       action: "rule.deleted",
       entityType: "EmailCleanupRule",
       entityId: ruleId,
+      actor: "user",
       actorDetail: userId,
-      status: "SUCCESS",
+      status: "success",
     });
 
-    eventBus.emit("email-cleanup.rule.deleted", {
-      ruleId,
-      userId,
-    });
+    (eventBus as unknown as { emit: (name: string, payload: unknown) => void }).emit(
+      "email-cleanup.rule.deleted",
+      {
+        ruleId,
+        userId,
+      }
+    );
   }
 
   async toggleRule(userId: string, ruleId: string, enabled: boolean): Promise<EmailCleanupRule> {
@@ -126,7 +152,19 @@ export class CleanupService {
       throw new Error("Rule not found");
     }
 
-    return this.repository.toggleRule(ruleId, enabled);
+    const updated = await this.repository.toggleRule(ruleId, enabled);
+
+    await this.auditService.log({
+      module: "email-cleanup",
+      action: enabled ? "rule.enabled" : "rule.disabled",
+      entityType: "EmailCleanupRule",
+      entityId: ruleId,
+      actor: "user",
+      actorDetail: userId,
+      status: "success",
+    });
+
+    return updated;
   }
 
   // ─────────────────────────────────────────────
@@ -165,15 +203,15 @@ export class CleanupService {
     let failed = 0;
     const errors: Array<{ itemId: string; error: string }> = [];
 
+    const wasPreview = rule.dryRunEnabled;
+
     for (const match of matches) {
       try {
-        // Log the action
-        await this.repository.createLog(ruleId, match.inboxItemId, rule.action, false);
+        // Log every attempted action (preview or real)
+        await this.repository.createLog(ruleId, match.inboxItemId, rule.action, wasPreview);
 
-        // Execute action (delete for now)
-        if (rule.action === CleanupAction.DELETE) {
-          // TODO: Call inbox service to delete/archive item
-          // await this.inboxService.deleteItem(match.inboxItemId);
+        if (!wasPreview) {
+          await this.applyAction(match.inboxItemId, rule.action);
         }
 
         succeeded++;
@@ -186,8 +224,13 @@ export class CleanupService {
       }
     }
 
-    // Update rule statistics
-    await this.repository.updateExecutionStats(ruleId, matches.length, succeeded, new Date());
+    // Update rule statistics — always track matchedCount, only increment executedCount for real runs
+    await this.repository.updateExecutionStats(
+      ruleId,
+      matches.length,
+      wasPreview ? rule.executedCount : rule.executedCount + succeeded,
+      new Date()
+    );
 
     const result: CleanupExecutionResult = {
       ruleId,
@@ -202,25 +245,67 @@ export class CleanupService {
 
     await this.auditService.log({
       module: "email-cleanup",
-      action: "cleanup.executed",
+      action: wasPreview ? "cleanup.previewed" : "cleanup.executed",
       entityType: "EmailCleanupRule",
       entityId: ruleId,
+      actor: "user",
       actorDetail: userId,
-      status: succeeded > 0 ? "SUCCESS" : "FAILURE",
+      status: failed === 0 ? "success" : succeeded > 0 ? "success" : "failure",
       output: {
         processed: result.processed,
         succeeded: result.succeeded,
         failed: result.failed,
+        dryRun: wasPreview,
       },
     });
 
-    eventBus.emit("email-cleanup.executed", {
-      ruleId,
-      userId,
-      result,
-    });
+    (eventBus as unknown as { emit: (name: string, payload: unknown) => void }).emit(
+      "email-cleanup.executed",
+      {
+        ruleId,
+        userId,
+        result,
+      }
+    );
 
     return result;
+  }
+
+  /**
+   * Actually apply the cleanup action on an inbox item.
+   * - DELETE/ARCHIVE: dismiss the item (soft delete — keeps audit trail).
+   *   Use InboxService if available so the right events fire.
+   * - LABEL/MOVE_TO_FOLDER: update metadata to tag the item (non-destructive).
+   */
+  private async applyAction(inboxItemId: string, action: CleanupAction): Promise<void> {
+    switch (action) {
+      case CleanupAction.DELETE:
+      case CleanupAction.ARCHIVE: {
+        if (this.inboxService) {
+          await this.inboxService.dismissItem(inboxItemId);
+        } else {
+          await this.inboxRepository.dismiss(inboxItemId);
+        }
+        return;
+      }
+      case CleanupAction.LABEL:
+      case CleanupAction.MOVE_TO_FOLDER: {
+        // Non-destructive: tag item metadata so user can filter on it later.
+        const item = await this.inboxRepository.findById(inboxItemId);
+        if (!item) return;
+        const metadata = (item.metadata as Record<string, unknown>) ?? {};
+        const labels = Array.isArray(metadata["cleanupLabels"])
+          ? (metadata["cleanupLabels"] as string[])
+          : [];
+        labels.push(action === CleanupAction.LABEL ? "labeled" : "moved");
+        await this.inboxRepository.update(inboxItemId, {
+          metadata: { ...metadata, cleanupLabels: labels },
+        });
+        return;
+      }
+      default:
+        return;
+    }
   }
 
   // ─────────────────────────────────────────────
@@ -228,22 +313,24 @@ export class CleanupService {
   // ─────────────────────────────────────────────
 
   private async findMatches(rule: EmailCleanupRule): Promise<CleanupMatch[]> {
-    // Get all email items
-    const allItems = await this.inboxRepository.findMany({
+    // Fetch a reasonable window of pending emails.
+    // We fetch up to 500 items to keep latency reasonable; matching is linear.
+    const { items } = await this.inboxRepository.findAll({
       status: "PENDING",
       sourceType: "EMAIL",
+      pageSize: 500,
     });
 
     const matches: CleanupMatch[] = [];
 
-    for (const item of allItems) {
+    for (const item of items as unknown as InboxItem[]) {
       if (this.ruleMatches(item, rule)) {
         matches.push({
           inboxItemId: item.id,
           title: item.title,
           senderEmail: this.extractSender(item),
           date: item.createdAt,
-          preview: item.body?.substring(0, 100),
+          preview: item.body?.substring(0, 100) ?? undefined,
           matchedAt: new Date(),
         });
       }
@@ -255,18 +342,17 @@ export class CleanupService {
   private ruleMatches(item: InboxItem, rule: EmailCleanupRule): boolean {
     switch (rule.matchType) {
       case CleanupMatchType.SENDER:
-        return this.matchSender(item, rule.config as SenderConfig);
+        return this.matchSender(item, rule.config as unknown as SenderConfig);
       case CleanupMatchType.KEYWORD:
-        return this.matchKeyword(item, rule.config as KeywordConfig);
+        return this.matchKeyword(item, rule.config as unknown as KeywordConfig);
       case CleanupMatchType.NEWSLETTER:
-        return this.matchNewsletter(item);
+        return this.matchNewsletter(item, rule.config as unknown as NewsletterConfig);
       case CleanupMatchType.OLD_EMAILS:
-        return this.matchOldEmails(item, rule.config as OldEmailsConfig);
-      case CleanupMatchType.SIZE_THRESHOLD:
-        // TODO: Implement size matching
-        return false;
+        return this.matchOldEmails(item, rule.config as unknown as OldEmailsConfig);
       case CleanupMatchType.READ_STATUS:
-        // TODO: Implement read status matching
+        return this.matchReadStatus(item, rule.config as unknown as ReadStatusConfig);
+      case CleanupMatchType.SIZE_THRESHOLD:
+        // Size not tracked on InboxItem — skip gracefully
         return false;
       default:
         return false;
@@ -275,61 +361,136 @@ export class CleanupService {
 
   private matchSender(item: InboxItem, config: SenderConfig): boolean {
     const sender = this.extractSender(item)?.toLowerCase();
-    if (!sender) return false;
+    if (!sender || !config.senderEmails?.length) return false;
 
     return config.senderEmails.some((email) => {
-      const configEmail = email.toLowerCase();
+      const target = email.toLowerCase().trim();
+      if (!target) return false;
+
       if (config.matchType === "domain") {
-        const senderDomain = sender.split("@")[1];
-        const configDomain = configEmail.split("@")[1];
-        return senderDomain === configDomain;
+        // Accept either "@example.com", "example.com" or "anything@example.com"
+        const targetDomain = target.includes("@") ? target.split("@")[1] : target.replace(/^@/, "");
+        const senderDomain = sender.includes("@") ? sender.split("@")[1] : sender;
+        return senderDomain === targetDomain;
       }
-      return sender === configEmail;
+
+      return sender === target;
     });
   }
 
   private matchKeyword(item: InboxItem, config: KeywordConfig): boolean {
-    const searchText =
+    if (!config.keywords?.length) return false;
+
+    const rawText =
       config.searchIn === "subject"
         ? item.title
         : config.searchIn === "body"
-          ? item.body || ""
-          : (item.title + " " + (item.body || "")).toLowerCase();
+          ? item.body ?? ""
+          : `${item.title} ${item.body ?? ""}`;
 
-    const keywords = config.caseSensitive ? config.keywords : config.keywords.map((k) => k.toLowerCase());
-    const textToSearch = config.caseSensitive ? searchText : searchText.toLowerCase();
+    const haystack = config.caseSensitive ? rawText : rawText.toLowerCase();
+    const needles = config.caseSensitive
+      ? config.keywords.filter(Boolean)
+      : config.keywords.map((k) => k.toLowerCase()).filter(Boolean);
 
-    if (config.matchAll) {
-      return keywords.every((keyword) => textToSearch.includes(keyword));
-    } else {
-      return keywords.some((keyword) => textToSearch.includes(keyword));
-    }
+    if (!needles.length) return false;
+
+    return config.matchAll
+      ? needles.every((k) => haystack.includes(k))
+      : needles.some((k) => haystack.includes(k));
   }
 
-  private matchNewsletter(item: InboxItem): boolean {
-    // Check for common newsletter indicators
-    const text = (item.title + " " + (item.body || "")).toLowerCase();
-    const newsletterKeywords = [
-      "unsubscribe",
-      "newsletter",
-      "marketing",
-      "promotional",
-      "one-click unsubscribe",
-    ];
-    return newsletterKeywords.some((keyword) => text.includes(keyword));
+  /**
+   * Newsletter heuristic — any of:
+   * - "unsubscribe" present in body
+   * - "list-unsubscribe" header in raw payload
+   * - marketing keywords (promo/newsletter/offer/sale/discount)
+   * - sender looks like a noreply / newsletter mailbox
+   */
+  private matchNewsletter(item: InboxItem, config?: NewsletterConfig): boolean {
+    const text = `${item.title} ${item.body ?? ""}`.toLowerCase();
+    const sender = this.extractSender(item)?.toLowerCase() ?? "";
+
+    // 1. Explicit list-unsubscribe header
+    const payload = (item.sourceRawPayload as Record<string, unknown>) || {};
+    const headers = (payload["headers"] as Record<string, unknown>) || {};
+    const hasListUnsubscribe = Boolean(
+      headers["list-unsubscribe"] ||
+        headers["List-Unsubscribe"] ||
+        payload["listUnsubscribe"] ||
+        payload["List-Unsubscribe"]
+    );
+    if (hasListUnsubscribe) return true;
+
+    // 2. Body mentions unsubscribe / newsletter
+    if (text.includes("unsubscribe") || text.includes("darse de baja") || text.includes("cancelar suscripción")) {
+      return true;
+    }
+
+    // 3. Sender looks like a marketing address
+    if (
+      /^(noreply|no-reply|newsletter|mailing|marketing|news|info|hello|hola)@/.test(sender) ||
+      /^.*@(mail|e|news|newsletter|marketing|campaigns|em)\./.test(sender)
+    ) {
+      return true;
+    }
+
+    // 4. Marketing keywords in subject/body
+    const marketingKeywords = config?.marketingKeywords?.length
+      ? config.marketingKeywords.map((k) => k.toLowerCase())
+      : [
+          "newsletter",
+          "boletín",
+          "boletin",
+          "promoción",
+          "promocion",
+          "descuento",
+          "oferta",
+          "rebaja",
+          "sale",
+          "discount",
+          "% off",
+          "promo",
+          "deal",
+        ];
+
+    return marketingKeywords.some((k) => text.includes(k));
   }
 
   private matchOldEmails(item: InboxItem, config: OldEmailsConfig): boolean {
-    const ageInMs = Date.now() - item.createdAt.getTime();
-    const ageInDays = ageInMs / (1000 * 60 * 60 * 24);
-    return ageInDays >= config.ageInDays;
+    const cutoff = config.beforeDate
+      ? new Date(config.beforeDate).getTime()
+      : Date.now() - (config.ageInDays ?? 90) * 24 * 60 * 60 * 1000;
+    return item.createdAt.getTime() <= cutoff;
+  }
+
+  private matchReadStatus(item: InboxItem, config: ReadStatusConfig): boolean {
+    if (!config?.readStatus || config.readStatus === "any") return true;
+    // Read status is not directly tracked on InboxItem; use `processedAt` as a proxy
+    const isRead = Boolean(item.processedAt);
+    if (config.readStatus === "read") return isRead;
+    if (config.readStatus === "unread") return !isRead;
+    return false;
   }
 
   private extractSender(item: InboxItem): string | undefined {
-    if (item.sourceRawPayload && typeof item.sourceRawPayload === "object") {
-      const payload = item.sourceRawPayload as any;
-      return payload.from || payload.sender || payload.senderEmail;
+    if (!item.sourceRawPayload) return undefined;
+    if (typeof item.sourceRawPayload !== "object") return undefined;
+
+    const payload = item.sourceRawPayload as Record<string, unknown>;
+    const candidate = payload["from"] ?? payload["sender"] ?? payload["senderEmail"];
+
+    if (typeof candidate === "string") {
+      // Extract email from "Name <email@x.com>" form
+      const emailMatch = candidate.match(/<([^>]+)>/);
+      return (emailMatch ? emailMatch[1] : candidate).trim();
     }
+
+    if (candidate && typeof candidate === "object") {
+      const maybeEmail = (candidate as Record<string, unknown>)["address"] ?? (candidate as Record<string, unknown>)["email"];
+      if (typeof maybeEmail === "string") return maybeEmail.trim();
+    }
+
     return undefined;
   }
 
