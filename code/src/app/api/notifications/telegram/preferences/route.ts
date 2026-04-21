@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getServiceFactory } from "@/lib/service-factory";
-import { unauthorized, badRequest, notFound, success } from "@/lib/api-responses";
+import { unauthorized, notFound, success } from "@/lib/api-responses";
 
 /**
  * GET /api/notifications/telegram/preferences
