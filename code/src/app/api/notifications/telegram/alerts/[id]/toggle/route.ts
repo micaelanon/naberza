@@ -14,7 +14,7 @@ export async function POST(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
@@ -33,7 +33,7 @@ export async function POST(
     }
 
     // Verify ownership
-    const preference = await telegramService.getPreference(session.user.email);
+    const preference = await telegramService.getPreference(session.user.id);
     if (!preference || preference.id !== alert.telegramPreferenceId) {
       return forbidden();
     }

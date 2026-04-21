@@ -14,7 +14,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
@@ -27,7 +27,7 @@ export async function GET(
     }
 
     // Verify ownership
-    const preference = await telegramService.getPreference(session.user.email);
+    const preference = await telegramService.getPreference(session.user.id);
     if (!preference || preference.id !== alert.telegramPreferenceId) {
       return forbidden();
     }
@@ -52,7 +52,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
@@ -67,7 +67,7 @@ export async function PUT(
     }
 
     // Verify ownership
-    const preference = await telegramService.getPreference(session.user.email);
+    const preference = await telegramService.getPreference(session.user.id);
     if (!preference || preference.id !== alert.telegramPreferenceId) {
       return forbidden();
     }
@@ -93,7 +93,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
@@ -106,7 +106,7 @@ export async function DELETE(
     }
 
     // Verify ownership
-    const preference = await telegramService.getPreference(session.user.email);
+    const preference = await telegramService.getPreference(session.user.id);
     if (!preference || preference.id !== alert.telegramPreferenceId) {
       return forbidden();
     }
