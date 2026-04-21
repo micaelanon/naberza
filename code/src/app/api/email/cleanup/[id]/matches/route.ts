@@ -17,7 +17,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
@@ -25,12 +25,12 @@ export async function GET(
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.getRule(session.user.email, id);
+    const rule = await service.getRule(session.user.id, id);
     if (!rule) {
       return notFound("Rule not found");
     }
 
-    const preview = await service.previewMatches(session.user.email, id);
+    const preview = await service.previewMatches(session.user.id, id);
     return success(preview);
   } catch (error) {
     console.error("Error previewing cleanup matches:", error);

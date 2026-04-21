@@ -17,7 +17,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
@@ -25,7 +25,7 @@ export async function GET(
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.getRule(session.user.email, id);
+    const rule = await service.getRule(session.user.id, id);
     if (!rule) {
       return notFound("Rule not found");
     }
@@ -50,7 +50,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
@@ -60,12 +60,12 @@ export async function PUT(
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.getRule(session.user.email, id);
+    const rule = await service.getRule(session.user.id, id);
     if (!rule) {
       return notFound("Rule not found");
     }
 
-    const updated = await service.updateRule(session.user.email, id, body);
+    const updated = await service.updateRule(session.user.id, id, body);
     return success(updated);
   } catch (error) {
     console.error("Error updating cleanup rule:", error);
@@ -86,7 +86,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return unauthorized();
     }
 
@@ -94,12 +94,12 @@ export async function DELETE(
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.getRule(session.user.email, id);
+    const rule = await service.getRule(session.user.id, id);
     if (!rule) {
       return notFound("Rule not found");
     }
 
-    await service.deleteRule(session.user.email, id);
+    await service.deleteRule(session.user.id, id);
     return success({ success: true });
   } catch (error) {
     console.error("Error deleting cleanup rule:", error);
