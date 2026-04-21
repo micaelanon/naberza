@@ -6,6 +6,7 @@ import { env } from "@/lib/env";
 // (Next.js hot reload creates new module instances)
 declare global {
   var prismaGlobal: PrismaClient | undefined; // NOSONAR
+  var imapInitialized: boolean | undefined; // NOSONAR
 }
 
 function createPrismaClient(): PrismaClient {
@@ -21,11 +22,14 @@ if (env.isDev) {
   globalThis.prismaGlobal = prisma;
 }
 
-// Initialize IMAP connection from env on first Prisma client creation
-if (!globalThis.prismaGlobal) {
-  // Only run once, on initial creation
-  initializeIMAPConnectionFromEnv().catch((err) => {
-    console.error("[IMAP] ❌ Failed to initialize:", err.message);
+// Schedule IMAP initialization for next tick (after Prisma client is ready)
+if (!globalThis.imapInitialized) {
+  globalThis.imapInitialized = true;
+  // Use setImmediate to run after current event loop
+  setImmediate(() => {
+    initializeIMAPConnectionFromEnv().catch((err) => {
+      console.error("[IMAP] ❌ Failed to initialize:", err.message);
+    });
   });
 }
 
@@ -36,12 +40,15 @@ async function initializeIMAPConnectionFromEnv(): Promise<void> {
 
   // Only initialize if all required env vars are present
   if (!host || !user || !password) {
+    console.log("[IMAP] ⏭️ Skipping: No IMAP credentials in .env.local");
     return;
   }
 
   try {
     const port = parseInt(process.env.MAIL_IMAP_PORT ?? "993", 10);
     const secure = process.env.MAIL_IMAP_SECURE !== "false";
+
+    console.log("[IMAP] 🔍 Looking for existing IMAP connection...");
 
     // Check if IMAP connection already exists
     const existing = await prisma.sourceConnection.findFirst({
