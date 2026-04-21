@@ -612,6 +612,7 @@ model EmailCleanupRule {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   logs EmailCleanupLog[]
 
   @@index([userId])
@@ -700,6 +701,8 @@ model IntelligentSummary {
   deliveredAt         DateTime? @map("delivered_at")
   createdAt           DateTime @default(now()) @map("created_at")
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([summaryType])
   @@index([createdAt])
@@ -728,6 +731,7 @@ model QuickAction {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   logs QuickActionLog[]
 
   @@index([userId])

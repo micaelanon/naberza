@@ -1,3 +1,4 @@
+import { MessageStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import {
   TelegramPreference,
@@ -13,16 +14,14 @@ import {
 } from "./telegram.types";
 
 export class TelegramRepository {
-  constructor() {}
+  private readonly db = prisma;
 
-  // ─────────────────────────────────────────────
-  // Telegram Preference operations
-  // ─────────────────────────────────────────────
+  private asJson(value: unknown): Prisma.InputJsonValue {
+    return value as Prisma.InputJsonValue;
+  }
 
-  async createPreference(
-    input: CreateTelegramPreferenceInput
-  ): Promise<TelegramPreference> {
-    return prisma.telegramPreference.create({
+  async createPreference(input: CreateTelegramPreferenceInput): Promise<TelegramPreference> {
+    return this.db.telegramPreference.create({
       data: {
         userId: input.userId,
         telegramUserId: input.telegramUserId,
@@ -60,27 +59,23 @@ export class TelegramRepository {
     });
   }
 
-  // ─────────────────────────────────────────────
-  // Telegram Alert operations
-  // ─────────────────────────────────────────────
-
   async createAlert(input: CreateTelegramAlertInput): Promise<TelegramAlert> {
     return this.db.telegramAlert.create({
       data: {
         telegramPreferenceId: input.telegramPreferenceId,
         name: input.name,
         description: input.description,
-        triggerType: input.triggerType,
-        config: input.config,
+        triggerType: input.triggerType as never,
+        config: this.asJson(input.config),
         priority: input.priority || "MEDIUM",
       },
-    });
+    }) as unknown as TelegramAlert;
   }
 
   async getAlert(id: string): Promise<TelegramAlert | null> {
     return this.db.telegramAlert.findUnique({
       where: { id },
-    });
+    }) as unknown as TelegramAlert | null;
   }
 
   async listAlerts(
@@ -90,11 +85,11 @@ export class TelegramRepository {
     return this.db.telegramAlert.findMany({
       where: {
         telegramPreferenceId,
-        enabled: filter?.enabled,
-        priority: filter?.priority,
-        triggerType: filter?.triggerType,
+        ...(filter?.enabled !== undefined && { enabled: filter.enabled }),
+        ...(filter?.priority !== undefined && { priority: filter.priority }),
+        ...(filter?.triggerType !== undefined && { triggerType: filter.triggerType as never }),
       },
-    });
+    }) as unknown as TelegramAlert[];
   }
 
   async updateAlert(
@@ -103,8 +98,14 @@ export class TelegramRepository {
   ): Promise<TelegramAlert> {
     return this.db.telegramAlert.update({
       where: { id },
-      data: input,
-    });
+      data: {
+        ...(input.name !== undefined && { name: input.name }),
+        ...(input.description !== undefined && { description: input.description }),
+        ...(input.enabled !== undefined && { enabled: input.enabled }),
+        ...(input.priority !== undefined && { priority: input.priority }),
+        ...(input.config !== undefined && { config: this.asJson(input.config) }),
+      },
+    }) as unknown as TelegramAlert;
   }
 
   async deleteAlert(id: string): Promise<void> {
@@ -117,12 +118,8 @@ export class TelegramRepository {
     return this.db.telegramAlert.update({
       where: { id },
       data: { enabled },
-    });
+    }) as unknown as TelegramAlert;
   }
-
-  // ─────────────────────────────────────────────
-  // Telegram Message operations
-  // ─────────────────────────────────────────────
 
   async createMessage(input: CreateTelegramMessageInput): Promise<TelegramMessage> {
     return this.db.telegramMessage.create({
@@ -131,21 +128,21 @@ export class TelegramRepository {
         messageId: input.messageId,
         text: input.text,
         parseMode: input.parseMode || "HTML",
-        status: "PENDING",
+        status: MessageStatus.PENDING,
       },
-    });
+    }) as unknown as TelegramMessage;
   }
 
   async getMessage(id: string): Promise<TelegramMessage | null> {
     return this.db.telegramMessage.findUnique({
       where: { id },
-    });
+    }) as unknown as TelegramMessage | null;
   }
 
   async getMessageByTelegramId(messageId: string): Promise<TelegramMessage | null> {
     return this.db.telegramMessage.findUnique({
       where: { messageId },
-    });
+    }) as unknown as TelegramMessage | null;
   }
 
   async listMessages(
@@ -155,19 +152,19 @@ export class TelegramRepository {
     return this.db.telegramMessage.findMany({
       where: {
         telegramPreferenceId,
-        status: filter?.status,
+        ...(filter?.status !== undefined && { status: filter.status as never }),
         sentAt: {
           ...(filter?.beforeDate && { lte: filter.beforeDate }),
           ...(filter?.afterDate && { gte: filter.afterDate }),
         },
       },
       orderBy: { sentAt: "desc" },
-    });
+    }) as unknown as TelegramMessage[];
   }
 
   async updateMessageStatus(
     id: string,
-    status: string,
+    status: MessageStatus,
     error?: string
   ): Promise<TelegramMessage> {
     return this.db.telegramMessage.update({
@@ -176,7 +173,7 @@ export class TelegramRepository {
         status,
         error,
       },
-    });
+    }) as unknown as TelegramMessage;
   }
 
   async incrementRetryCount(id: string): Promise<TelegramMessage> {
@@ -185,42 +182,36 @@ export class TelegramRepository {
       data: {
         retryCount: { increment: 1 },
       },
-    });
+    }) as unknown as TelegramMessage;
   }
-
-  // ─────────────────────────────────────────────
-  // Statistics & Cleanup
-  // ─────────────────────────────────────────────
 
   async getPendingMessages(maxAge: number): Promise<TelegramMessage[]> {
     const cutoff = new Date(Date.now() - maxAge);
     return this.db.telegramMessage.findMany({
       where: {
-        status: "PENDING",
+        status: MessageStatus.PENDING,
         sentAt: { lte: cutoff },
         retryCount: { lt: 3 },
       },
       orderBy: { sentAt: "asc" },
-    });
+    }) as unknown as TelegramMessage[];
   }
 
-  async getFailedMessages(
-    telegramPreferenceId: string
-  ): Promise<TelegramMessage[]> {
+  async getFailedMessages(telegramPreferenceId: string): Promise<TelegramMessage[]> {
     return this.db.telegramMessage.findMany({
       where: {
         telegramPreferenceId,
-        status: { in: ["FAILED", "BOUNCED"] },
+        status: { in: [MessageStatus.FAILED, MessageStatus.BOUNCED] },
       },
       orderBy: { sentAt: "desc" },
-    });
+    }) as unknown as TelegramMessage[];
   }
 
   async deleteOldMessages(beforeDate: Date): Promise<number> {
     const result = await this.db.telegramMessage.deleteMany({
       where: {
         sentAt: { lt: beforeDate },
-        status: { in: ["SENT", "DELIVERED"] },
+        status: { in: [MessageStatus.SENT, MessageStatus.DELIVERED] },
       },
     });
     return result.count;
