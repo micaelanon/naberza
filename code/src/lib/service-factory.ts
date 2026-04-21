@@ -22,6 +22,8 @@ import { AutomationService } from "@/modules/automations/automation.service";
 import { AutomationRepository } from "@/modules/automations/automation.repository";
 import { TelegramService } from "@/modules/telegram/telegram.service";
 import { TelegramRepository } from "@/modules/telegram/telegram.repository";
+import { CleanupService } from "@/modules/email-cleanup/cleanup.service";
+import { CleanupRepository } from "@/modules/email-cleanup/cleanup.repository";
 
 // ─── Singleton instances ──────────────────────────────────────────────────────
 
@@ -57,6 +59,13 @@ const telegramRepository = new TelegramRepository();
 const auditService = new AuditService();
 export const telegramService = new TelegramService(telegramRepository, auditService);
 
+const cleanupRepository = new CleanupRepository();
+export const cleanupService = new CleanupService(
+  cleanupRepository,
+  inboxRepository,
+  auditService
+);
+
 // ─── Service Factory Function ──────────────────────────────────────────────
 
 export function getServiceFactory() {
@@ -79,5 +88,7 @@ export function getServiceFactory() {
     automationRepository,
     telegramService,
     telegramRepository,
+    cleanupService,
+    cleanupRepository,
   };
 }

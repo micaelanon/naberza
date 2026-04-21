@@ -97,27 +97,112 @@ npm test -- /api/notifications/telegram
 
 ---
 
-## Phase 2: Email Cleanup Rules & Quick Actions
+## Phase 2: Email Cleanup Rules ✅
 
-### Planned Features
-- Smart email cleanup with preview and bulk delete
-- Automatic rule-based email organization
-- Quick action buttons for common operations
+### Overview
+Smart email cleanup engine with preview capability and rule-based bulk actions.
 
-### Models
-- **EmailCleanupRule**: Rule definitions for bulk actions
+### Database Models
+- **EmailCleanupRule**: Rule definitions with match type, action, and config
 - **EmailCleanupLog**: Execution history and audit trail
-- **QuickAction**: User-defined shortcuts for actions
-- **QuickActionLog**: Execution tracking
+
+### Match Types
+1. **SENDER**: Match emails by sender email/domain
+2. **KEYWORD**: Match keywords in subject/body
+3. **NEWSLETTER**: Detect newsletter/marketing emails
+4. **OLD_EMAILS**: Match emails older than N days
+5. **SIZE_THRESHOLD**: Match by attachment size
+6. **READ_STATUS**: Match read/unread emails
+7. **CUSTOM**: Custom matching logic
+
+### Actions
+1. **DELETE**: Permanently remove emails
+2. **ARCHIVE**: Move to archive folder
+3. **LABEL**: Apply label/tag
+4. **MOVE_TO_FOLDER**: Move to specific folder
 
 ### API Routes
 ```
-GET  /api/email/cleanup                    # List rules
-POST /api/email/cleanup                    # Create rule
-GET  /api/email/cleanup/[id]/matches       # Preview matching emails
-POST /api/email/cleanup/[id]/execute       # Run cleanup
-DELETE /api/email/cleanup/[id]             # Delete rule
+GET  /api/email/cleanup                      # List rules
+POST /api/email/cleanup                      # Create rule
+GET  /api/email/cleanup/[id]                 # Get rule
+PUT  /api/email/cleanup/[id]                 # Update rule
+DELETE /api/email/cleanup/[id]               # Delete rule
+GET  /api/email/cleanup/[id]/matches         # Preview matching emails
+POST /api/email/cleanup/[id]/execute         # Execute cleanup
 ```
+
+### Service Methods
+- `createRule(userId, input)` - Create new rule
+- `getRule(userId, ruleId)` - Get specific rule
+- `listRules(userId, filter)` - List all rules
+- `updateRule(userId, ruleId, input)` - Modify rule
+- `deleteRule(userId, ruleId)` - Delete rule
+- `toggleRule(userId, ruleId, enabled)` - Enable/disable
+- `previewMatches(userId, ruleId)` - Show preview of matches
+- `executeCleanup(userId, ruleId)` - Actually execute cleanup
+- `getStats(userId)` - Get cleanup statistics
+- `getExecutionHistory(userId, ruleId)` - Get execution logs
+
+### Event Emissions
+- `email-cleanup.rule.created` - Rule created
+- `email-cleanup.rule.updated` - Rule modified
+- `email-cleanup.rule.deleted` - Rule removed
+- `email-cleanup.executed` - Cleanup executed
+
+### Rule Config Examples
+
+**Sender Match:**
+```json
+{
+  "matchType": "SENDER",
+  "config": {
+    "senderEmails": ["newsletter@example.com"],
+    "matchType": "domain"
+  }
+}
+```
+
+**Keyword Match:**
+```json
+{
+  "matchType": "KEYWORD",
+  "config": {
+    "keywords": ["promotional", "discount"],
+    "searchIn": "subject",
+    "matchAll": false
+  }
+}
+```
+
+**Old Emails:**
+```json
+{
+  "matchType": "OLD_EMAILS",
+  "config": {
+    "ageInDays": 90
+  }
+}
+```
+
+### Matching Logic
+- **SENDER**: Exact email or domain matching
+- **KEYWORD**: Case-insensitive substring search
+- **NEWSLETTER**: Detects unsubscribe links and marketing keywords
+- **OLD_EMAILS**: Date-based filtering
+- All results returned with preview (title, sender, date, body snippet)
+
+### Workflow
+1. User creates rule with match criteria
+2. System stores rule in database
+3. User can preview matches before executing
+4. Execute sends emails to trash/archive
+5. Logs all actions for audit trail
+6. Returns statistics on processed items
+
+---
+
+## Phase 2b: Quick Actions (Planned)
 
 ---
 
