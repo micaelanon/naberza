@@ -1,0 +1,53 @@
+.email-cleanup-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-24);
+}
+
+.email-cleanup-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--size-16);
+}
+
+.email-cleanup-panel__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #241f1a;
+  margin: 0 0 var(--size-8) 0;
+}
+
+.email-cleanup-panel__description {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.email-cleanup-panel__create-btn {
+  padding: var(--size-10) var(--size-20);
+  background: #485422;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.email-cleanup-panel__create-btn:hover {
+  background: #3a4419;
+}
+
+@media (max-width: 768px) {
+  .email-cleanup-panel__header {
+    flex-direction: column;
+  }
+
+  .email-cleanup-panel__create-btn {
+    width: 100%;
+  }
+}

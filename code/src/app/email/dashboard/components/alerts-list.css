@@ -1,0 +1,120 @@
+.alerts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--size-16);
+}
+
+.alerts-list__item {
+  padding: var(--size-16);
+  background: white;
+  border: 1px solid #e8e6e1;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s;
+}
+
+.alerts-list__item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-color: #ddd2c5;
+}
+
+.alerts-list__item-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--size-12);
+  margin-bottom: var(--size-12);
+}
+
+.alerts-list__item-icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(72, 84, 34, 0.08);
+  border-radius: 6px;
+}
+
+.alerts-list__item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.alerts-list__item-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #241f1a;
+  margin: 0 0 var(--size-4) 0;
+  word-break: break-word;
+}
+
+.alerts-list__item-type {
+  font-size: 0.8rem;
+  color: #8f8479;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.alerts-list__item-delete {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid #ddd2c5;
+  border-radius: 4px;
+  color: #a64a4a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.alerts-list__item-delete:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #f5d4d4;
+}
+
+.alerts-list__item-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alerts-list__item-description {
+  font-size: 0.8875rem;
+  color: var(--color-text-secondary);
+  margin: var(--size-12) 0 0 0;
+  line-height: 1.5;
+}
+
+.alerts-list__item-meta {
+  display: flex;
+  gap: var(--size-12);
+  margin-top: var(--size-12);
+  padding-top: var(--size-12);
+  border-top: 1px solid #f0edf1;
+}
+
+.alerts-list__item-badge,
+.alerts-list__item-priority {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--size-4) var(--size-8);
+  background: rgba(72, 84, 34, 0.08);
+  color: #485422;
+  border-radius: 4px;
+}
+
+.alerts-list__item-priority {
+  background: rgba(72, 84, 34, 0.12);
+}
+
+@media (max-width: 768px) {
+  .alerts-list {
+    grid-template-columns: 1fr;
+  }
+}

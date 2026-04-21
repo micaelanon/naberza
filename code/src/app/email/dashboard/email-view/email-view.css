@@ -1,0 +1,85 @@
+.email-dashboard {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.email-dashboard__header {
+  margin-bottom: var(--size-40);
+}
+
+.email-dashboard__title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #241f1a;
+  margin: 0 0 var(--size-8);
+  letter-spacing: -0.02em;
+}
+
+.email-dashboard__subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.email-dashboard__tabs {
+  display: flex;
+  gap: var(--size-12);
+  margin-bottom: var(--size-32);
+  border-bottom: 1px solid #e8e6e1;
+}
+
+.email-dashboard__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--size-8);
+  padding: var(--size-12) var(--size-16);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: -1px;
+}
+
+.email-dashboard__tab:hover {
+  color: var(--color-text-primary);
+}
+
+.email-dashboard__tab--active {
+  color: #485422;
+  border-bottom-color: #485422;
+  font-weight: 600;
+}
+
+.email-dashboard__tab-icon {
+  font-size: 1.1rem;
+}
+
+.email-dashboard__content {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-empty {
+  padding: var(--size-32) var(--size-16);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  background: rgba(72, 84, 34, 0.03);
+  border-radius: 8px;
+  margin: 0;
+}

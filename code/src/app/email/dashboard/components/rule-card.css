@@ -1,0 +1,240 @@
+.rule-card {
+  background: white;
+  border: 1px solid #e8e6e1;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.15s;
+}
+
+.rule-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.rule-card--expanded {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-color: #ddd2c5;
+}
+
+.rule-card__header {
+  width: 100%;
+  padding: var(--size-16);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--size-12);
+  transition: background 0.15s;
+}
+
+.rule-card__header:hover {
+  background: rgba(72, 84, 34, 0.02);
+}
+
+.rule-card__header-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--size-12);
+  flex: 1;
+  min-width: 0;
+}
+
+.rule-card__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.rule-card__title-group {
+  min-width: 0;
+}
+
+.rule-card__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #241f1a;
+  margin: 0 0 var(--size-4) 0;
+  word-break: break-word;
+}
+
+.rule-card__type {
+  font-size: 0.75rem;
+  color: #8f8479;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rule-card__chevron {
+  flex-shrink: 0;
+  color: #8f8479;
+  font-size: 0.8rem;
+  transition: transform 0.15s;
+}
+
+.rule-card--expanded .rule-card__chevron {
+  transform: rotate(180deg);
+}
+
+.rule-card__expanded {
+  padding: var(--size-16);
+  border-top: 1px solid #e8e6e1;
+  background: #f8f7f5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-16);
+}
+
+.rule-card__actions {
+  display: flex;
+  gap: var(--size-12);
+  flex-wrap: wrap;
+}
+
+.rule-card__action-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: var(--size-10) var(--size-16);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.rule-card__action-btn--primary {
+  background: #485422;
+  color: white;
+}
+
+.rule-card__action-btn--primary:hover:not(:disabled) {
+  background: #3a4419;
+}
+
+.rule-card__action-btn--danger {
+  background: #a64a4a;
+  color: white;
+}
+
+.rule-card__action-btn--danger:hover:not(:disabled) {
+  background: #8b3b3b;
+}
+
+.rule-card__action-btn--secondary {
+  background: white;
+  color: #a64a4a;
+  border: 1px solid #a64a4a;
+}
+
+.rule-card__action-btn--secondary:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.rule-card__action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rule-card__preview {
+  padding: var(--size-16);
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #ddd2c5;
+}
+
+.rule-card__preview-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #241f1a;
+  margin: 0 0 var(--size-12) 0;
+}
+
+.rule-card__preview-empty {
+  padding: var(--size-12);
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.rule-card__preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-8);
+}
+
+.rule-card__preview-item {
+  padding: var(--size-12);
+  background: #f8f7f5;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4);
+}
+
+.rule-card__preview-item-sender {
+  font-size: 0.75rem;
+  color: #485422;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rule-card__preview-item-title {
+  font-size: 0.8125rem;
+  color: #241f1a;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rule-card__preview-item-date {
+  font-size: 0.75rem;
+  color: #8f8479;
+}
+
+.rule-card__preview-more {
+  padding: var(--size-8) 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.rule-card__stats {
+  padding: var(--size-12);
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #ddd2c5;
+  display: flex;
+  gap: var(--size-16);
+}
+
+.rule-card__stat {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.rule-card__stat strong {
+  color: #485422;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .rule-card__actions {
+    flex-direction: column;
+  }
+
+  .rule-card__action-btn {
+    flex: none;
+  }
+
+  .rule-card__stats {
+    flex-direction: column;
+    gap: var(--size-12);
+  }
+}
