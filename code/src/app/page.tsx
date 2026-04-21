@@ -5,13 +5,7 @@ import { AppShell } from "@/components/ui";
 import { getDashboardStats } from "@/lib/dashboard";
 import { getActionDigest } from "@/lib/dashboard/action-digest";
 import type { DashboardStats } from "@/lib/dashboard/dashboard.types";
-import { initializeIMAPConnectionFromEnv } from "@/lib/integrations/init-imap-connection";
 import "./home.css";
-
-// Initialize IMAP connection from env on first render
-void initializeIMAPConnectionFromEnv().catch((err) => {
-  console.error("Failed to initialize IMAP connection:", err);
-});
 
 function getGreeting(): string {
   const hour = new Date().getHours();
