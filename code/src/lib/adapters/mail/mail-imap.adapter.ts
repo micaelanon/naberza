@@ -166,6 +166,10 @@ export class MailImapAdapter implements BaseAdapter {
     };
   }
 
+  /**
+   * Fetch new (unread) messages since a given date.
+   * Only returns emails that haven't been marked as read.
+   */
   async fetchNewMessages(since?: Date): Promise<EmailMessage[]> {
     const client = this.createClient();
     const mailbox = this.config.mailbox ?? "INBOX";
@@ -193,6 +197,44 @@ export class MailImapAdapter implements BaseAdapter {
     } catch (err) {
       if (err instanceof AdapterError) throw err;
       throw new AdapterError("EXTERNAL_ERROR", "Error fetching messages", err);
+    } finally {
+      await client.logout().catch(() => undefined);
+    }
+  }
+
+  /**
+   * Fetch ALL messages (read and unread) since a given date.
+   * Used for email cleanup rules that need to match against all emails,
+   * not just unread ones.
+   */
+  async fetchAllMessages(since?: Date): Promise<EmailMessage[]> {
+    const client = this.createClient();
+    const mailbox = this.config.mailbox ?? "INBOX";
+
+    await this.connectClient(client);
+
+    try {
+      await client.mailboxOpen(mailbox);
+
+      // Search for all messages, regardless of read status
+      const searchCriteria: Record<string, unknown> = {};
+      if (since) searchCriteria["since"] = since;
+
+      const rawUids = await client.search(searchCriteria, { uid: true });
+      const uids: number[] = Array.isArray(rawUids) ? rawUids : [];
+      if (!uids.length) return [];
+
+      const messages = await client.fetchAll(uids.join(","), {
+        envelope: true,
+        bodyStructure: true,
+        flags: true,
+        internalDate: true,
+      }, { uid: true });
+
+      return messages.map((msg) => this.mapFetchedMessage(msg));
+    } catch (err) {
+      if (err instanceof AdapterError) throw err;
+      throw new AdapterError("EXTERNAL_ERROR", "Error fetching all messages", err);
     } finally {
       await client.logout().catch(() => undefined);
     }

@@ -421,8 +421,9 @@ export class CleanupService {
         config: imapConnection.config,
       });
 
-      // Fetch recent emails from IMAP (last 30 days, unread preference)
-      const emailMessages = await imapAdapter.fetchNewMessages(
+      // Fetch ALL emails from IMAP (last 30 days, including read and unread)
+      // For cleanup rules, we need to match against all emails, not just unread
+      const emailMessages = await imapAdapter.fetchAllMessages(
         new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       );
 
