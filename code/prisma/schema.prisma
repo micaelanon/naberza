@@ -28,6 +28,10 @@ model User {
 
   // Application relations
   preferences UserPreference[]
+  telegramPreference TelegramPreference?
+  intelligentSummaries IntelligentSummary[]
+  quickActions QuickAction[]
+  emailCleanupRules EmailCleanupRule[]
 
   @@map("users")
 }
@@ -507,4 +511,257 @@ enum AuditStatus {
   SUCCESS
   FAILURE
   PENDING
+}
+
+// ─────────────────────────────────────────────
+// EMAIL ADVANCED FEATURES module
+// ─────────────────────────────────────────────
+
+// Phase 1: Telegram Alerts & Preferences
+model TelegramPreference {
+  id                  String   @id @default(cuid())
+  userId              String   @unique @map("user_id")
+  telegramUserId      Int?     @map("telegram_user_id")
+  telegramUsername    String?  @map("telegram_username")
+  telegramEnabled     Boolean  @default(false) @map("telegram_enabled")
+  verificationCode    String?  @map("verification_code")
+  verificationExpires DateTime? @map("verification_expires")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alerts TelegramAlert[]
+  messages TelegramMessage[]
+
+  @@map("telegram_preferences")
+}
+
+model TelegramAlert {
+  id                    String   @id @default(cuid())
+  telegramPreferenceId  String   @map("telegram_preference_id")
+  name                  String
+  description           String?  @db.Text
+  triggerType           AlertTriggerType @map("trigger_type")
+  // triggerType-specific config: e.g., {"senderEmails": ["important@example.com"], "keywords": ["invoice"]}
+  config                Json
+  enabled               Boolean  @default(true)
+  priority              Priority @default(MEDIUM)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  telegramPreference TelegramPreference @relation(fields: [telegramPreferenceId], references: [id], onDelete: Cascade)
+
+  @@index([telegramPreferenceId])
+  @@index([enabled])
+  @@map("telegram_alerts")
+}
+
+enum AlertTriggerType {
+  PRIORITY_SENDER    // Alert if email from VIP contacts
+  KEYWORD            // Alert if keywords in subject/body
+  UNPAID_INVOICE     // Alert for unpaid invoices
+  URGENT_TASK        // Alert for overdue tasks
+  FINANCE_SUMMARY    // Alert for finance milestones
+  DAILY_DIGEST       // Alert with daily summary
+  WEEKLY_DIGEST      // Alert with weekly summary
+}
+
+model TelegramMessage {
+  id                   String   @id @default(cuid())
+  telegramPreferenceId String   @map("telegram_preference_id")
+  messageId            String   @unique @map("message_id") // Telegram message ID
+  text                 String   @db.Text
+  parseMode            String   @default("HTML") @map("parse_mode")
+  sentAt               DateTime @default(now()) @map("sent_at")
+  status               MessageStatus @default(PENDING)
+  error                String?  @db.Text
+  retryCount           Int      @default(0) @map("retry_count")
+
+  telegramPreference TelegramPreference @relation(fields: [telegramPreferenceId], references: [id], onDelete: Cascade)
+
+  @@index([telegramPreferenceId])
+  @@index([status])
+  @@index([sentAt])
+  @@map("telegram_messages")
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+}
+
+// Phase 2: Email Cleanup Rules
+model EmailCleanupRule {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  name            String
+  description     String?  @db.Text
+  matchType       CleanupMatchType @map("match_type")
+  // matchType-specific config: e.g., {"senders": [], "keywords": [], "ageInDays": 90}
+  config          Json
+  action          CleanupAction
+  enabled         Boolean  @default(true)
+  priority        Int      @default(0)
+  dryRunEnabled   Boolean  @default(true) @map("dry_run_enabled")
+  lastExecutedAt  DateTime? @map("last_executed_at")
+  matchedCount    Int      @default(0) @map("matched_count")
+  executedCount   Int      @default(0) @map("executed_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  logs EmailCleanupLog[]
+
+  @@index([userId])
+  @@index([enabled])
+  @@map("email_cleanup_rules")
+}
+
+enum CleanupMatchType {
+  SENDER
+  KEYWORD
+  NEWSLETTER
+  OLD_EMAILS
+  SIZE_THRESHOLD
+  READ_STATUS
+  CUSTOM
+}
+
+enum CleanupAction {
+  DELETE
+  ARCHIVE
+  LABEL
+  MOVE_TO_FOLDER
+}
+
+model EmailCleanupLog {
+  id           String   @id @default(cuid())
+  ruleId       String   @map("rule_id")
+  inboxItemId  String   @map("inbox_item_id")
+  action       CleanupAction
+  wasPreview   Boolean  @default(true) @map("was_preview")
+  executedAt   DateTime @default(now()) @map("executed_at")
+
+  rule EmailCleanupRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+  @@index([executedAt])
+  @@map("email_cleanup_logs")
+}
+
+// Phase 3: Invoice Extraction
+model InvoiceExtractionLog {
+  id                   String   @id @default(cuid())
+  inboxItemId          String   @map("inbox_item_id")
+  extractionMethod     ExtractionMethod @map("extraction_method")
+  extractionConfidence Float?   @map("extraction_confidence")
+  rawPdfPath           String?  @map("raw_pdf_path")
+  ocrFullText          String?  @map("ocr_full_text") @db.Text
+  extractedInvoiceId   String?  @map("extracted_invoice_id")
+  status               ExtractionStatus
+  error                String?  @db.Text
+  createdAt            DateTime @default(now()) @map("created_at")
+  completedAt          DateTime? @map("completed_at")
+
+  @@index([inboxItemId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("invoice_extraction_logs")
+}
+
+enum ExtractionMethod {
+  OCR
+  STRUCTURED_PDF
+  AI_VISION
+  MANUAL
+}
+
+enum ExtractionStatus {
+  PENDING
+  IN_PROGRESS
+  SUCCESS
+  FAILED
+  MANUAL_REVIEW
+}
+
+// Phase 4: Intelligent Summaries
+model IntelligentSummary {
+  id                  String   @id @default(cuid())
+  userId              String   @map("user_id")
+  summaryType         SummaryType @map("summary_type")
+  period              String   // "daily" or "weekly"
+  startDate           DateTime @map("start_date")
+  endDate             DateTime @map("end_date")
+  metrics             Json     // {emailCount, invoicesDue, tasksCompleted, ...}
+  content             String   @db.Text
+  deliveryChannels    String[] @map("delivery_channels") // ["email", "telegram"]
+  deliveredAt         DateTime? @map("delivered_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([summaryType])
+  @@index([createdAt])
+  @@map("intelligent_summaries")
+}
+
+enum SummaryType {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+// Phase 5: Quick Actions
+model QuickAction {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  name            String
+  description     String?  @db.Text
+  targetType      QuickActionTargetType @map("target_type")
+  // targetType-specific actions: e.g., {"action": "archive", "label": "newsletters"}
+  config          Json
+  enabled         Boolean  @default(true)
+  priority        Int      @default(0)
+  executionCount  Int      @default(0) @map("execution_count")
+  lastUsedAt      DateTime? @map("last_used_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  logs QuickActionLog[]
+
+  @@index([userId])
+  @@index([targetType])
+  @@map("quick_actions")
+}
+
+enum QuickActionTargetType {
+  EMAIL
+  INVOICE
+  TASK
+  DOCUMENT
+  IDEA
+  BATCH
+}
+
+model QuickActionLog {
+  id           String   @id @default(cuid())
+  actionId     String   @map("action_id")
+  entityId     String   @map("entity_id")
+  entityType   String   @map("entity_type")
+  result       ActionResult
+  error        String?  @db.Text
+  executedAt   DateTime @default(now()) @map("executed_at")
+
+  action QuickAction @relation(fields: [actionId], references: [id], onDelete: Cascade)
+
+  @@index([actionId])
+  @@index([executedAt])
+  @@map("quick_action_logs")
+}
+
+enum ActionResult {
+  SUCCESS
+  FAILURE
+  PARTIAL
 }

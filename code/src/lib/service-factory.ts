@@ -20,6 +20,8 @@ import { IdeasService } from "@/modules/ideas/ideas.service";
 import { IdeasRepository } from "@/modules/ideas/ideas.repository";
 import { AutomationService } from "@/modules/automations/automation.service";
 import { AutomationRepository } from "@/modules/automations/automation.repository";
+import { TelegramService } from "@/modules/telegram/telegram.service";
+import { TelegramRepository } from "@/modules/telegram/telegram.repository";
 
 // ─── Singleton instances ──────────────────────────────────────────────────────
 
@@ -46,3 +48,36 @@ export const ideasService = new IdeasService(ideasRepository);
 
 const automationRepository = new AutomationRepository();
 export const automationService = new AutomationService(automationRepository);
+
+// ─── Email Advanced Features (P8-05) ──────────────────────────────────────
+
+import { AuditService } from "@/lib/audit";
+
+const telegramRepository = new TelegramRepository();
+const auditService = new AuditService();
+export const telegramService = new TelegramService(telegramRepository, auditService);
+
+// ─── Service Factory Function ──────────────────────────────────────────────
+
+export function getServiceFactory() {
+  return {
+    inboxService,
+    inboxRepository,
+    taskService,
+    taskRepository,
+    documentService,
+    documentRepository,
+    invoiceService,
+    invoiceRepository,
+    financeService,
+    financeRepository,
+    homeService,
+    homeRepository,
+    ideasService,
+    ideasRepository,
+    automationService,
+    automationRepository,
+    telegramService,
+    telegramRepository,
+  };
+}
