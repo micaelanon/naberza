@@ -108,12 +108,18 @@ export interface UpdateCleanupRuleInput {
 // ─────────────────────────────────────────────
 
 export interface CleanupMatch {
-  inboxItemId: string;
+  inboxItemId: string; // For IMAP: messageId; for DB: inboxItemId
   title: string;
   senderEmail?: string;
   date: Date;
   preview?: string;
   matchedAt: Date;
+  // For IMAP operations, store the UID needed for deletion/archiving
+  imapMetadata?: {
+    uid: number;
+    connectionId: string;
+    messageId: string;
+  };
 }
 
 export interface CleanupPreviewResult {

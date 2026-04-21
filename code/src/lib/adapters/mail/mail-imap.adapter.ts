@@ -210,4 +210,72 @@ export class MailImapAdapter implements BaseAdapter {
       await client.logout().catch(() => undefined);
     }
   }
+
+  /**
+   * Delete an email by UID.
+   * Moves the message to Trash (marks with \Deleted flag and expunges).
+   */
+  async deleteMessage(uid: number): Promise<void> {
+    const client = this.createClient();
+    try {
+      await client.connect();
+      await client.mailboxOpen(this.config.mailbox ?? "INBOX");
+      // Mark with \Deleted flag
+      await client.messageFlagsAdd(String(uid), ["\\Deleted"], { uid: true });
+      // Expunge to permanently remove
+      await client.mailboxExpunge();
+    } catch (err) {
+      throw new AdapterError("EXTERNAL_ERROR", `Failed to delete message ${uid}`, err);
+    } finally {
+      await client.logout().catch(() => undefined);
+    }
+  }
+
+  /**
+   * Archive an email by moving it to an archive folder.
+   * Typically moves to [Gmail]/All Mail or Archive folder.
+   */
+  async archiveMessage(uid: number, archiveFolder: string = "[Gmail]/All Mail"): Promise<void> {
+    const client = this.createClient();
+    try {
+      await client.connect();
+      await client.mailboxOpen(this.config.mailbox ?? "INBOX");
+      // Move message to archive folder
+      await client.messageMove(String(uid), archiveFolder, { uid: true });
+    } catch (err) {
+      // If archive folder doesn't exist, try generic Archive folder
+      if (archiveFolder === "[Gmail]/All Mail") {
+        try {
+          await client.mailboxOpen(this.config.mailbox ?? "INBOX");
+          await client.messageMove(String(uid), "Archive", { uid: true });
+          return;
+        } catch (retryErr) {
+          // If that also fails, just mark as seen instead
+          await client.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
+          return;
+        }
+      }
+      throw new AdapterError("EXTERNAL_ERROR", `Failed to archive message ${uid}`, err);
+    } finally {
+      await client.logout().catch(() => undefined);
+    }
+  }
+
+  /**
+   * Add a label/flag to an email.
+   * Custom labels in IMAP are stored as keywords.
+   */
+  async addLabel(uid: number, label: string): Promise<void> {
+    const client = this.createClient();
+    try {
+      await client.connect();
+      await client.mailboxOpen(this.config.mailbox ?? "INBOX");
+      // Add as a custom keyword flag
+      await client.messageFlagsAdd(String(uid), [label], { uid: true });
+    } catch (err) {
+      throw new AdapterError("EXTERNAL_ERROR", `Failed to add label "${label}" to message ${uid}`, err);
+    } finally {
+      await client.logout().catch(() => undefined);
+    }
+  }
 }

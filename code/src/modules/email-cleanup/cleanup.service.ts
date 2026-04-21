@@ -210,13 +210,16 @@ export class CleanupService {
 
     const wasPreview = rule.dryRunEnabled;
 
+    // For IMAP execution, we apply actions directly to IMAP adapter
+    // Matches contain imapMetadata with UID for IMAP operations
     for (const match of matches) {
       try {
         // Log every attempted action (preview or real)
         await this.repository.createLog(ruleId, match.inboxItemId, rule.action, wasPreview);
 
-        if (!wasPreview) {
-          await this.applyAction(match.inboxItemId, rule.action);
+        if (!wasPreview && match.imapMetadata) {
+          // Apply IMAP action using UID from metadata
+          await this.applyIMAPActionWithMatch(match, rule.action);
         }
 
         succeeded++;
@@ -277,7 +280,68 @@ export class CleanupService {
   }
 
   /**
-   * Actually apply the cleanup action on an inbox item.
+   * Apply cleanup action directly via IMAP to a matched email.
+   * Uses the UID from imapMetadata to perform the actual IMAP operation.
+   */
+  private async applyIMAPActionWithMatch(match: CleanupMatch, action: CleanupAction): Promise<void> {
+    if (!match.imapMetadata) {
+      throw new Error("Missing IMAP metadata for action execution");
+    }
+
+    try {
+      // Get the IMAP connection from database
+      const imapConnection = await prisma.sourceConnection.findUnique({
+        where: { id: match.imapMetadata.connectionId },
+      });
+
+      if (!imapConnection) {
+        throw new Error("IMAP connection not found");
+      }
+
+      // Create IMAP adapter
+      const { MailImapAdapter } = await import("@/lib/adapters/mail/mail-imap.adapter");
+      const imapAdapter = new MailImapAdapter({
+        id: imapConnection.id,
+        name: imapConnection.name,
+        type: "email_imap",
+        status: imapConnection.status as any,
+        permissions: {
+          read: imapConnection.permissionRead,
+          write: imapConnection.permissionWrite,
+        },
+        config: imapConnection.config,
+      });
+
+      // Execute the action on IMAP
+      switch (action) {
+        case CleanupAction.DELETE: {
+          await imapAdapter.deleteMessage(match.imapMetadata.uid);
+          break;
+        }
+        case CleanupAction.ARCHIVE: {
+          await imapAdapter.archiveMessage(match.imapMetadata.uid);
+          break;
+        }
+        case CleanupAction.LABEL: {
+          await imapAdapter.addLabel(match.imapMetadata.uid, "cleanup_applied");
+          break;
+        }
+        case CleanupAction.MOVE_TO_FOLDER: {
+          // For now, treat similar to archive (move to All Mail / Archive)
+          await imapAdapter.archiveMessage(match.imapMetadata.uid);
+          break;
+        }
+        default:
+          break;
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      throw new Error(`Failed to apply ${action} via IMAP: ${message}`);
+    }
+  }
+
+  /**
+   * Actually apply the cleanup action on an inbox item (database fallback).
    * - DELETE/ARCHIVE: dismiss the item (soft delete — keeps audit trail).
    *   Use InboxService if available so the right events fire.
    * - LABEL/MOVE_TO_FOLDER: update metadata to tag the item (non-destructive).
@@ -368,14 +432,19 @@ export class CleanupService {
       for (const email of emailMessages) {
         if (this.ruleMatchesEmail(email, rule)) {
           matches.push({
-            // Use email messageId as identifier instead of inboxItemId
-            // The messageId uniquely identifies this email in IMAP
+            // Use email messageId as identifier
             inboxItemId: email.messageId,
             title: email.subject,
             senderEmail: email.from,
             date: email.date,
             preview: email.body?.substring(0, 100) ?? undefined,
             matchedAt: new Date(),
+            // Store IMAP metadata for execution phase
+            imapMetadata: {
+              uid: email.uid,
+              connectionId: imapConnection.id,
+              messageId: email.messageId,
+            },
           });
         }
       }
