@@ -1,5 +1,10 @@
-'use client';
+import { AppShell } from '@/components/ui';
+import { EmailDashboardClient } from './email-view';
 
-import EmailDashboard from './email-view';
-
-export default EmailDashboard;
+export default function EmailDashboardPage() {
+  return (
+    <AppShell title="Correo">
+      <EmailDashboardClient />
+    </AppShell>
+  );
+}

@@ -1,1 +1,1 @@
-export { default } from './email-view';
+export { default as EmailDashboardClient } from './email-view';
