@@ -2,7 +2,17 @@ import Shell from "@/components/ui/shell";
 import { TASKS } from "@/lib/tasks";
 import "./page.css";
 
+const formatDate = (date: Date): string => {
+  const days = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+  const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  const day = days[date.getDay()];
+  const dayNum = date.getDate();
+  const month = months[date.getMonth()];
+  return `${day.charAt(0).toUpperCase() + day.slice(1)}, ${dayNum} de ${month}`;
+};
+
 export default function DashboardPage() {
+  const today = new Date();
   const pendingTasks = TASKS.filter((task) => !task.completed);
   const persistentTasks = pendingTasks.filter((task) => task.kind === "persistent");
   const normalTasks = pendingTasks.filter((task) => task.kind === "normal");
@@ -50,7 +60,7 @@ export default function DashboardPage() {
           <header className="dashboard-page__topbar">
             <div>
               <h2 className="dashboard-page__topbar-title">Hoy</h2>
-              <p className="dashboard-page__topbar-date">Martes, 14 de abril</p>
+              <p className="dashboard-page__topbar-date">{formatDate(today)}</p>
             </div>
             <div className="dashboard-page__topbar-actions">
               <button className="dashboard-page__icon-button" type="button">◔</button>
