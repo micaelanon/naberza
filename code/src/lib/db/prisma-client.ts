@@ -23,7 +23,7 @@ if (env.isDev) {
 }
 
 // Schedule IMAP initialization for next tick (after Prisma client is ready)
-if (!globalThis.imapInitialized) {
+if (!globalThis.imapInitialized && typeof setImmediate !== 'undefined') {
   globalThis.imapInitialized = true;
   // Use setImmediate to run after current event loop
   setImmediate(() => {
