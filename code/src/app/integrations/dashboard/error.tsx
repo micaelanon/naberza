@@ -1,9 +1,5 @@
 "use client";
-
-interface IntegrationsErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { IntegrationsErrorProps } from "./utils/types";
 
 export default function IntegrationsError({ error, reset }: IntegrationsErrorProps) {
   return (

@@ -2,14 +2,11 @@ import type { Metadata } from "next";
 
 import LoginForm from "./_components/login-form";
 import "./login.css";
+import type { LoginPageProps } from "./utils/types";
 
 export const metadata: Metadata = {
   title: "Entrar — Naberza OS",
 };
-
-interface LoginPageProps {
-  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
-}
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { callbackUrl, error } = await searchParams;

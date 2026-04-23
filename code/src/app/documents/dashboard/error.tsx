@@ -1,9 +1,5 @@
 "use client";
-
-interface DocumentsErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { DocumentsErrorProps } from "./utils/types";
 
 export default function DocumentsError({ error, reset }: DocumentsErrorProps) {
   return (

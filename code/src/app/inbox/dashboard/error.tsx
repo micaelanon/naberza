@@ -1,9 +1,5 @@
 "use client";
-
-interface InboxErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { InboxErrorProps } from "./utils/types";
 
 export default function InboxError({ error, reset }: InboxErrorProps) {
   return (

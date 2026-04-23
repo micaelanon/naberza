@@ -2,14 +2,25 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { Task, TaskStatus, Priority, TaskKind } from "@/modules/tasks/task.types";
-import { useFormSubmit } from "@/hooks";
+import type { Priority, Task, TaskKind } from "@/modules/tasks/task.types";
 import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
+import { useFormSubmit } from "@/hooks";
+
+import type {
+  StatusTab,
+  StatusTabOption,
+  TaskCreateFormProps,
+  TaskEditFormProps,
+  TaskFormFieldsProps,
+  TaskFormState,
+  TaskItemActionsProps,
+  TaskListItemProps,
+  TasksApiResponse,
+  TasksContentProps,
+} from "./utils/types";
 import "./tasks-view.css";
 
-type StatusTab = "ALL" | TaskStatus;
-
-const STATUS_TABS: { value: StatusTab; label: string }[] = [
+const STATUS_TABS: StatusTabOption[] = [
   { value: "ALL", label: "Todas" },
   { value: "PENDING", label: "Pendientes" },
   { value: "IN_PROGRESS", label: "En progreso" },
@@ -20,20 +31,6 @@ const PRIORITY_LABELS: Record<string, string> = { HIGH: "Alta", MEDIUM: "Media",
 const KIND_LABELS: Record<string, string> = { NORMAL: "Normal", PERSISTENT: "Persistente", RECURRING: "Recurrente" };
 
 const PAGE_SIZE = 10;
-
-interface TasksApiResponse {
-  data: Task[];
-  meta: { total: number; page: number; pageSize: number };
-}
-
-interface TaskFormState {
-  title: string;
-  description: string;
-  priority: Priority;
-  kind: TaskKind;
-  dueAt: string;
-  tags: string;
-}
 
 const EMPTY_FORM: TaskFormState = { title: "", description: "", priority: "NONE", kind: "NORMAL", dueAt: "", tags: "" };
 
@@ -64,21 +61,7 @@ function filterTasks(tasks: Task[], query: string, priority: Priority | "ALL"): 
 
 // ─── Shared form fields ───────────────────────────────────────────────────────
 
-function TaskFormFields({
-  form,
-  onChange,
-  saving,
-  error,
-  submitLabel,
-  onCancel,
-}: {
-  form: TaskFormState;
-  onChange: (patch: Partial<TaskFormState>) => void;
-  saving: boolean;
-  error: string | null;
-  submitLabel: string;
-  onCancel: () => void;
-}): ReactNode {
+function TaskFormFields({ form, onChange, saving, error, submitLabel, onCancel }: TaskFormFieldsProps): ReactNode {
   return (
     <>
       <div className="task-form__row">
@@ -143,7 +126,7 @@ function TaskFormFields({
 
 // ─── Create form ──────────────────────────────────────────────────────────────
 
-function TaskCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
+function TaskCreateForm({ onCreated, onCancel }: TaskCreateFormProps): ReactNode {
   const [form, setForm] = useState<TaskFormState>(EMPTY_FORM);
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
@@ -192,7 +175,7 @@ function TaskCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
 
 // ─── Edit form ────────────────────────────────────────────────────────────────
 
-function TaskEditForm({ task, onSaved, onCancel }: { task: Task; onSaved: () => void; onCancel: () => void }): ReactNode {
+function TaskEditForm({ task, onSaved, onCancel }: TaskEditFormProps): ReactNode {
   const [form, setForm] = useState<TaskFormState>(() => taskToForm(task));
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
@@ -240,14 +223,7 @@ function TaskEditForm({ task, onSaved, onCancel }: { task: Task; onSaved: () => 
 
 // ─── Task item actions ───────────────────────────────────────────────────────
 
-function TaskItemActions({ task, isActive, onEdit, onComplete, onCancel, onDelete }: {
-  task: Task;
-  isActive: boolean;
-  onEdit: () => void;
-  onComplete: (id: string) => void;
-  onCancel: (id: string) => void;
-  onDelete: () => void;
-}): ReactNode {
+function TaskItemActions({ task, isActive, onEdit, onComplete, onCancel, onDelete }: TaskItemActionsProps): ReactNode {
   return (
     <div className="task-item__actions">
       {task.dueAt && (
@@ -273,13 +249,7 @@ function TaskItemActions({ task, isActive, onEdit, onComplete, onCancel, onDelet
 
 // ─── Task list item ───────────────────────────────────────────────────────────
 
-function TaskListItem({ task, onComplete, onCancel, onEdited, onDeleted }: {
-  task: Task;
-  onComplete: (id: string) => void;
-  onCancel: (id: string) => void;
-  onEdited: () => void;
-  onDeleted: () => void;
-}): ReactNode {
+function TaskListItem({ task, onComplete, onCancel, onEdited, onDeleted }: TaskListItemProps): ReactNode {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -343,11 +313,7 @@ function TaskListItem({ task, onComplete, onCancel, onEdited, onDeleted }: {
 
 // ─── Content area ─────────────────────────────────────────────────────────────
 
-function TasksContent({ isLoading, error, tasks, onComplete, onCancel, onEdited, onDeleted, hasActiveFilters }: {
-  isLoading: boolean; error: string | null; tasks: Task[];
-  onComplete: (id: string) => void; onCancel: (id: string) => void;
-  onEdited: () => void; onDeleted: () => void; hasActiveFilters: boolean;
-}): ReactNode {
+function TasksContent({ isLoading, error, tasks, onComplete, onCancel, onEdited, onDeleted, hasActiveFilters }: TasksContentProps): ReactNode {
   if (isLoading) return <div className="tasks-view__loading">Cargando...</div>;
   if (error) return <div className="tasks-view__error" role="alert">{error}</div>;
   if (tasks.length === 0) {

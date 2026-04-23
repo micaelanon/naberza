@@ -1,9 +1,5 @@
 "use client";
-
-interface HomeErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { HomeErrorProps } from "./utils/types";
 
 export default function HomeError({ error, reset }: HomeErrorProps) {
   return (

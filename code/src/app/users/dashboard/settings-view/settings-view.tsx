@@ -5,9 +5,9 @@ import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui";
 import type { ReactNode } from "react";
 
-const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "dev";
+import type { SettingsSectionProps, Theme } from "./utils/types";
 
-type Theme = "system" | "light" | "dark";
+const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "dev";
 
 const THEME_LABELS: Record<Theme, string> = {
   system: "Sistema",
@@ -20,11 +20,6 @@ const THEME_TOAST: Record<Theme, string> = {
   light: "claro",
   dark: "oscuro",
 };
-
-interface SettingsSectionProps {
-  title: string;
-  children: ReactNode;
-}
 
 function Section({ title, children }: SettingsSectionProps): ReactNode {
   return (
