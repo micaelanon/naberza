@@ -62,7 +62,6 @@ export const telegramService = new TelegramService(telegramRepository, auditServ
 const cleanupRepository = new CleanupRepository();
 export const cleanupService = new CleanupService(
   cleanupRepository,
-  inboxRepository,
   auditService
 );
 

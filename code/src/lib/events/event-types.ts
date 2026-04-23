@@ -59,7 +59,7 @@ export interface DomainEventMap {
   "notification.telegram.verified": TelegramVerifiedEvent;
   "notification.telegram.alert.created": TelegramAlertEvent;
   "notification.telegram.alert.updated": TelegramAlertUpdateEvent;
-  "notification.telegram.alert.deleted": TelegramAlertEvent;
+  "notification.telegram.alert.deleted": TelegramAlertDeletedEvent;
   "notification.telegram.sent": TelegramMessageEvent;
   "notification.telegram.failed": TelegramMessageFailedEvent;
 }
@@ -226,6 +226,10 @@ export interface TelegramVerifiedEvent {
 export interface TelegramAlertEvent {
   alertId: string;
   triggerType: string;
+}
+
+export interface TelegramAlertDeletedEvent {
+  alertId: string;
 }
 
 export interface TelegramAlertUpdateEvent {

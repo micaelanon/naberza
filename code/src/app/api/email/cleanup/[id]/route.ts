@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { CleanupService } from "@/modules/email-cleanup/cleanup.service";
 import { CleanupRepository } from "@/modules/email-cleanup/cleanup.repository";
-import { InboxRepository } from "@/modules/inbox/inbox.repository";
 import { AuditService } from "@/lib/audit";
 import { unauthorized, notFound, success } from "@/lib/api-responses";
 
@@ -24,7 +23,7 @@ export async function GET(
 
     const { id } = await params;
     const repository = new CleanupRepository();
-    const service = new CleanupService(repository, new InboxRepository(), new AuditService());
+    const service = new CleanupService(repository, new AuditService());
 
     const rule = await service.getRule(userId, id);
     if (!rule) {
@@ -60,7 +59,7 @@ export async function PUT(
     const body = await request.json();
 
     const repository = new CleanupRepository();
-    const service = new CleanupService(repository, new InboxRepository(), new AuditService());
+    const service = new CleanupService(repository, new AuditService());
 
     const rule = await service.getRule(userId, id);
     if (!rule) {
@@ -95,7 +94,7 @@ export async function DELETE(
 
     const { id } = await params;
     const repository = new CleanupRepository();
-    const service = new CleanupService(repository, new InboxRepository(), new AuditService());
+    const service = new CleanupService(repository, new AuditService());
 
     const rule = await service.getRule(userId, id);
     if (!rule) {

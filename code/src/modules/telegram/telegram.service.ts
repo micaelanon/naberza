@@ -148,7 +148,7 @@ export class TelegramService {
 
     eventBus.emit("notification.telegram.alert.updated", {
       alertId: id,
-      changes: input,
+      changes: input as Record<string, unknown>,
     });
 
     return alert;

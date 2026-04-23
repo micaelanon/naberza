@@ -1,8 +1,5 @@
-import type { InboxItem } from "@prisma/client";
 import { eventBus } from "@/lib/events/event-bus";
 import type { AuditService } from "@/lib/audit";
-import type { InboxRepository } from "@/modules/inbox/inbox.repository";
-import type { InboxService } from "@/modules/inbox/inbox.service";
 import { CleanupRepository } from "./cleanup.repository";
 import type { EmailMessage } from "@/lib/adapters/mail/mail-imap.adapter";
 import { prisma } from "@/lib/db";
@@ -38,9 +35,7 @@ import {
 export class CleanupService {
   constructor(
     private readonly repository: CleanupRepository,
-    private readonly _inboxRepository: InboxRepository,
-    private readonly auditService: AuditService,
-    private readonly _inboxService?: InboxService
+    private readonly auditService: AuditService
   ) {}
 
   // ─────────────────────────────────────────────

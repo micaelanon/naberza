@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { CleanupService } from "@/modules/email-cleanup/cleanup.service";
 import { CleanupRepository } from "@/modules/email-cleanup/cleanup.repository";
-import { InboxRepository } from "@/modules/inbox/inbox.repository";
 import { AuditService } from "@/lib/audit";
 import { unauthorized, success, badRequest } from "@/lib/api-responses";
 
@@ -20,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     const repository = new CleanupRepository();
-    const service = new CleanupService(repository, new InboxRepository(), new AuditService());
+    const service = new CleanupService(repository, new AuditService());
 
     const url = new URL(request.url);
     const enabled = url.searchParams.get("enabled");
@@ -62,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     const repository = new CleanupRepository();
-    const service = new CleanupService(repository, new InboxRepository(), new AuditService());
+    const service = new CleanupService(repository, new AuditService());
 
     console.log("[email-cleanup][create] session user", {
       id: userId,
