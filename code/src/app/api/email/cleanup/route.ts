@@ -14,7 +14,8 @@ import { unauthorized, success, badRequest } from "@/lib/api-responses";
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = (session?.user as any)?.id;
+    if (!userId) {
       return unauthorized();
     }
 
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
     const matchType = url.searchParams.get("matchType");
     const action = url.searchParams.get("action");
 
-    const rules = await service.listRules((session.user as any).id, {
+    const rules = await service.listRules(userId, {
       ...(enabled !== null && { enabled: enabled === "true" }),
       ...(matchType && { matchType: matchType as any }),
       ...(action && { action: action as any }),
@@ -49,7 +50,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = (session?.user as any)?.id;
+    if (!userId) {
       return unauthorized();
     }
 
@@ -63,12 +65,12 @@ export async function POST(request: NextRequest) {
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
     console.log("[email-cleanup][create] session user", {
-      id: (session.user as any).id,
+      id: userId,
       email: session.user.email,
       name: session.user.name,
     });
 
-    const rule = await service.createRule((session.user as any).id, {
+    const rule = await service.createRule(userId, {
       name: body.name,
       description: body.description,
       matchType: body.matchType,

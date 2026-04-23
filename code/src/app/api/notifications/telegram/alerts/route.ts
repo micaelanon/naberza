@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { telegramService } = getServiceFactory();
-    const preference = await telegramService.getPreference((session.user as any).id);
+    const preference = await telegramService.getPreference((session?.user as any)?.id);
 
     if (!preference) {
       return notFound("Telegram preference not found");
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { telegramService } = getServiceFactory();
-    const preference = await telegramService.getPreference((session.user as any).id);
+    const preference = await telegramService.getPreference((session?.user as any)?.id);
 
     if (!preference) {
       return notFound("Telegram preference not found");
