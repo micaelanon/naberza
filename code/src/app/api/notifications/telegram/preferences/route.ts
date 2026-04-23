@@ -8,7 +8,7 @@ import { unauthorized, notFound, success } from "@/lib/api-responses";
  * GET /api/notifications/telegram/preferences
  * Get current user's Telegram preference
  */
-export async function GET(request: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
  * POST /api/notifications/telegram/preferences
  * Register user for Telegram notifications
  */
-export async function POST(request: NextRequest) {
+export async function POST(_req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
