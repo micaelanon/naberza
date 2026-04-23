@@ -7,8 +7,21 @@
   },
   "plugins": ["@typescript-eslint", "simple-import-sort", "sonarjs", "regexp"],
   "rules": {
-    "simple-import-sort/imports": "error",
+    "simple-import-sort/imports": [
+      "error",
+      {
+        "groups": [
+          ["^react$", "^react/", "^next$", "^next/"],
+          ["^@?\\w"],
+          ["^@/"],
+          ["^\\."],
+          ["^.+\\u0000$"],
+          ["\\.css$"]
+        ]
+      }
+    ],
     "simple-import-sort/exports": "error",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
@@ -17,5 +30,13 @@
     "sonarjs/cognitive-complexity": ["warn", 15],
     "sonarjs/no-duplicate-string": ["warn", 5],
     "regexp/no-empty-string-literal": "warn"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/app/*/api/**/*.ts", "src/app/api/**/*.ts", "src/lib/**/*.ts", "src/modules/**/*.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
 }
