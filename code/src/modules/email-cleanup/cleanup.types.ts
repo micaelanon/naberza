@@ -1,5 +1,3 @@
-import { InboxItem } from "@prisma/client";
-
 // ─────────────────────────────────────────────
 // Email Cleanup Rule Types
 // ─────────────────────────────────────────────

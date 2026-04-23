@@ -5,11 +5,8 @@ import {
   TelegramPreference,
   TelegramAlert,
   TelegramMessage,
-  CreateTelegramPreferenceInput,
-  UpdateTelegramPreferenceInput,
   CreateTelegramAlertInput,
   UpdateTelegramAlertInput,
-  CreateTelegramMessageInput,
   TelegramAlertFilter,
   TelegramMessageFilter,
   SendAlertResult,
@@ -43,7 +40,7 @@ export class TelegramService {
       entityType: "TelegramPreference",
       entityId: preference.id,
       actorDetail: userId,
-      status: "SUCCESS",
+      status: "success",
       output: { preferenceId: preference.id },
     });
 
@@ -83,7 +80,7 @@ export class TelegramService {
       entityType: "TelegramPreference",
       entityId: preference.id,
       actorDetail: userId,
-      status: "SUCCESS",
+      status: "success",
       output: { telegramUserId, telegramUsername },
     });
 
@@ -108,7 +105,7 @@ export class TelegramService {
       action: "alert.created",
       entityType: "TelegramAlert",
       entityId: alert.id,
-      status: "SUCCESS",
+      status: "success",
       input: { name: input.name, triggerType: input.triggerType },
       output: { alertId: alert.id },
     });
@@ -140,8 +137,8 @@ export class TelegramService {
       action: "alert.updated",
       entityType: "TelegramAlert",
       entityId: id,
-      status: "SUCCESS",
-      input,
+      status: "success",
+      input: input as Record<string, unknown>,
       output: { alertId: id },
     });
 
@@ -166,7 +163,7 @@ export class TelegramService {
       action: "alert.deleted",
       entityType: "TelegramAlert",
       entityId: id,
-      status: "SUCCESS",
+      status: "success",
     });
 
     eventBus.emit("notification.telegram.alert.deleted", {
@@ -182,7 +179,7 @@ export class TelegramService {
       action: `alert.${enabled ? "enabled" : "disabled"}`,
       entityType: "TelegramAlert",
       entityId: id,
-      status: "SUCCESS",
+      status: "success",
     });
 
     return alert;
@@ -204,7 +201,7 @@ export class TelegramService {
     if (!preference || !preference.telegramEnabled || !preference.telegramUserId) {
       return {
         messageId: messageId || `msg-${Date.now()}`,
-        status: "FAILED",
+        status: MessageStatus.FAILED,
         error: "Telegram not enabled for user",
       };
     }
@@ -222,14 +219,14 @@ export class TelegramService {
       // await this.repository.updateMessageStatus(message.id, "SENT");
 
       // For now, mark as sent immediately for development
-      await this.repository.updateMessageStatus(message.id, "SENT");
+      await this.repository.updateMessageStatus(message.id, MessageStatus.SENT);
 
       await this.auditService.log({
         module: "telegram",
         action: "message.sent",
         entityType: "TelegramMessage",
         entityId: message.id,
-        status: "SUCCESS",
+        status: "success",
       });
 
       eventBus.emit("notification.telegram.sent", {
@@ -239,18 +236,18 @@ export class TelegramService {
 
       return {
         messageId: message.id,
-        status: "SENT",
+        status: MessageStatus.SENT,
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Unknown error";
-      await this.repository.updateMessageStatus(message.id, "FAILED", errorMsg);
+      await this.repository.updateMessageStatus(message.id, MessageStatus.FAILED, errorMsg);
 
       await this.auditService.log({
         module: "telegram",
         action: "message.failed",
         entityType: "TelegramMessage",
         entityId: message.id,
-        status: "FAILURE",
+        status: "failure",
         errorMessage: errorMsg,
       });
 
@@ -261,7 +258,7 @@ export class TelegramService {
 
       return {
         messageId: message.id,
-        status: "FAILED",
+        status: MessageStatus.FAILED,
         error: errorMsg,
       };
     }

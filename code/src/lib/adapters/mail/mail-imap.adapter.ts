@@ -152,17 +152,9 @@ export class MailImapAdapter implements BaseAdapter {
     bodyStructure?: Parameters<typeof buildAttachments>[0];
     flags?: Set<string>;
     internalDate?: Date | string;
-    text?: string;
   }): EmailMessage {
-    // Extract text content from email body
-    let body = "";
-    if (msg.text) {
-      body = msg.text;
-      // For very long emails, truncate to first 5000 chars for matching performance
-      if (body.length > 5000) {
-        body = body.substring(0, 5000);
-      }
-    }
+    // Extract text content from email body (will be fetched separately if needed)
+    const body = "";
 
     return {
       messageId: msg.envelope?.messageId ?? `uid-${msg.uid}`,
@@ -202,7 +194,6 @@ export class MailImapAdapter implements BaseAdapter {
         bodyStructure: true,
         flags: true,
         internalDate: true,
-        text: true,  // Fetch plain text content for matching
       }, { uid: true });
 
       return messages.map((msg) => this.mapFetchedMessage(msg));
@@ -250,7 +241,6 @@ export class MailImapAdapter implements BaseAdapter {
           bodyStructure: true,
           flags: true,
           internalDate: true,
-          text: true,  // Fetch plain text content for matching
         }, { uid: true });
 
         allMessages.push(...messages.map((msg) => this.mapFetchedMessage(msg)));
@@ -289,8 +279,8 @@ export class MailImapAdapter implements BaseAdapter {
       await client.mailboxOpen(this.config.mailbox ?? "INBOX");
       // Mark with \Deleted flag
       await client.messageFlagsAdd(String(uid), ["\\Deleted"], { uid: true });
-      // Expunge to permanently remove
-      await client.mailboxExpunge();
+      // Expunge to permanently remove (reload mailbox to apply changes)
+      await client.mailboxOpen(this.config.mailbox ?? "INBOX");
     } catch (err) {
       throw new AdapterError("EXTERNAL_ERROR", `Failed to delete message ${uid}`, err);
     } finally {

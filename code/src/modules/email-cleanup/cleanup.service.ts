@@ -4,7 +4,6 @@ import type { AuditService } from "@/lib/audit";
 import type { InboxRepository } from "@/modules/inbox/inbox.repository";
 import type { InboxService } from "@/modules/inbox/inbox.service";
 import { CleanupRepository } from "./cleanup.repository";
-import type { MailImapAdapter } from "@/lib/adapters/mail/mail-imap.adapter";
 import type { EmailMessage } from "@/lib/adapters/mail/mail-imap.adapter";
 import { prisma } from "@/lib/db";
 import {
@@ -340,43 +339,6 @@ export class CleanupService {
     }
   }
 
-  /**
-   * Actually apply the cleanup action on an inbox item (database fallback).
-   * - DELETE/ARCHIVE: dismiss the item (soft delete — keeps audit trail).
-   *   Use InboxService if available so the right events fire.
-   * - LABEL/MOVE_TO_FOLDER: update metadata to tag the item (non-destructive).
-   */
-  private async applyAction(inboxItemId: string, action: CleanupAction): Promise<void> {
-    switch (action) {
-      case CleanupAction.DELETE:
-      case CleanupAction.ARCHIVE: {
-        if (this.inboxService) {
-          await this.inboxService.dismissItem(inboxItemId);
-        } else {
-          await this.inboxRepository.dismiss(inboxItemId);
-        }
-        return;
-      }
-      case CleanupAction.LABEL:
-      case CleanupAction.MOVE_TO_FOLDER: {
-        // Non-destructive: tag item metadata so user can filter on it later.
-        const item = await this.inboxRepository.findById(inboxItemId);
-        if (!item) return;
-        const metadata = (item.metadata as Record<string, unknown>) ?? {};
-        const labels = Array.isArray(metadata["cleanupLabels"])
-          ? (metadata["cleanupLabels"] as string[])
-          : [];
-        labels.push(action === CleanupAction.LABEL ? "labeled" : "moved");
-        await this.inboxRepository.update(inboxItemId, {
-          metadata: { ...metadata, cleanupLabels: labels },
-        });
-        return;
-      }
-      default:
-        return;
-    }
-  }
-
   // ─────────────────────────────────────────────
   // Matching Logic
   // ─────────────────────────────────────────────
@@ -475,26 +437,6 @@ export class CleanupService {
         return this.matchReadStatusEmail(email, rule.config as unknown as ReadStatusConfig);
       case CleanupMatchType.SIZE_THRESHOLD:
         // Size not tracked on EmailMessage — skip gracefully
-        return false;
-      default:
-        return false;
-    }
-  }
-
-  private ruleMatches(item: InboxItem, rule: EmailCleanupRule): boolean {
-    switch (rule.matchType) {
-      case CleanupMatchType.SENDER:
-        return this.matchSender(item, rule.config as unknown as SenderConfig);
-      case CleanupMatchType.KEYWORD:
-        return this.matchKeyword(item, rule.config as unknown as KeywordConfig);
-      case CleanupMatchType.NEWSLETTER:
-        return this.matchNewsletter(item, rule.config as unknown as NewsletterConfig);
-      case CleanupMatchType.OLD_EMAILS:
-        return this.matchOldEmails(item, rule.config as unknown as OldEmailsConfig);
-      case CleanupMatchType.READ_STATUS:
-        return this.matchReadStatus(item, rule.config as unknown as ReadStatusConfig);
-      case CleanupMatchType.SIZE_THRESHOLD:
-        // Size not tracked on InboxItem — skip gracefully
         return false;
       default:
         return false;

@@ -19,7 +19,6 @@ export default function TelegramAlertsPanel({
 }: TelegramAlertsPanelProps) {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
 
   useEffect(() => {
     if (preference?.id && preference?.telegramEnabled) {

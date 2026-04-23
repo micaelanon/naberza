@@ -53,6 +53,15 @@ export interface DomainEventMap {
   // Idea events
   "idea.created": IdeaEvent;
   "idea.promoted": IdeaPromotedEvent;
+
+  // Notification events
+  "notification.telegram.registered": TelegramRegisteredEvent;
+  "notification.telegram.verified": TelegramVerifiedEvent;
+  "notification.telegram.alert.created": TelegramAlertEvent;
+  "notification.telegram.alert.updated": TelegramAlertUpdateEvent;
+  "notification.telegram.alert.deleted": TelegramAlertEvent;
+  "notification.telegram.sent": TelegramMessageEvent;
+  "notification.telegram.failed": TelegramMessageFailedEvent;
 }
 
 // Base event — all events extend this
@@ -200,6 +209,38 @@ export interface IdeaEvent extends BaseEvent {
 export interface IdeaPromotedEvent extends IdeaEvent {
   targetModule: string;
   targetEntityId: string;
+}
+
+// Notification - Telegram
+export interface TelegramRegisteredEvent extends BaseEvent {
+  userId: string;
+  preferenceId: string;
+}
+
+export interface TelegramVerifiedEvent extends BaseEvent {
+  userId: string;
+  telegramUserId: number;
+  preferenceId: string;
+}
+
+export interface TelegramAlertEvent extends BaseEvent {
+  alertId: string;
+  triggerType: string;
+}
+
+export interface TelegramAlertUpdateEvent extends BaseEvent {
+  alertId: string;
+  changes: Record<string, unknown>;
+}
+
+export interface TelegramMessageEvent extends BaseEvent {
+  messageId: string;
+  telegramUserId: number;
+}
+
+export interface TelegramMessageFailedEvent extends BaseEvent {
+  messageId: string;
+  error: string;
 }
 
 // Utility types for working with the event map
