@@ -11,12 +11,13 @@ import { unauthorized, notFound, success, badRequest } from "@/lib/api-responses
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = (session?.user as any)?.id;
+    if (!userId) {
       return unauthorized();
     }
 
     const { telegramService } = getServiceFactory();
-    const preference = await telegramService.getPreference((session?.user as any)?.id);
+    const preference = await telegramService.getPreference(userId);
 
     if (!preference) {
       return notFound("Telegram preference not found");
@@ -52,7 +53,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = (session?.user as any)?.id;
+    if (!userId) {
       return unauthorized();
     }
 
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { telegramService } = getServiceFactory();
-    const preference = await telegramService.getPreference((session?.user as any)?.id);
+    const preference = await telegramService.getPreference(userId);
 
     if (!preference) {
       return notFound("Telegram preference not found");
