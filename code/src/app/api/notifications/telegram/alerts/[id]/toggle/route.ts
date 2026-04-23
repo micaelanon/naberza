@@ -33,7 +33,7 @@ export async function POST(
     }
 
     // Verify ownership
-    const preference = await telegramService.getPreference(session.user.id);
+    const preference = await telegramService.getPreference((session.user as any).id);
     if (!preference || preference.id !== alert.telegramPreferenceId) {
       return forbidden();
     }

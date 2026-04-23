@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const matchType = url.searchParams.get("matchType");
     const action = url.searchParams.get("action");
 
-    const rules = await service.listRules(session.user.id, {
+    const rules = await service.listRules((session.user as any).id, {
       ...(enabled !== null && { enabled: enabled === "true" }),
       ...(matchType && { matchType: matchType as any }),
       ...(action && { action: action as any }),
@@ -63,12 +63,12 @@ export async function POST(request: NextRequest) {
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
     console.log("[email-cleanup][create] session user", {
-      id: session.user.id,
+      id: (session.user as any).id,
       email: session.user.email,
       name: session.user.name,
     });
 
-    const rule = await service.createRule(session.user.id, {
+    const rule = await service.createRule((session.user as any).id, {
       name: body.name,
       description: body.description,
       matchType: body.matchType,

@@ -27,7 +27,7 @@ export async function GET(
     }
 
     // Verify ownership
-    const preference = await telegramService.getPreference(session.user.id);
+    const preference = await telegramService.getPreference((session.user as any).id);
     if (!preference || preference.id !== alert.telegramPreferenceId) {
       return forbidden();
     }
@@ -67,7 +67,7 @@ export async function PUT(
     }
 
     // Verify ownership
-    const preference = await telegramService.getPreference(session.user.id);
+    const preference = await telegramService.getPreference((session.user as any).id);
     if (!preference || preference.id !== alert.telegramPreferenceId) {
       return forbidden();
     }
@@ -106,7 +106,7 @@ export async function DELETE(
     }
 
     // Verify ownership
-    const preference = await telegramService.getPreference(session.user.id);
+    const preference = await telegramService.getPreference((session.user as any).id);
     if (!preference || preference.id !== alert.telegramPreferenceId) {
       return forbidden();
     }

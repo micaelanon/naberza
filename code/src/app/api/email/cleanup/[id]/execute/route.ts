@@ -17,7 +17,7 @@ export async function POST(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    if (!(session?.user as any)?.id) {
       return unauthorized();
     }
 
@@ -25,12 +25,12 @@ export async function POST(
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.getRule(session.user.id, id);
+    const rule = await service.getRule((session?.user as any)?.id, id);
     if (!rule) {
       return notFound("Rule not found");
     }
 
-    const result = await service.executeCleanup(session.user.id, id);
+    const result = await service.executeCleanup((session.user as any).id, id);
     return success(result);
   } catch (error) {
     console.error("Error executing cleanup:", error);

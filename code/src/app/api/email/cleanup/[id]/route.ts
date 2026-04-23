@@ -25,7 +25,7 @@ export async function GET(
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.getRule(session.user.id, id);
+    const rule = await service.getRule((session.user as any).id, id);
     if (!rule) {
       return notFound("Rule not found");
     }
@@ -60,12 +60,12 @@ export async function PUT(
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.getRule(session.user.id, id);
+    const rule = await service.getRule((session.user as any).id, id);
     if (!rule) {
       return notFound("Rule not found");
     }
 
-    const updated = await service.updateRule(session.user.id, id, body);
+    const updated = await service.updateRule((session.user as any).id, id, body);
     return success(updated);
   } catch (error) {
     console.error("Error updating cleanup rule:", error);
@@ -94,12 +94,12 @@ export async function DELETE(
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.getRule(session.user.id, id);
+    const rule = await service.getRule((session.user as any).id, id);
     if (!rule) {
       return notFound("Rule not found");
     }
 
-    await service.deleteRule(session.user.id, id);
+    await service.deleteRule((session.user as any).id, id);
     return success({ success: true });
   } catch (error) {
     console.error("Error deleting cleanup rule:", error);

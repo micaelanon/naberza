@@ -25,12 +25,12 @@ export async function GET(
     const repository = new CleanupRepository();
     const service = new CleanupService(repository, new InboxRepository(), new AuditService());
 
-    const rule = await service.getRule(session.user.id, id);
+    const rule = await service.getRule((session.user as any).id, id);
     if (!rule) {
       return notFound("Rule not found");
     }
 
-    const preview = await service.previewMatches(session.user.id, id);
+    const preview = await service.previewMatches((session.user as any).id, id);
     return success(preview);
   } catch (error) {
     console.error("Error previewing cleanup matches:", error);
