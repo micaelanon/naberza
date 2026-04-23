@@ -37,12 +37,13 @@ export async function GET(_req: NextRequest) {
 export async function POST(_req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = (session?.user as any)?.id;
+    if (!userId) {
       return unauthorized();
     }
 
     const { telegramService } = getServiceFactory();
-    const preference = await telegramService.registerUser((session?.user as any)?.id);
+    const preference = await telegramService.registerUser(userId);
 
     return success(preference, 201);
   } catch (error) {
@@ -58,14 +59,15 @@ export async function POST(_req: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = (session?.user as any)?.id;
+    if (!userId) {
       return unauthorized();
     }
 
     const body = await request.json();
 
     const { telegramService } = getServiceFactory();
-    const preference = await telegramService.getPreference((session?.user as any)?.id);
+    const preference = await telegramService.getPreference(userId);
 
     if (!preference) {
       return notFound("Telegram preference not found");

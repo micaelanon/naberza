@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
 
     console.log("[email-cleanup][create] session user", {
       id: userId,
-      email: session?.user?.email,
-      name: session?.user?.name,
+      email: (session?.user as any)?.email,
+      name: (session?.user as any)?.name,
     });
 
     const rule = await service.createRule(userId, {

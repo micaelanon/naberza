@@ -60,7 +60,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate required fields
     if (!body.name || !body.triggerType || !body.config) {
       return badRequest("Missing required fields: name, triggerType, config");
     }
