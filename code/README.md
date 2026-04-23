@@ -195,6 +195,6 @@ See `docs/roadmap.md` for phase details and upcoming work.
 - Look at module READMEs for implementation details
 - Open an issue or discussion on GitHub
 
-## License
+## Fun Fact
 
-Private project. Not for public distribution.
+Did you know? Naberza OS was designed to help you manage not just your tasks, but your entire digital home life!
