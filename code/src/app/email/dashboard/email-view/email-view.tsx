@@ -12,11 +12,6 @@ export default function EmailDashboardClient() {
   const [preference, setPreference] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check if user has Telegram preference
-    fetchPreference();
-  }, []);
-
   const fetchPreference = async () => {
     try {
       const res = await fetch('/api/notifications/telegram/preferences');
@@ -30,6 +25,11 @@ export default function EmailDashboardClient() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Check if user has Telegram preference
+    fetchPreference();
+  }, []);
 
   return (
     <div className="email-dashboard">

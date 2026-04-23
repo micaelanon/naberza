@@ -20,12 +20,6 @@ export default function TelegramAlertsPanel({
   const [alerts, setAlerts] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    if (preference?.id && preference?.telegramEnabled) {
-      fetchAlerts();
-    }
-  }, [preference?.id]);
-
   const fetchAlerts = async () => {
     if (!preference?.id) return;
     try {
@@ -38,6 +32,12 @@ export default function TelegramAlertsPanel({
       console.error('Error fetching alerts:', error);
     }
   };
+
+  useEffect(() => {
+    if (preference?.id && preference?.telegramEnabled) {
+      fetchAlerts();
+    }
+  }, [preference?.id, fetchAlerts]);
 
   const handleAlertCreated = async () => {
     setShowForm(false);

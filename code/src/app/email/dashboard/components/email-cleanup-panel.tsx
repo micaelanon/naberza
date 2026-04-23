@@ -10,10 +10,6 @@ export default function EmailCleanupPanel() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchRules();
-  }, []);
-
   const fetchRules = async () => {
     try {
       const res = await fetch('/api/email/cleanup');
@@ -27,6 +23,10 @@ export default function EmailCleanupPanel() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchRules();
+  }, [fetchRules]);
 
   const handleRuleCreated = async () => {
     setShowForm(false);
