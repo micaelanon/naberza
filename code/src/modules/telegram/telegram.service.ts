@@ -39,6 +39,7 @@ export class TelegramService {
       action: "register",
       entityType: "TelegramPreference",
       entityId: preference.id,
+      actor: "user",
       actorDetail: userId,
       status: "success",
       output: { preferenceId: preference.id },
@@ -79,6 +80,7 @@ export class TelegramService {
       action: "verify",
       entityType: "TelegramPreference",
       entityId: preference.id,
+      actor: "user",
       actorDetail: userId,
       status: "success",
       output: { telegramUserId, telegramUsername },
@@ -105,6 +107,7 @@ export class TelegramService {
       action: "alert.created",
       entityType: "TelegramAlert",
       entityId: alert.id,
+      actor: "user",
       status: "success",
       input: { name: input.name, triggerType: input.triggerType },
       output: { alertId: alert.id },
@@ -137,6 +140,7 @@ export class TelegramService {
       action: "alert.updated",
       entityType: "TelegramAlert",
       entityId: id,
+      actor: "user",
       status: "success",
       input: input as Record<string, unknown>,
       output: { alertId: id },
@@ -163,6 +167,7 @@ export class TelegramService {
       action: "alert.deleted",
       entityType: "TelegramAlert",
       entityId: id,
+      actor: "user",
       status: "success",
     });
 
@@ -179,6 +184,7 @@ export class TelegramService {
       action: `alert.${enabled ? "enabled" : "disabled"}`,
       entityType: "TelegramAlert",
       entityId: id,
+      actor: "user",
       status: "success",
     });
 
@@ -226,6 +232,7 @@ export class TelegramService {
         action: "message.sent",
         entityType: "TelegramMessage",
         entityId: message.id,
+        actor: "system",
         status: "success",
       });
 
@@ -247,6 +254,7 @@ export class TelegramService {
         action: "message.failed",
         entityType: "TelegramMessage",
         entityId: message.id,
+        actor: "system",
         status: "failure",
         errorMessage: errorMsg,
       });

@@ -38,9 +38,9 @@ import {
 export class CleanupService {
   constructor(
     private readonly repository: CleanupRepository,
-    private readonly inboxRepository: InboxRepository,
+    private readonly _inboxRepository: InboxRepository,
     private readonly auditService: AuditService,
-    private readonly inboxService?: InboxService
+    private readonly _inboxService?: InboxService
   ) {}
 
   // ─────────────────────────────────────────────
@@ -308,7 +308,7 @@ export class CleanupService {
           read: imapConnection.permissionRead,
           write: imapConnection.permissionWrite,
         },
-        config: imapConnection.config,
+        config: imapConnection.config as Record<string, unknown>,
       });
 
       // Execute the action on IMAP
@@ -380,7 +380,7 @@ export class CleanupService {
           read: imapConnection.permissionRead,
           write: imapConnection.permissionWrite,
         },
-        config: imapConnection.config,
+        config: imapConnection.config as Record<string, unknown>,
       });
 
       // Fetch ALL emails from IMAP (last 30 days, including read and unread)
@@ -540,145 +540,6 @@ export class CleanupService {
     if (config.readStatus === "read") return email.isRead;
     if (config.readStatus === "unread") return !email.isRead;
     return false;
-  }
-
-  // ─────────────────────────────────────────────
-  // Matching Logic for Database InboxItems (fallback)
-  // ─────────────────────────────────────────────
-
-  private matchSender(item: InboxItem, config: SenderConfig): boolean {
-    const sender = this.extractSender(item)?.toLowerCase();
-    if (!sender || !config.senderEmails?.length) return false;
-
-    return config.senderEmails.some((email) => {
-      const target = email.toLowerCase().trim();
-      if (!target) return false;
-
-      if (config.matchType === "domain") {
-        // Accept either "@example.com", "example.com" or "anything@example.com"
-        const targetDomain = target.includes("@") ? target.split("@")[1] : target.replace(/^@/, "");
-        const senderDomain = sender.includes("@") ? sender.split("@")[1] : sender;
-        return senderDomain === targetDomain;
-      }
-
-      return sender === target;
-    });
-  }
-
-  private matchKeyword(item: InboxItem, config: KeywordConfig): boolean {
-    if (!config.keywords?.length) return false;
-
-    const rawText =
-      config.searchIn === "subject"
-        ? item.title
-        : config.searchIn === "body"
-          ? item.body ?? ""
-          : `${item.title} ${item.body ?? ""}`;
-
-    const haystack = config.caseSensitive ? rawText : rawText.toLowerCase();
-    const needles = config.caseSensitive
-      ? config.keywords.filter(Boolean)
-      : config.keywords.map((k) => k.toLowerCase()).filter(Boolean);
-
-    if (!needles.length) return false;
-
-    return config.matchAll
-      ? needles.every((k) => haystack.includes(k))
-      : needles.some((k) => haystack.includes(k));
-  }
-
-  /**
-   * Newsletter heuristic — any of:
-   * - "unsubscribe" present in body
-   * - "list-unsubscribe" header in raw payload
-   * - marketing keywords (promo/newsletter/offer/sale/discount)
-   * - sender looks like a noreply / newsletter mailbox
-   */
-  private matchNewsletter(item: InboxItem, config?: NewsletterConfig): boolean {
-    const text = `${item.title} ${item.body ?? ""}`.toLowerCase();
-    const sender = this.extractSender(item)?.toLowerCase() ?? "";
-
-    // 1. Explicit list-unsubscribe header
-    const payload = (item.sourceRawPayload as Record<string, unknown>) || {};
-    const headers = (payload["headers"] as Record<string, unknown>) || {};
-    const hasListUnsubscribe = Boolean(
-      headers["list-unsubscribe"] ||
-        headers["List-Unsubscribe"] ||
-        payload["listUnsubscribe"] ||
-        payload["List-Unsubscribe"]
-    );
-    if (hasListUnsubscribe) return true;
-
-    // 2. Body mentions unsubscribe / newsletter
-    if (text.includes("unsubscribe") || text.includes("darse de baja") || text.includes("cancelar suscripción")) {
-      return true;
-    }
-
-    // 3. Sender looks like a marketing address
-    if (
-      /^(noreply|no-reply|newsletter|mailing|marketing|news|info|hello|hola)@/.test(sender) ||
-      /^.*@(mail|e|news|newsletter|marketing|campaigns|em)\./.test(sender)
-    ) {
-      return true;
-    }
-
-    // 4. Marketing keywords in subject/body
-    const marketingKeywords = config?.marketingKeywords?.length
-      ? config.marketingKeywords.map((k) => k.toLowerCase())
-      : [
-          "newsletter",
-          "boletín",
-          "boletin",
-          "promoción",
-          "promocion",
-          "descuento",
-          "oferta",
-          "rebaja",
-          "sale",
-          "discount",
-          "% off",
-          "promo",
-          "deal",
-        ];
-
-    return marketingKeywords.some((k) => text.includes(k));
-  }
-
-  private matchOldEmails(item: InboxItem, config: OldEmailsConfig): boolean {
-    const cutoff = config.beforeDate
-      ? new Date(config.beforeDate).getTime()
-      : Date.now() - (config.ageInDays ?? 90) * 24 * 60 * 60 * 1000;
-    return item.createdAt.getTime() <= cutoff;
-  }
-
-  private matchReadStatus(item: InboxItem, config: ReadStatusConfig): boolean {
-    if (!config?.readStatus || config.readStatus === "any") return true;
-    // Read status is not directly tracked on InboxItem; use `processedAt` as a proxy
-    const isRead = Boolean(item.processedAt);
-    if (config.readStatus === "read") return isRead;
-    if (config.readStatus === "unread") return !isRead;
-    return false;
-  }
-
-  private extractSender(item: InboxItem): string | undefined {
-    if (!item.sourceRawPayload) return undefined;
-    if (typeof item.sourceRawPayload !== "object") return undefined;
-
-    const payload = item.sourceRawPayload as Record<string, unknown>;
-    const candidate = payload["from"] ?? payload["sender"] ?? payload["senderEmail"];
-
-    if (typeof candidate === "string") {
-      // Extract email from "Name <email@x.com>" form
-      const emailMatch = candidate.match(/<([^>]+)>/);
-      return (emailMatch ? emailMatch[1] : candidate).trim();
-    }
-
-    if (candidate && typeof candidate === "object") {
-      const maybeEmail = (candidate as Record<string, unknown>)["address"] ?? (candidate as Record<string, unknown>)["email"];
-      if (typeof maybeEmail === "string") return maybeEmail.trim();
-    }
-
-    return undefined;
   }
 
   // ─────────────────────────────────────────────

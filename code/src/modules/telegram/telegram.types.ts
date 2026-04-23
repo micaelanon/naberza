@@ -26,7 +26,7 @@ export interface UpdateTelegramPreferenceInput {
   telegramUserId?: number;
   telegramUsername?: string;
   telegramEnabled?: boolean;
-  verificationCode?: string;
+  verificationCode?: string | null;
   verificationExpires?: Date | null;
 }
 

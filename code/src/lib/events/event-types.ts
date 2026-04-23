@@ -212,33 +212,33 @@ export interface IdeaPromotedEvent extends IdeaEvent {
 }
 
 // Notification - Telegram
-export interface TelegramRegisteredEvent extends BaseEvent {
+export interface TelegramRegisteredEvent {
   userId: string;
   preferenceId: string;
 }
 
-export interface TelegramVerifiedEvent extends BaseEvent {
+export interface TelegramVerifiedEvent {
   userId: string;
   telegramUserId: number;
   preferenceId: string;
 }
 
-export interface TelegramAlertEvent extends BaseEvent {
+export interface TelegramAlertEvent {
   alertId: string;
   triggerType: string;
 }
 
-export interface TelegramAlertUpdateEvent extends BaseEvent {
+export interface TelegramAlertUpdateEvent {
   alertId: string;
   changes: Record<string, unknown>;
 }
 
-export interface TelegramMessageEvent extends BaseEvent {
+export interface TelegramMessageEvent {
   messageId: string;
   telegramUserId: number;
 }
 
-export interface TelegramMessageFailedEvent extends BaseEvent {
+export interface TelegramMessageFailedEvent {
   messageId: string;
   error: string;
 }
