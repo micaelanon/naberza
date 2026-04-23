@@ -12,7 +12,7 @@ import { unauthorized, notFound, forbidden, success } from "@/lib/api-responses"
  * Get a specific cleanup rule
  */
 export async function GET(
-  request: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -81,7 +81,7 @@ export async function PUT(
  * Delete a cleanup rule
  */
 export async function DELETE(
-  request: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

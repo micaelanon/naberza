@@ -12,7 +12,7 @@ import { unauthorized, notFound, success } from "@/lib/api-responses";
  * Preview emails that would match this cleanup rule
  */
 export async function GET(
-  request: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

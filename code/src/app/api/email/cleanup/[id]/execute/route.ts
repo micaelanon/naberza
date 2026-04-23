@@ -12,7 +12,7 @@ import { unauthorized, notFound, success } from "@/lib/api-responses";
  * Execute the cleanup rule (actually delete/archive emails)
  */
 export async function POST(
-  request: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

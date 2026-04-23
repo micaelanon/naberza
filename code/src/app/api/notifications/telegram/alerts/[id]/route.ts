@@ -9,7 +9,7 @@ import { unauthorized, notFound, success, forbidden } from "@/lib/api-responses"
  * Get a specific Telegram alert
  */
 export async function GET(
-  request: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -88,7 +88,7 @@ export async function PUT(
  * Delete a Telegram alert
  */
 export async function DELETE(
-  request: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
