@@ -46,7 +46,7 @@ internal/update-prisma-schema
 - **Types**: Co-localizados con el código, interface para objetos, type para uniones
 - **Components**: Default export, con tests, estilos y tipos co-localizados
 
-Ve a `instructions/` en copilot-instructions-test para convenciones completas.
+Ve a `code/AGENTS.md` para las convenciones de proyecto completas.
 
 ## Pull Request Process
 
