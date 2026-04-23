@@ -152,14 +152,25 @@ export class MailImapAdapter implements BaseAdapter {
     bodyStructure?: Parameters<typeof buildAttachments>[0];
     flags?: Set<string>;
     internalDate?: Date | string;
+    text?: string;
   }): EmailMessage {
+    // Extract text content from email body
+    let body = "";
+    if (msg.text) {
+      body = msg.text;
+      // For very long emails, truncate to first 5000 chars for matching performance
+      if (body.length > 5000) {
+        body = body.substring(0, 5000);
+      }
+    }
+
     return {
       messageId: msg.envelope?.messageId ?? `uid-${msg.uid}`,
       uid: msg.uid,
       from: buildFromAddress(msg.envelope ?? {}),
       to: buildToAddresses(msg.envelope ?? {}),
       subject: msg.envelope?.subject ?? "(no subject)",
-      body: "",
+      body,
       date: parseInternalDate(msg.internalDate),
       attachments: buildAttachments(msg.bodyStructure),
       isRead: msg.flags?.has("\\Seen") ?? false,
@@ -191,6 +202,7 @@ export class MailImapAdapter implements BaseAdapter {
         bodyStructure: true,
         flags: true,
         internalDate: true,
+        text: true,  // Fetch plain text content for matching
       }, { uid: true });
 
       return messages.map((msg) => this.mapFetchedMessage(msg));
@@ -206,6 +218,9 @@ export class MailImapAdapter implements BaseAdapter {
    * Fetch ALL messages (read and unread) since a given date.
    * Used for email cleanup rules that need to match against all emails,
    * not just unread ones.
+   *
+   * NOTE: Processes in batches of 500 UIDs to avoid IMAP server timeouts
+   * when dealing with large mailboxes (1000+).
    */
   async fetchAllMessages(since?: Date): Promise<EmailMessage[]> {
     const client = this.createClient();
@@ -224,14 +239,24 @@ export class MailImapAdapter implements BaseAdapter {
       const uids: number[] = Array.isArray(rawUids) ? rawUids : [];
       if (!uids.length) return [];
 
-      const messages = await client.fetchAll(uids.join(","), {
-        envelope: true,
-        bodyStructure: true,
-        flags: true,
-        internalDate: true,
-      }, { uid: true });
+      // Process in batches of 500 to avoid timeout with large mailboxes
+      const BATCH_SIZE = 500;
+      const allMessages: EmailMessage[] = [];
 
-      return messages.map((msg) => this.mapFetchedMessage(msg));
+      for (let i = 0; i < uids.length; i += BATCH_SIZE) {
+        const batch = uids.slice(i, i + BATCH_SIZE);
+        const messages = await client.fetchAll(batch.join(","), {
+          envelope: true,
+          bodyStructure: true,
+          flags: true,
+          internalDate: true,
+          text: true,  // Fetch plain text content for matching
+        }, { uid: true });
+
+        allMessages.push(...messages.map((msg) => this.mapFetchedMessage(msg)));
+      }
+
+      return allMessages;
     } catch (err) {
       if (err instanceof AdapterError) throw err;
       throw new AdapterError("EXTERNAL_ERROR", "Error fetching all messages", err);
