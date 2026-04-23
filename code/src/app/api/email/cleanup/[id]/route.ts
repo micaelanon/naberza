@@ -5,7 +5,7 @@ import { CleanupService } from "@/modules/email-cleanup/cleanup.service";
 import { CleanupRepository } from "@/modules/email-cleanup/cleanup.repository";
 import { InboxRepository } from "@/modules/inbox/inbox.repository";
 import { AuditService } from "@/lib/audit";
-import { unauthorized, notFound, forbidden, success } from "@/lib/api-responses";
+import { unauthorized, notFound, success } from "@/lib/api-responses";
 
 /**
  * GET /api/email/cleanup/[id]
