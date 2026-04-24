@@ -2,7 +2,7 @@
 
 A personal home operations system providing centralized inbox management, task scheduling, document handling, home automation integration, and financial tracking.
 
-**Status**: Phase 0 (Foundation) — Infrastructure and scaffolding complete, ready for Phase 1 (Core Loop).
+**Status**: Phase 7 (Make the app actually usable) — in progress after Foundations, adapters, hardening, domain modules, automations and usability milestones already merged.
 
 ## Project Structure
 
@@ -103,13 +103,13 @@ See `docs/docker-setup.md` for full Docker setup and troubleshooting.
 
 | Layer | Technology | Notes |
 |-------|------------|-------|
-| Framework | Next.js 14 (App Router) | App Router + React 19 |
+| Framework | Next.js 16 (App Router) | App Router + React 19 |
 | Language | TypeScript (strict) | 100% type-safe |
 | Database | PostgreSQL 16 | Prisma ORM |
 | Auth | NextAuth.js 4.24.14 | Single-user in Phase 0 |
 | Testing | Vitest + Jest DOM | Fast, ESM-native |
 | Linting | ESLint | simple-import-sort, SonarJS |
-| Styling | CSS Modules | Design tokens (moss/olive/cream) |
+| Styling | CSS custom properties + BEM | Design tokens (warm palette) |
 | Deployment | Vercel | Auto-deploy on push to develop/main |
 | Local Dev | Docker Compose | PostgreSQL + app containerization |
 
@@ -154,25 +154,17 @@ See `RELEASE.md` for full deployment checklist.
 
 ## Roadmap
 
-### Phase 0: Foundation ✅
-- [x] Architecture documentation
-- [x] Project structure scaffolding
-- [x] Event bus + audit service
-- [x] Adapter registry
-- [x] Prisma schema + migrations
-- [x] NextAuth.js setup
-- [x] Page scaffolds for all modules
-- [x] Docker setup
+### Current real state
+- [x] Phase 0: Foundation
+- [x] Phase 1: Core Loop
+- [x] Phase 2: Adapters & ingestion layer
+- [x] Phase 3: Alignment & hardening
+- [x] Phase 4: Domain modules
+- [x] Phase 5: Automations & notifications
+- [x] Phase 6: Polish & hardening
+- [~] Phase 7: Make the app actually usable
 
-### Phase 1: Core Loop (In Progress)
-- [ ] PostgreSQL fully operational
-- [ ] Inbox CRUD + classification
-- [ ] Task module (all views)
-- [ ] Dashboard: today view
-- [ ] Audit log integration
-
-### Phases 2–8: Planned
-See `docs/roadmap.md` for full plan including Documents, Invoices, Home Assistant, Email, Finance, Automations, and production hardening.
+See `docs/roadmap.md` for the detailed, continuously-updated breakdown.
 
 ## Documentation
 
