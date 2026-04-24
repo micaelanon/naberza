@@ -1,9 +1,5 @@
 "use client";
-
-interface UsersErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { UsersErrorProps } from "./utils/types";
 
 export default function UsersError({ error, reset }: UsersErrorProps) {
   return (

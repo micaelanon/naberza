@@ -1,9 +1,5 @@
 "use client";
-
-interface InvoicesErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { InvoicesErrorProps } from "./utils/types";
 
 export default function InvoicesError({ error, reset }: InvoicesErrorProps) {
   return (

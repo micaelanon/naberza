@@ -1,9 +1,5 @@
 "use client";
-
-interface FinanceErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { FinanceErrorProps } from "./utils/types";
 
 export default function FinanceError({ error, reset }: FinanceErrorProps) {
   return (

@@ -3,23 +3,21 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Pagination } from "@/components/ui";
-import type { HomeEventSummary, HomeLiveEntitySummary, HomeLiveOverview } from "@/modules/home";
+import type { HomeEventSummary } from "@/modules/home";
+
+import type {
+  HomeEventsSectionProps,
+  HomeLiveListProps,
+  HomeLiveResponse,
+  HomeLiveSectionProps,
+  HomeLiveStatus,
+  HomeSummaryCardsProps,
+  HomeViewPayload,
+  UseHomeViewDataResult,
+} from "./utils/types";
 import "./home-view.css";
 
 const PAGE_SIZE = 10;
-
-interface HomeLiveResponse {
-  configured: boolean;
-  connected: boolean | null;
-  error?: string;
-  overview: HomeLiveOverview;
-}
-
-interface HomeViewPayload {
-  events: HomeEventSummary[];
-  total: number;
-  live: HomeLiveResponse;
-}
 
 function formatRelativeDate(value: string | Date | null): string {
   if (!value) return "";
@@ -35,13 +33,7 @@ function formatRelativeDate(value: string | Date | null): string {
   });
 }
 
-function HomeLiveList({
-  items,
-  empty,
-}: {
-  items: HomeLiveEntitySummary[];
-  empty: string;
-}): ReactNode {
+function HomeLiveList({ items, empty }: HomeLiveListProps): ReactNode {
   if (items.length === 0) return <p className="home-live-list__empty">{empty}</p>;
 
   return (
@@ -100,13 +92,13 @@ async function fetchHomeViewPayload(): Promise<HomeViewPayload> {
   };
 }
 
-function getLiveStatus(live: HomeLiveResponse): { className: string; text: string } {
+function getLiveStatus(live: HomeLiveResponse): HomeLiveStatus {
   if (!live.configured) return { className: "home-page__pill--warn", text: "Sin configurar" };
   if (live.connected) return { className: "home-page__pill--ok", text: "Conectado" };
   return { className: "home-page__pill--error", text: "Error de conexión" };
 }
 
-function HomeSummaryCards({ live, total }: { live: HomeLiveResponse; total: number }): ReactNode {
+function HomeSummaryCards({ live, total }: HomeSummaryCardsProps): ReactNode {
   return (
     <section className="home-page__cards">
       <article className="home-page__card">
@@ -133,19 +125,7 @@ function HomeSummaryCards({ live, total }: { live: HomeLiveResponse; total: numb
   );
 }
 
-function HomeLiveSection({
-  title,
-  subtitle,
-  count,
-  items,
-  empty,
-}: {
-  title: string;
-  subtitle: string;
-  count: number;
-  items: HomeLiveEntitySummary[];
-  empty: string;
-}): ReactNode {
+function HomeLiveSection({ title, subtitle, count, items, empty }: HomeLiveSectionProps): ReactNode {
   return (
     <section className="home-page__section">
       <div className="home-page__section-header">
@@ -160,17 +140,7 @@ function HomeLiveSection({
   );
 }
 
-function HomeEventsSection({
-  events,
-  total,
-  page,
-  onPageChange,
-}: {
-  events: HomeEventSummary[];
-  total: number;
-  page: number;
-  onPageChange: (page: number) => void;
-}): ReactNode {
+function HomeEventsSection({ events, total, page, onPageChange }: HomeEventsSectionProps): ReactNode {
   const paginatedEvents = events.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
@@ -213,7 +183,7 @@ function HomeEventsSection({
   );
 }
 
-function useHomeViewData() {
+function useHomeViewData(): UseHomeViewDataResult {
   const [events, setEvents] = useState<HomeEventSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);

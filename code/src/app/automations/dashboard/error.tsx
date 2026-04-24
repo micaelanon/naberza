@@ -1,9 +1,5 @@
 "use client";
-
-interface AutomationsErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { AutomationsErrorProps } from "./utils/types";
 
 export default function AutomationsError({ error, reset }: AutomationsErrorProps) {
   return (

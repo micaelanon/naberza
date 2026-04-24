@@ -1,9 +1,5 @@
 "use client";
-
-interface AuditErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { AuditErrorProps } from "./utils/types";
 
 export default function AuditError({ error, reset }: AuditErrorProps) {
   return (

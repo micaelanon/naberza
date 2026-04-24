@@ -1,9 +1,5 @@
 "use client";
-
-interface IdeasErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { IdeasErrorProps } from "./utils/types";
 
 export default function IdeasError({ error, reset }: IdeasErrorProps) {
   return (

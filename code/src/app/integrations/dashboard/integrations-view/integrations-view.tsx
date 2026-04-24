@@ -3,7 +3,9 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+
 import type { IntegrationStatus } from "../../api/status/route";
+import type { StatusMap, TabKey } from "./utils/types";
 import "./integrations-guide.css";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -45,10 +47,9 @@ function DocLink({ href, label }: { href: string; label: string }): ReactNode {
   );
 }
 
-type TabKey = "local" | "prod";
-
 function EnvTabs({ local, prod }: { local: ReactNode; prod: ReactNode }): ReactNode {
   const [tab, setTab] = useState<TabKey>("local");
+
   return (
     <div className="env-tabs">
       <div className="env-tabs__bar" role="tablist">
@@ -69,9 +70,7 @@ function EnvTabs({ local, prod }: { local: ReactNode; prod: ReactNode }): ReactN
           Producción / VPS
         </button>
       </div>
-      <div className="env-tabs__content">
-        {tab === "local" ? local : prod}
-      </div>
+      <div className="env-tabs__content">{tab === "local" ? local : prod}</div>
     </div>
   );
 }
@@ -546,21 +545,25 @@ node -e "const {randomBytes}=require('crypto'); console.log(randomBytes(32).toSt
 
 // ─── Main view ────────────────────────────────────────────────────────────────
 
-type StatusMap = Partial<Record<string, IntegrationStatus>>;
-
 export default function IntegrationsView(): ReactNode {
   const [statusMap, setStatusMap] = useState<StatusMap>({});
   const [loadingStatus, setLoadingStatus] = useState(true);
 
   useEffect(() => {
     fetch("/integrations/api/status")
-      .then((r) => r.json() as Promise<{ statuses: IntegrationStatus[] }>)
+      .then((response) => response.json() as Promise<{ statuses: IntegrationStatus[] }>)
       .then(({ statuses }) => {
         const map: StatusMap = {};
-        for (const s of statuses) map[s.id] = s;
+
+        for (const status of statuses) {
+          map[status.id] = status;
+        }
+
         setStatusMap(map);
       })
-      .catch(() => { /* status unavailable — show guide without pills */ })
+      .catch(() => {
+        // status unavailable — show guide without pills
+      })
       .finally(() => setLoadingStatus(false));
   }, []);
 
@@ -582,13 +585,15 @@ export default function IntegrationsView(): ReactNode {
           { id: "notifications", icon: "notifications", label: "Notificaciones" },
           { id: "webhooks", icon: "webhook", label: "Webhooks" },
         ].map(({ id, icon, label }) => {
-          const s = id === "notifications" ? (statusMap["telegram"] ?? statusMap["smtp"]) : statusMap[id];
+          const status = id === "notifications" ? (statusMap.telegram ?? statusMap.smtp) : statusMap[id];
           let dot: string | null = null;
-          if (s) {
-            if (s.connected === null) dot = "unconfigured";
-            else if (s.connected) dot = "connected";
+
+          if (status) {
+            if (status.connected === null) dot = "unconfigured";
+            else if (status.connected) dot = "connected";
             else dot = "error";
           }
+
           return (
             <a key={id} href={`#${id}`} className="int-nav-link">
               <span className="material-symbols-outlined">{icon}</span>
@@ -599,11 +604,11 @@ export default function IntegrationsView(): ReactNode {
         })}
       </nav>
 
-      <PaperlessSection status={statusMap["paperless"]} />
+      <PaperlessSection status={statusMap.paperless} />
       <HomeAssistantSection status={statusMap["home-assistant"]} />
-      <MailSection status={statusMap["mail"]} />
-      <NotificationsSection telegramStatus={statusMap["telegram"]} smtpStatus={statusMap["smtp"]} />
-      <WebhooksSection status={statusMap["webhooks"]} />
+      <MailSection status={statusMap.mail} />
+      <NotificationsSection telegramStatus={statusMap.telegram} smtpStatus={statusMap.smtp} />
+      <WebhooksSection status={statusMap.webhooks} />
     </div>
   );
 }

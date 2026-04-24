@@ -1,9 +1,5 @@
 "use client";
-
-interface TasksErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
+import type { TasksErrorProps } from "./utils/types";
 
 export default function TasksError({ error, reset }: TasksErrorProps) {
   return (

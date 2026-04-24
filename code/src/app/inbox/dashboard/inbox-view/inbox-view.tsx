@@ -2,15 +2,23 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { InboxItem, InboxStatus, InboxClassification } from "@/modules/inbox/inbox.types";
+import type { InboxClassification, InboxItem } from "@/modules/inbox/inbox.types";
 import type { Priority } from "@/modules/tasks/task.types";
-import { useFormSubmit } from "@/hooks";
 import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
+import { useFormSubmit } from "@/hooks";
+
+import type {
+  InboxApiResponse,
+  InboxContentProps,
+  InboxCreateFormProps,
+  InboxEditFormProps,
+  InboxListItemProps,
+  StatusTab,
+  StatusTabOption,
+} from "./utils/types";
 import "./inbox-view.css";
 
-type StatusTab = "ALL" | InboxStatus;
-
-const STATUS_TABS: { value: StatusTab; label: string }[] = [
+const STATUS_TABS: StatusTabOption[] = [
   { value: "ALL", label: "Todos" },
   { value: "PENDING", label: "Pendientes" },
   { value: "CLASSIFIED", label: "Clasificados" },
@@ -18,6 +26,7 @@ const STATUS_TABS: { value: StatusTab; label: string }[] = [
 ];
 
 const PRIORITY_LABELS: Record<string, string> = { HIGH: "Alta", MEDIUM: "Media", LOW: "Baja", NONE: "" };
+
 const SOURCE_LABELS: Record<string, string> = {
   EMAIL: "Email", PAPERLESS: "Paperless", HOME_ASSISTANT: "Home", MANUAL: "Manual", API: "API",
 };
@@ -35,14 +44,9 @@ function filterInboxItems(items: InboxItem[], query: string, priority: Priority 
 
 const PAGE_SIZE = 10;
 
-interface InboxApiResponse {
-  data: InboxItem[];
-  meta: { total: number; page: number; pageSize: number };
-}
-
 // ─── Create form ──────────────────────────────────────────────────────────────
 
-function InboxCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
+function InboxCreateForm({ onCreated, onCancel }: InboxCreateFormProps): ReactNode {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [priority, setPriority] = useState<Priority>("NONE");
@@ -90,7 +94,7 @@ function InboxCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCan
 
 // ─── Edit form ────────────────────────────────────────────────────────────────
 
-function InboxEditForm({ item, onSaved, onCancel }: { item: InboxItem; onSaved: () => void; onCancel: () => void }): ReactNode {
+function InboxEditForm({ item, onSaved, onCancel }: InboxEditFormProps): ReactNode {
   const [title, setTitle] = useState(item.title);
   const [body, setBody] = useState(item.body ?? "");
   const [priority, setPriority] = useState<Priority>(item.priority);
@@ -157,12 +161,7 @@ function InboxEditForm({ item, onSaved, onCancel }: { item: InboxItem; onSaved: 
 
 // ─── List item ────────────────────────────────────────────────────────────────
 
-function InboxListItem({ item, onDismiss, onEdited, onDeleted }: {
-  item: InboxItem;
-  onDismiss: (id: string) => void;
-  onEdited: () => void;
-  onDeleted: () => void;
-}): ReactNode {
+function InboxListItem({ item, onDismiss, onEdited, onDeleted }: InboxListItemProps): ReactNode {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -221,10 +220,7 @@ function InboxListItem({ item, onDismiss, onEdited, onDeleted }: {
 
 // ─── Content area ─────────────────────────────────────────────────────────────
 
-function InboxContent({ isLoading, error, items, onDismiss, onEdited, onDeleted, hasActiveFilters }: {
-  isLoading: boolean; error: string | null; items: InboxItem[];
-  onDismiss: (id: string) => void; onEdited: () => void; onDeleted: () => void; hasActiveFilters: boolean;
-}): ReactNode {
+function InboxContent({ isLoading, error, items, onDismiss, onEdited, onDeleted, hasActiveFilters }: InboxContentProps): ReactNode {
   if (isLoading) return <div className="inbox-view__loading">Cargando...</div>;
   if (error) return <div className="inbox-view__error" role="alert">{error}</div>;
   if (items.length === 0) {
