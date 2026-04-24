@@ -91,3 +91,4 @@ code/src/
 - No types inline in component files
 - No `vi.fn()` directly inside `vi.mock()` — use `vi.hoisted()`
 - No commits directly to `develop` or `main`
+- PRs always target `develop`, never `main`
