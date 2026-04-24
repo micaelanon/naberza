@@ -1,3 +1,4 @@
+import { AUDIT_STATUS } from "@/lib/constants";
 import type { BaseEvent } from "@/lib/events";
 
 import { auditService, eventActorToAuditActor } from "./audit-service";
@@ -40,7 +41,7 @@ function registerInboxSubscriptions(): void {
     entityType: "InboxItem",
     entityId: e.itemId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     input: { title: e.title, sourceType: e.sourceType },
   }));
 
@@ -50,7 +51,7 @@ function registerInboxSubscriptions(): void {
     entityType: "InboxItem",
     entityId: e.itemId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { classification: e.classification, classifiedBy: e.classifiedBy, confidence: e.confidence },
   }));
 
@@ -60,7 +61,7 @@ function registerInboxSubscriptions(): void {
     entityType: "InboxItem",
     entityId: e.itemId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { targetModule: e.targetModule, targetEntityId: e.targetEntityId },
   }));
 
@@ -70,7 +71,7 @@ function registerInboxSubscriptions(): void {
     entityType: "InboxItem",
     entityId: e.itemId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
   }));
 }
 
@@ -83,7 +84,7 @@ function registerTaskSubscriptions(): void {
     entityType: "Task",
     entityId: e.taskId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     input: { title: e.title },
   }));
 
@@ -93,7 +94,7 @@ function registerTaskSubscriptions(): void {
     entityType: "Task",
     entityId: e.taskId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
   }));
 }
 
@@ -106,7 +107,7 @@ function registerAutomationSubscriptions(): void {
     entityType: "AutomationRule",
     entityId: e.ruleId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { triggerEvent: e.triggerEvent },
   }));
 
@@ -116,7 +117,7 @@ function registerAutomationSubscriptions(): void {
     entityType: "ApprovalRequest",
     entityId: e.approvalId,
     ...actorFrom(e),
-    status: "pending",
+    status: AUDIT_STATUS.PENDING,
   }));
 
   auditService.autoLog("automation.approval.granted", (e) => ({
@@ -125,7 +126,7 @@ function registerAutomationSubscriptions(): void {
     entityType: "ApprovalRequest",
     entityId: e.approvalId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
   }));
 
   auditService.autoLog("automation.approval.denied", (e) => ({
@@ -134,7 +135,7 @@ function registerAutomationSubscriptions(): void {
     entityType: "ApprovalRequest",
     entityId: e.approvalId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
   }));
 
   auditService.autoLog("automation.action.executed", (e) => ({
@@ -158,7 +159,7 @@ function registerIntegrationSubscriptions(): void {
     entityType: "SourceConnection",
     entityId: e.connectionId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { connectionType: e.connectionType },
   }));
 
@@ -168,7 +169,7 @@ function registerIntegrationSubscriptions(): void {
     entityType: "SourceConnection",
     entityId: e.connectionId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
   }));
 
   auditService.autoLog("integration.health.degraded", (e) => ({
@@ -177,7 +178,7 @@ function registerIntegrationSubscriptions(): void {
     entityType: "SourceConnection",
     entityId: e.connectionId,
     ...actorFrom(e),
-    status: "failure",
+    status: AUDIT_STATUS.FAILURE,
     errorMessage: e.message,
     output: { latencyMs: e.latencyMs, healthy: e.healthy },
   }));
@@ -192,7 +193,7 @@ function registerDocumentSubscriptions(): void {
     entityType: "Document",
     entityId: e.documentId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { sourceConnectionId: e.sourceConnectionId, externalId: e.externalId },
   }));
 
@@ -202,7 +203,7 @@ function registerDocumentSubscriptions(): void {
     entityType: "Document",
     entityId: e.documentId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { sourceConnectionId: e.sourceConnectionId },
   }));
 
@@ -212,7 +213,7 @@ function registerDocumentSubscriptions(): void {
     entityType: "Document",
     entityId: e.documentId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { title: e.title },
   }));
 
@@ -222,7 +223,7 @@ function registerDocumentSubscriptions(): void {
     entityType: "Document",
     entityId: e.documentId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { title: e.title },
   }));
 }
@@ -236,7 +237,7 @@ function registerInvoiceSubscriptions(): void {
     entityType: "Invoice",
     entityId: e.invoiceId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { issuer: e.issuer, amount: e.amount, currency: e.currency },
   }));
 
@@ -246,7 +247,7 @@ function registerInvoiceSubscriptions(): void {
     entityType: "Invoice",
     entityId: e.invoiceId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { issuer: e.issuer, amount: e.amount },
   }));
 
@@ -256,7 +257,7 @@ function registerInvoiceSubscriptions(): void {
     entityType: "Invoice",
     entityId: e.invoiceId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { issuer: e.issuer, amount: e.amount },
   }));
 
@@ -266,7 +267,7 @@ function registerInvoiceSubscriptions(): void {
     entityType: "Invoice",
     entityId: e.invoiceId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { issuer: e.issuer, anomalyReason: e.anomalyReason },
   }));
 }
@@ -280,7 +281,7 @@ function registerFinanceSubscriptions(): void {
     entityType: "FinancialEntry",
     entityId: e.entryId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { type: e.type, amount: e.amount, currency: e.currency },
   }));
 
@@ -290,7 +291,7 @@ function registerFinanceSubscriptions(): void {
     entityType: "FinancialEntry",
     entityId: e.entryId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { anomalyReason: e.anomalyReason },
   }));
 }
@@ -304,7 +305,7 @@ function registerHomeSubscriptions(): void {
     entityType: "HomeEvent",
     entityId: e.entityId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { eventType: e.eventType, severity: e.severity, state: e.state },
   }));
 }
@@ -318,7 +319,7 @@ function registerIdeaSubscriptions(): void {
     entityType: "Idea",
     entityId: e.ideaId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     input: { title: e.title },
   }));
 
@@ -328,7 +329,7 @@ function registerIdeaSubscriptions(): void {
     entityType: "Idea",
     entityId: e.ideaId,
     ...actorFrom(e),
-    status: "success",
+    status: AUDIT_STATUS.SUCCESS,
     output: { targetModule: e.targetModule, targetEntityId: e.targetEntityId },
   }));
 }
