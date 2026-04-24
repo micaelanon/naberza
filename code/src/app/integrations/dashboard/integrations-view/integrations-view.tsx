@@ -504,7 +504,7 @@ const WebhooksSection = ({ status }: { status: IntegrationStatus | undefined }):
 openssl rand -hex 32
 
 # O con Node:
-node -e "const {randomBytes}=require('crypto'); console.log(randomBytes(32).toString('hex'))"`}</CodeBlock>
+node -e "const {randomBytes}=require('crypto'); process.stdout.write(randomBytes(32).toString('hex'))"`}</CodeBlock>
             <p>Añade el token a tus variables de entorno:</p>
             <CodeBlock>{`WEBHOOK_SECRET=pega-aqui-el-token-generado`}</CodeBlock>
             <EnvNote vars={["WEBHOOK_SECRET"]} />
