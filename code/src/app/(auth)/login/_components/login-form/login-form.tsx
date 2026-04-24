@@ -1,12 +1,12 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import type { LoginFormProps } from "./utils/types";
 import "./login-form.css";
 
-export default function LoginForm({ callbackUrl = "/", error }: LoginFormProps) {
+const LoginForm = ({ callbackUrl = "/", error }: LoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const getInitialError = (): string | null => {
     if (!error) return null;
@@ -15,7 +15,7 @@ export default function LoginForm({ callbackUrl = "/", error }: LoginFormProps) 
   };
   const [formError, setFormError] = useState<string | null>(getInitialError());
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
     setFormError(null);
@@ -32,10 +32,7 @@ export default function LoginForm({ callbackUrl = "/", error }: LoginFormProps) 
         redirect: false,
       });
 
-      console.log("[Login] Result:", result);
-
       if (result?.error) {
-        console.error("[Login] SignIn error:", result.error, result);
         setFormError(
           result.error === "CredentialsSignin"
             ? "Email o contraseña incorrectos."
@@ -48,12 +45,11 @@ export default function LoginForm({ callbackUrl = "/", error }: LoginFormProps) 
       if (result?.url) {
         window.location.href = result.url;
       }
-    } catch (err) {
-      console.error("[Login] Exception:", err);
+    } catch {
       setFormError("Error inesperado. Por favor, intenta de nuevo.");
       setIsLoading(false);
     }
-  }
+  }, [callbackUrl]);
 
   return (
     <form className="login-form" onSubmit={handleSubmit} noValidate>
@@ -102,4 +98,6 @@ export default function LoginForm({ callbackUrl = "/", error }: LoginFormProps) 
       </button>
     </form>
   );
-}
+};
+
+export default LoginForm;

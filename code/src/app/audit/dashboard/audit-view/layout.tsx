@@ -6,6 +6,8 @@ export const metadata = {
   description: 'View system audit log',
 };
 
-export default function AuditViewLayout(): ReactNode {
+const AuditViewLayout = (): ReactNode  => {
   return <AuditView />;
 }
+
+export default AuditViewLayout;

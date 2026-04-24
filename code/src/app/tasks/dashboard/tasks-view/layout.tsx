@@ -6,6 +6,8 @@ export const metadata = {
   description: 'View and manage your tasks',
 };
 
-export default function TasksViewLayout(): ReactNode {
+const TasksViewLayout = (): ReactNode  => {
   return <TasksView />;
 }
+
+export default TasksViewLayout;

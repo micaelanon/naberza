@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Manage external integrations',
 };
 
-export default function IntegrationsViewLayout(): ReactNode {
+const IntegrationsViewLayout = (): ReactNode  => {
   return <IntegrationsView />;
 }
+
+export default IntegrationsViewLayout;

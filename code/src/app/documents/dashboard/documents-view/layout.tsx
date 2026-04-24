@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Browse and manage documents',
 };
 
-export default function DocumentsViewLayout(): ReactNode {
+const DocumentsViewLayout = (): ReactNode  => {
   return <DocumentsView />;
 }
+
+export default DocumentsViewLayout;

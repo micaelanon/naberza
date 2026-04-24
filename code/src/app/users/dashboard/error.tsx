@@ -1,7 +1,7 @@
 "use client";
 import type { UsersErrorProps } from "./utils/types";
 
-export default function UsersError({ error, reset }: UsersErrorProps) {
+const UsersError = ({ error, reset }: UsersErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load users</h2>
@@ -10,3 +10,5 @@ export default function UsersError({ error, reset }: UsersErrorProps) {
     </div>
   );
 }
+
+export default UsersError;

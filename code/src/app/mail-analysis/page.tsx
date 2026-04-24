@@ -4,7 +4,7 @@ import "../home.css";
 
 export const dynamic = "force-dynamic";
 
-function Section({ title, empty, children }: { title: string; empty?: string; children: React.ReactNode }) {
+const Section = ({ title, empty, children }: { title: string; empty?: string; children: React.ReactNode }) => {
   return (
     <section className="digest-section">
       <h2 className="home-page__section-title">{title}</h2>

@@ -28,7 +28,7 @@ const ICONS: Record<ToastKind, string> = {
   info: "info",
 };
 
-function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }): ReactNode {
+const ToastItem = ({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }): ReactNode  => {
   const [exiting, setExiting] = useState(false);
 
   const dismiss = useCallback(() => {

@@ -8,7 +8,7 @@ import "./automations-view.css";
 
 // ─── Rule item ────────────────────────────────────────────────────────────────
 
-function RuleItem({ rule }: RuleItemProps): ReactNode {
+const RuleItem = ({ rule }: RuleItemProps): ReactNode  => {
   const statusClass = rule.enabled ? "rule-item__badge--active" : "rule-item__badge--inactive";
   return (
     <li className="rule-item">
@@ -48,7 +48,7 @@ function RuleItem({ rule }: RuleItemProps): ReactNode {
 
 // ─── Approval item ────────────────────────────────────────────────────────────
 
-function ApprovalItem({ approval, onGrant, onDeny }: ApprovalItemProps): ReactNode {
+const ApprovalItem = ({ approval, onGrant, onDeny }: ApprovalItemProps): ReactNode  => {
   const [busy, setBusy] = useState(false);
 
   const handleGrant = useCallback(async () => {
@@ -124,7 +124,7 @@ async function denyApproval(id: string): Promise<void> {
   await fetch(`/automations/api/approvals/${id}/deny`, { method: "POST" });
 }
 
-export default function AutomationsView(): ReactNode {
+const AutomationsView = (): ReactNode  => {
   const [rules, setRules] = useState<AutomationRuleSummary[]>([]);
   const [approvals, setApprovals] = useState<ApprovalRequestSummary[]>([]);
   const [total, setTotal] = useState(0);
@@ -207,3 +207,5 @@ export default function AutomationsView(): ReactNode {
     </div>
   );
 }
+
+export default AutomationsView;

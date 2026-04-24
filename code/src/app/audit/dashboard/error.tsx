@@ -1,7 +1,7 @@
 "use client";
 import type { AuditErrorProps } from "./utils/types";
 
-export default function AuditError({ error, reset }: AuditErrorProps) {
+const AuditError = ({ error, reset }: AuditErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load audit log</h2>
@@ -10,3 +10,5 @@ export default function AuditError({ error, reset }: AuditErrorProps) {
     </div>
   );
 }
+
+export default AuditError;

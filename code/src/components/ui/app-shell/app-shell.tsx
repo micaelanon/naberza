@@ -4,7 +4,7 @@ import Topbar from "@/components/ui/topbar";
 import { getAppVersionLabel } from "@/lib/app-version";
 import "./app-shell.css";
 
-export default function AppShell({ children, title }: AppShellProps) {
+const AppShell = ({ children, title }: AppShellProps) => {
   const versionLabel = getAppVersionLabel();
 
   return (
@@ -17,3 +17,5 @@ export default function AppShell({ children, title }: AppShellProps) {
     </div>
   );
 }
+
+export default AppShell;

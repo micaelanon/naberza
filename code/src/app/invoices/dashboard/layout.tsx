@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 
-export default function invoicesDashboardLayout({ children }: { children: ReactNode }): ReactNode {
+const invoicesDashboardLayout = ({ children }: { children: ReactNode }): ReactNode  => {
   return <>{children}</>;
 }
+
+export default invoicesDashboardLayout;

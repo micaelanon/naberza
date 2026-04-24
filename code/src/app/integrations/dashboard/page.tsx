@@ -1,5 +1,7 @@
 import IntegrationsView from './integrations-view/integrations-view';
 
-export default function IntegrationsPage() {
+const IntegrationsPage = () => {
   return <IntegrationsView />;
 }
+
+export default IntegrationsPage;

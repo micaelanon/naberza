@@ -10,7 +10,7 @@ import "./integrations-guide.css";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StatusPill({ status }: { status: IntegrationStatus }): ReactNode {
+const StatusPill = ({ status }: { status: IntegrationStatus }): ReactNode  => {
   if (status.connected === null) {
     return <span className="int-status int-status--unconfigured">Sin configurar</span>;
   }
@@ -24,11 +24,11 @@ function StatusPill({ status }: { status: IntegrationStatus }): ReactNode {
   );
 }
 
-function CodeBlock({ children }: { children: string }): ReactNode {
+const CodeBlock = ({ children }: { children: string }): ReactNode  => {
   return <pre className="code-block"><code>{children}</code></pre>;
 }
 
-function EnvNote({ vars }: { vars: string[] }): ReactNode {
+const EnvNote = ({ vars }: { vars: string[] }): ReactNode  => {
   return (
     <div className="env-note">
       <span className="env-note__label">Variables de entorno requeridas:</span>
@@ -39,7 +39,7 @@ function EnvNote({ vars }: { vars: string[] }): ReactNode {
   );
 }
 
-function DocLink({ href, label }: { href: string; label: string }): ReactNode {
+const DocLink = ({ href, label }: { href: string; label: string }): ReactNode  => {
   return (
     <a className="doc-link" href={href} target="_blank" rel="noopener noreferrer">
       <span className="material-symbols-outlined">open_in_new</span> {label}
@@ -47,7 +47,7 @@ function DocLink({ href, label }: { href: string; label: string }): ReactNode {
   );
 }
 
-function EnvTabs({ local, prod }: { local: ReactNode; prod: ReactNode }): ReactNode {
+const EnvTabs = ({ local, prod }: { local: ReactNode; prod: ReactNode }): ReactNode  => {
   const [tab, setTab] = useState<TabKey>("local");
 
   return (
@@ -77,7 +77,7 @@ function EnvTabs({ local, prod }: { local: ReactNode; prod: ReactNode }): ReactN
 
 // ─── Paperless section ────────────────────────────────────────────────────────
 
-function PaperlessSection({ status }: { status: IntegrationStatus | undefined }): ReactNode {
+const PaperlessSection = ({ status }: { status: IntegrationStatus | undefined }): ReactNode  => {
   return (
     <section className="integration-section" id="paperless">
       <div className="integration-section__header">
@@ -199,7 +199,7 @@ PAPERLESS_TOKEN=pega-aqui-el-token-que-copiaste`}</CodeBlock>
 
 // ─── Home Assistant section ───────────────────────────────────────────────────
 
-function HomeAssistantSection({ status }: { status: IntegrationStatus | undefined }): ReactNode {
+const HomeAssistantSection = ({ status }: { status: IntegrationStatus | undefined }): ReactNode  => {
   return (
     <section className="integration-section" id="home-assistant">
       <div className="integration-section__header">
@@ -306,7 +306,7 @@ HOME_ASSISTANT_TOKEN=pega-aqui-el-token`}</CodeBlock>
 
 // ─── Mail section ─────────────────────────────────────────────────────────────
 
-function MailSection({ status }: { status: IntegrationStatus | undefined }): ReactNode {
+const MailSection = ({ status }: { status: IntegrationStatus | undefined }): ReactNode  => {
   return (
     <section className="integration-section" id="mail">
       <div className="integration-section__header">
@@ -393,10 +393,10 @@ MAIL_IMAP_PASSWORD=tu-app-password-de-fastmail`}</CodeBlock>
 
 // ─── Notifications section ────────────────────────────────────────────────────
 
-function NotificationsSection({ telegramStatus, smtpStatus }: {
+const NotificationsSection = ({ telegramStatus, smtpStatus }: {
   telegramStatus: IntegrationStatus | undefined;
   smtpStatus: IntegrationStatus | undefined;
-}): ReactNode {
+}): ReactNode  => {
   return (
     <section className="integration-section" id="notifications">
       <div className="integration-section__header">
@@ -470,7 +470,7 @@ SMTP_DEFAULT_TO=tu@gmail.com`}</CodeBlock>
 
 // ─── Webhooks section ─────────────────────────────────────────────────────────
 
-function WebhooksSection({ status }: { status: IntegrationStatus | undefined }): ReactNode {
+const WebhooksSection = ({ status }: { status: IntegrationStatus | undefined }): ReactNode  => {
   return (
     <section className="integration-section" id="webhooks">
       <div className="integration-section__header">
@@ -545,7 +545,7 @@ node -e "const {randomBytes}=require('crypto'); console.log(randomBytes(32).toSt
 
 // ─── Main view ────────────────────────────────────────────────────────────────
 
-export default function IntegrationsView(): ReactNode {
+const IntegrationsView = (): ReactNode  => {
   const [statusMap, setStatusMap] = useState<StatusMap>({});
   const [loadingStatus, setLoadingStatus] = useState(true);
 
@@ -612,3 +612,5 @@ export default function IntegrationsView(): ReactNode {
     </div>
   );
 }
+
+export default IntegrationsView;

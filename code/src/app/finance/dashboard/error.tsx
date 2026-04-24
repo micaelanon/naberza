@@ -1,7 +1,7 @@
 "use client";
 import type { FinanceErrorProps } from "./utils/types";
 
-export default function FinanceError({ error, reset }: FinanceErrorProps) {
+const FinanceError = ({ error, reset }: FinanceErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load finance data</h2>
@@ -10,3 +10,5 @@ export default function FinanceError({ error, reset }: FinanceErrorProps) {
     </div>
   );
 }
+
+export default FinanceError;

@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 
-export default function usersDashboardLayout({ children }: { children: ReactNode }): ReactNode {
+const usersDashboardLayout = ({ children }: { children: ReactNode }): ReactNode  => {
   return <>{children}</>;
 }
+
+export default usersDashboardLayout;

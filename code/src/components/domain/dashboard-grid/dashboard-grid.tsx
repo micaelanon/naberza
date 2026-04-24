@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { DashboardGridProps } from "./utils/types";
 import "./dashboard-grid.css";
 
-export default function DashboardGrid({ tiles, variant = "primary" }: DashboardGridProps) {
+const DashboardGrid = ({ tiles, variant = "primary" }: DashboardGridProps) => {
   return (
     <div className={`dashboard-grid dashboard-grid--${variant}`}>
       {tiles.map((tile) => (
@@ -25,3 +25,5 @@ export default function DashboardGrid({ tiles, variant = "primary" }: DashboardG
     </div>
   );
 }
+
+export default DashboardGrid;

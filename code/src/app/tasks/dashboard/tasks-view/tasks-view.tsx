@@ -61,7 +61,7 @@ function filterTasks(tasks: Task[], query: string, priority: Priority | "ALL"): 
 
 // ─── Shared form fields ───────────────────────────────────────────────────────
 
-function TaskFormFields({ form, onChange, saving, error, submitLabel, onCancel }: TaskFormFieldsProps): ReactNode {
+const TaskFormFields = ({ form, onChange, saving, error, submitLabel, onCancel }: TaskFormFieldsProps): ReactNode  => {
   return (
     <>
       <div className="task-form__row">
@@ -126,7 +126,7 @@ function TaskFormFields({ form, onChange, saving, error, submitLabel, onCancel }
 
 // ─── Create form ──────────────────────────────────────────────────────────────
 
-function TaskCreateForm({ onCreated, onCancel }: TaskCreateFormProps): ReactNode {
+const TaskCreateForm = ({ onCreated, onCancel }: TaskCreateFormProps): ReactNode  => {
   const [form, setForm] = useState<TaskFormState>(EMPTY_FORM);
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
@@ -175,7 +175,7 @@ function TaskCreateForm({ onCreated, onCancel }: TaskCreateFormProps): ReactNode
 
 // ─── Edit form ────────────────────────────────────────────────────────────────
 
-function TaskEditForm({ task, onSaved, onCancel }: TaskEditFormProps): ReactNode {
+const TaskEditForm = ({ task, onSaved, onCancel }: TaskEditFormProps): ReactNode  => {
   const [form, setForm] = useState<TaskFormState>(() => taskToForm(task));
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
@@ -223,7 +223,7 @@ function TaskEditForm({ task, onSaved, onCancel }: TaskEditFormProps): ReactNode
 
 // ─── Task item actions ───────────────────────────────────────────────────────
 
-function TaskItemActions({ task, isActive, onEdit, onComplete, onCancel, onDelete }: TaskItemActionsProps): ReactNode {
+const TaskItemActions = ({ task, isActive, onEdit, onComplete, onCancel, onDelete }: TaskItemActionsProps): ReactNode  => {
   return (
     <div className="task-item__actions">
       {task.dueAt && (
@@ -249,7 +249,7 @@ function TaskItemActions({ task, isActive, onEdit, onComplete, onCancel, onDelet
 
 // ─── Task list item ───────────────────────────────────────────────────────────
 
-function TaskListItem({ task, onComplete, onCancel, onEdited, onDeleted }: TaskListItemProps): ReactNode {
+const TaskListItem = ({ task, onComplete, onCancel, onEdited, onDeleted }: TaskListItemProps): ReactNode  => {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -313,7 +313,7 @@ function TaskListItem({ task, onComplete, onCancel, onEdited, onDeleted }: TaskL
 
 // ─── Content area ─────────────────────────────────────────────────────────────
 
-function TasksContent({ isLoading, error, tasks, onComplete, onCancel, onEdited, onDeleted, hasActiveFilters }: TasksContentProps): ReactNode {
+const TasksContent = ({ isLoading, error, tasks, onComplete, onCancel, onEdited, onDeleted, hasActiveFilters }: TasksContentProps): ReactNode  => {
   if (isLoading) return <div className="tasks-view__loading">Cargando...</div>;
   if (error) return <div className="tasks-view__error" role="alert">{error}</div>;
   if (tasks.length === 0) {
@@ -339,7 +339,7 @@ function TasksContent({ isLoading, error, tasks, onComplete, onCancel, onEdited,
 
 // ─── Main view ────────────────────────────────────────────────────────────────
 
-export default function TasksView(): ReactNode {
+const TasksView = (): ReactNode  => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [total, setTotal] = useState(0);
   const [activeTab, setActiveTab] = useState<StatusTab>("ALL");
@@ -467,3 +467,5 @@ export default function TasksView(): ReactNode {
     </div>
   );
 }
+
+export default TasksView;

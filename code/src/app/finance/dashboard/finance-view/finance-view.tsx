@@ -29,7 +29,7 @@ function filterFinanceEntries(entries: FinanceEntrySummary[], query: string, typ
 
 // ─── Create form ──────────────────────────────────────────────────────────────
 
-function FinanceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
+const FinanceCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode  => {
   const [type, setType] = useState<FinancialEntryType>("EXPENSE");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -89,11 +89,11 @@ function FinanceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onC
 
 // ─── Edit form ────────────────────────────────────────────────────────────────
 
-function FinanceEditForm({ entry, onSaved, onCancel }: {
+const FinanceEditForm = ({ entry, onSaved, onCancel }: {
   entry: FinanceEntrySummary;
   onSaved: () => void;
   onCancel: () => void;
-}): ReactNode {
+}): ReactNode  => {
   const [type, setType] = useState<FinancialEntryType>(entry.type);
   const [amount, setAmount] = useState(String(Number(entry.amount)));
   const [description, setDescription] = useState(entry.description ?? "");
@@ -153,7 +153,7 @@ function FinanceEditForm({ entry, onSaved, onCancel }: {
 
 // ─── List item ────────────────────────────────────────────────────────────────
 
-function FinanceEntryItem({ entry, onEdited, onDeleted }: { entry: FinanceEntrySummary; onEdited: () => void; onDeleted: () => void }): ReactNode {
+const FinanceEntryItem = ({ entry, onEdited, onDeleted }: { entry: FinanceEntrySummary; onEdited: () => void; onDeleted: () => void }): ReactNode  => {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -199,7 +199,7 @@ function FinanceEntryItem({ entry, onEdited, onDeleted }: { entry: FinanceEntryS
 
 // ─── Main view ────────────────────────────────────────────────────────────────
 
-export default function FinanceView(): ReactNode {
+const FinanceView = (): ReactNode  => {
   const [entries, setEntries] = useState<FinanceEntrySummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -293,3 +293,5 @@ export default function FinanceView(): ReactNode {
     </div>
   );
 }
+
+export default FinanceView;

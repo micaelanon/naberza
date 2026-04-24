@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Capture and manage ideas',
 };
 
-export default function IdeasViewLayout(): ReactNode {
+const IdeasViewLayout = (): ReactNode  => {
   return <IdeasView />;
 }
+
+export default IdeasViewLayout;

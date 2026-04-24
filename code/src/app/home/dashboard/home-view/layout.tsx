@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Monitor home automation and events',
 };
 
-export default function HomeViewLayout(): ReactNode {
+const HomeViewLayout = (): ReactNode  => {
   return <HomeView />;
 }
+
+export default HomeViewLayout;

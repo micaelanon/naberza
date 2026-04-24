@@ -1,7 +1,7 @@
 "use client";
 import type { DocumentsErrorProps } from "./utils/types";
 
-export default function DocumentsError({ error, reset }: DocumentsErrorProps) {
+const DocumentsError = ({ error, reset }: DocumentsErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load documents</h2>
@@ -10,3 +10,5 @@ export default function DocumentsError({ error, reset }: DocumentsErrorProps) {
     </div>
   );
 }
+
+export default DocumentsError;
