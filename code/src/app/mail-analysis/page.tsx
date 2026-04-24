@@ -1,6 +1,9 @@
+import { getTranslations } from "next-intl/server";
+
 import { AppShell } from "@/components/ui";
 import { ROUTE_PATHS } from "@/lib/constants";
 import { analyzeMailInbox } from "@/lib/mail-analysis/mail-analysis";
+
 import "../home.css";
 
 export const dynamic = "force-dynamic";
@@ -15,21 +18,20 @@ const Section = ({ title, empty, children }: { title: string; empty?: string; ch
 };
 
 const MailAnalysisPage = async () => {
+  const t = await getTranslations({ locale: "es" });
   const analysis = await analyzeMailInbox();
 
   return (
-    <AppShell title="Análisis de correo">
+    <AppShell title={t("app.mailAnalysis.title")}>
       <div className="home-page">
         <div className="home-page__welcome">
-          <h1 className="home-page__greeting">Análisis de correo</h1>
-          <p className="home-page__subtitle">
-            No te enseño el mail entero, solo señales y sugerencias útiles detectadas sobre lo ya ingerido.
-          </p>
+          <h1 className="home-page__greeting">{t("app.mailAnalysis.title")}</h1>
+          <p className="home-page__subtitle">{t("app.mailAnalysis.subtitle")}</p>
         </div>
 
-        <Section title="Sugerencias útiles">
+        <Section title={t("app.mailAnalysis.section.suggestions")}>
           {analysis.suggestions.length === 0 ? (
-            <p className="page-empty">Aún no hay sugerencias suficientes en el correo ingerido.</p>
+            <p className="page-empty">{t("app.mailAnalysis.empty.noSuggestions")}</p>
           ) : (
             <div className="digest-list">
               {analysis.suggestions.map((item) => (
@@ -42,15 +44,15 @@ const MailAnalysisPage = async () => {
           )}
         </Section>
 
-        <Section title="5 remitentes más repetidos">
+        <Section title={t("app.mailAnalysis.section.senders")}>
           {analysis.topSenders.length === 0 ? (
-            <p className="page-empty">No he podido detectar remitentes repetidos con claridad.</p>
+            <p className="page-empty">{t("app.mailAnalysis.empty.noTopSenders")}</p>
           ) : (
             <div className="digest-list">
               {analysis.topSenders.map((group) => (
                 <div key={group.sender} className="digest-card">
                   <div className="digest-card__title">{group.sender}</div>
-                  <div className="digest-card__detail">{group.count} correos detectados</div>
+                  <div className="digest-card__detail">{t("app.mailAnalysis.repeatedEmails", { count: group.count })}</div>
                   <div className="digest-card__detail">{group.samples.join(" · ")}</div>
                 </div>
               ))}
@@ -58,15 +60,15 @@ const MailAnalysisPage = async () => {
           )}
         </Section>
 
-        <Section title="Newsletters candidatas">
+        <Section title={t("app.mailAnalysis.section.newsletters")}>
           {analysis.newsletters.length === 0 ? (
-            <p className="page-empty">No he detectado newsletters repetitivas suficientes.</p>
+            <p className="page-empty">{t("app.mailAnalysis.empty.noNewsletters")}</p>
           ) : (
             <div className="digest-list">
               {analysis.newsletters.map((group) => (
                 <div key={group.sender} className="digest-card">
                   <div className="digest-card__title">{group.sender}</div>
-                  <div className="digest-card__detail">{group.count} correos detectados</div>
+                  <div className="digest-card__detail">{t("app.mailAnalysis.repeatedEmails", { count: group.count })}</div>
                   <div className="digest-card__detail">{group.samples.join(" · ")}</div>
                 </div>
               ))}
@@ -74,45 +76,51 @@ const MailAnalysisPage = async () => {
           )}
         </Section>
 
-        <Section title="Facturas probables detectadas">
+        <Section title={t("app.mailAnalysis.section.invoices")}>
           {analysis.probableInvoices.length === 0 ? (
-            <p className="page-empty">No he detectado facturas probables ahora mismo.</p>
+            <p className="page-empty">{t("app.mailAnalysis.empty.noInvoices")}</p>
           ) : (
             <div className="digest-list">
               {analysis.probableInvoices.map((item) => (
                 <a key={item.id} href={ROUTE_PATHS.INBOX} className="digest-card digest-card--warning">
                   <div className="digest-card__title">{item.title}</div>
-                  <div className="digest-card__detail">Clasificación actual: {item.classification ?? "sin clasificar"}</div>
+                  <div className="digest-card__detail">
+                    {t("app.mailAnalysis.currentClassification", {
+                      value: item.classification ?? t("app.mailAnalysis.noClassification"),
+                    })}
+                  </div>
                 </a>
               ))}
             </div>
           )}
         </Section>
 
-        <Section title="Correos que merecen revisión">
+        <Section title={t("app.mailAnalysis.section.review")}>
           {analysis.reviewQueue.length === 0 ? (
-            <p className="page-empty">No he detectado correos de revisión prioritaria.</p>
+            <p className="page-empty">{t("app.mailAnalysis.empty.noReview")}</p>
           ) : (
             <div className="digest-list">
               {analysis.reviewQueue.map((item) => (
                 <a key={item.id} href={ROUTE_PATHS.INBOX} className="digest-card digest-card--urgent">
                   <div className="digest-card__title">{item.title}</div>
-                  <div className="digest-card__detail">Confianza actual: {item.classificationConfidence ?? "—"}</div>
+                  <div className="digest-card__detail">
+                    {t("app.mailAnalysis.currentConfidence", { value: item.classificationConfidence ?? "—" })}
+                  </div>
                 </a>
               ))}
             </div>
           )}
         </Section>
 
-        <Section title="Emisores ruidosos o poco útiles">
+        <Section title={t("app.mailAnalysis.section.noisy")}>
           {analysis.noisySenders.length === 0 ? (
-            <p className="page-empty">No he detectado emisores repetitivos de bajo valor con claridad.</p>
+            <p className="page-empty">{t("app.mailAnalysis.empty.noNoisySenders")}</p>
           ) : (
             <div className="digest-list">
               {analysis.noisySenders.map((group) => (
                 <div key={group.sender} className="digest-card">
                   <div className="digest-card__title">{group.sender}</div>
-                  <div className="digest-card__detail">{group.count} correos repetidos</div>
+                  <div className="digest-card__detail">{t("app.mailAnalysis.repeatedLowValue", { count: group.count })}</div>
                   <div className="digest-card__detail">{group.samples.join(" · ")}</div>
                 </div>
               ))}

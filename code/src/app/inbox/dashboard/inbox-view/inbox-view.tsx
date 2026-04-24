@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
-import type { InboxClassification, InboxItem } from "@/modules/inbox/inbox.types";
-import type { Priority } from "@/modules/tasks/task.types";
+
 import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
 import { useFormSubmit } from "@/hooks";
+import type { InboxClassification, InboxItem } from "@/modules/inbox/inbox.types";
+import type { Priority } from "@/modules/tasks/task.types";
 
 import type {
   InboxApiResponse,
@@ -18,18 +20,7 @@ import type {
 } from "./utils/types";
 import "./inbox-view.css";
 
-const STATUS_TABS: StatusTabOption[] = [
-  { value: "ALL", label: "Todos" },
-  { value: "PENDING", label: "Pendientes" },
-  { value: "CLASSIFIED", label: "Clasificados" },
-  { value: "DISMISSED", label: "Descartados" },
-];
-
-const PRIORITY_LABELS: Record<string, string> = { HIGH: "Alta", MEDIUM: "Media", LOW: "Baja", NONE: "" };
-
-const SOURCE_LABELS: Record<string, string> = {
-  EMAIL: "Email", PAPERLESS: "Paperless", HOME_ASSISTANT: "Home", MANUAL: "Manual", API: "API",
-};
+const PAGE_SIZE = 10;
 
 function filterInboxItems(items: InboxItem[], query: string, priority: Priority | "ALL"): InboxItem[] {
   return items.filter((item) => {
@@ -42,72 +33,76 @@ function filterInboxItems(items: InboxItem[], query: string, priority: Priority 
   });
 }
 
-const PAGE_SIZE = 10;
-
-// ─── Create form ──────────────────────────────────────────────────────────────
-
 const InboxCreateForm = ({ onCreated, onCancel }: InboxCreateFormProps): ReactNode  => {
+  const t = useTranslations();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [priority, setPriority] = useState<Priority>("NONE");
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
-    onSuccess: () => showToast("Añadido al inbox"),
-    onError: (m) => showToast(m, "error"),
+    onSuccess: () => showToast(t("app.inbox.toast.created")),
+    onError: (message) => showToast(message, "error"),
   });
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) { setError("El título es obligatorio"); return; }
+    if (!title.trim()) {
+      setError(t("app.inbox.error.requiredTitle"));
+      return;
+    }
     void submit(async () => {
       const res = await fetch("/inbox/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: title.trim(), body: body.trim() || undefined, sourceType: "MANUAL", priority }),
       });
-      if (!res.ok) throw new Error("Error al crear el item");
-      setTitle(""); setBody(""); setPriority("NONE");
+      if (!res.ok) throw new Error(t("app.inbox.error.create"));
+      setTitle("");
+      setBody("");
+      setPriority("NONE");
       onCreated();
     });
-  }, [body, onCreated, priority, setError, submit, title]);
+  }, [body, onCreated, priority, setError, submit, t, title]);
 
   return (
     <form className="inbox-form" onSubmit={handleSubmit}>
-      <input className="inbox-form__input" type="text" placeholder="¿Qué quieres anotar?" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
-      <textarea className="inbox-form__textarea" placeholder="Detalles (opcional)" value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
+      <input className="inbox-form__input" type="text" placeholder={t("app.inbox.titlePlaceholder")} value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
+      <textarea className="inbox-form__textarea" placeholder={t("app.inbox.detailPlaceholder")} value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
       <div className="inbox-form__row">
         <select className="inbox-form__select" value={priority} onChange={(e) => setPriority(e.target.value as Priority)}>
-          <option value="NONE">Sin prioridad</option>
-          <option value="LOW">Baja</option>
-          <option value="MEDIUM">Media</option>
-          <option value="HIGH">Alta</option>
+          <option value="NONE">{t("app.inbox.priority.none")}</option>
+          <option value="LOW">{t("app.inbox.priority.low")}</option>
+          <option value="MEDIUM">{t("app.inbox.priority.medium")}</option>
+          <option value="HIGH">{t("app.inbox.priority.high")}</option>
         </select>
         <button className="inbox-form__btn inbox-form__btn--save" type="submit" disabled={saving}>
-          {saving ? "Guardando..." : "Añadir al inbox"}
+          {saving ? t("app.common.loading") : t("app.inbox.action.add")}
         </button>
-        <button className="inbox-form__btn inbox-form__btn--cancel" type="button" onClick={onCancel}>Cancelar</button>
+        <button className="inbox-form__btn inbox-form__btn--cancel" type="button" onClick={onCancel}>{t("app.common.cancel")}</button>
       </div>
       {error && <p className="inbox-form__error">{error}</p>}
     </form>
   );
-}
-
-// ─── Edit form ────────────────────────────────────────────────────────────────
+};
 
 const InboxEditForm = ({ item, onSaved, onCancel }: InboxEditFormProps): ReactNode  => {
+  const t = useTranslations();
   const [title, setTitle] = useState(item.title);
   const [body, setBody] = useState(item.body ?? "");
   const [priority, setPriority] = useState<Priority>(item.priority);
   const [classification, setClassification] = useState<InboxClassification | "">(item.classification ?? "");
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
-    onSuccess: () => showToast("Cambios guardados"),
-    onError: (m) => showToast(m, "error"),
+    onSuccess: () => showToast(t("app.common.savedChanges")),
+    onError: (message) => showToast(message, "error"),
   });
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) { setError("El título es obligatorio"); return; }
+    if (!title.trim()) {
+      setError(t("app.inbox.error.requiredTitle"));
+      return;
+    }
     void submit(async () => {
       const res = await fetch(`/inbox/api/${item.id}`, {
         method: "PATCH",
@@ -120,66 +115,86 @@ const InboxEditForm = ({ item, onSaved, onCancel }: InboxEditFormProps): ReactNo
         }),
       });
       if (!res.ok) {
-        const b = await res.json().catch(() => null) as { error?: string } | null;
-        throw new Error(b?.error ?? "Error al guardar");
+        const bodyResponse = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(bodyResponse?.error ?? t("app.inbox.error.save"));
       }
       onSaved();
     });
-  }, [body, classification, item.id, onSaved, priority, setError, submit, title]);
+  }, [body, classification, item.id, onSaved, priority, setError, submit, t, title]);
+
+  const classificationOptions = useMemo(() => ([
+    { value: "", label: t("app.inbox.category.unclassified") },
+    { value: "TASK", label: t("app.inbox.category.task") },
+    { value: "DOCUMENT", label: t("app.inbox.category.document") },
+    { value: "INVOICE", label: t("app.inbox.category.invoice") },
+    { value: "EVENT", label: t("app.inbox.category.event") },
+    { value: "ALERT", label: t("app.inbox.category.alert") },
+    { value: "IDEA", label: t("app.inbox.category.idea") },
+    { value: "FINANCIAL", label: t("app.inbox.category.financial") },
+    { value: "REVIEW", label: t("app.inbox.category.review") },
+  ]), [t]);
 
   return (
     <form className="inbox-form inbox-form--edit" onSubmit={handleSubmit}>
-      <input className="inbox-form__input" type="text" placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
-      <textarea className="inbox-form__textarea" placeholder="Detalles (opcional)" value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
+      <input className="inbox-form__input" type="text" placeholder={t("app.inbox.editTitlePlaceholder")} value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
+      <textarea className="inbox-form__textarea" placeholder={t("app.inbox.detailPlaceholder")} value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
       <div className="inbox-form__row">
         <select className="inbox-form__select" value={priority} onChange={(e) => setPriority(e.target.value as Priority)}>
-          <option value="NONE">Sin prioridad</option>
-          <option value="LOW">Baja</option>
-          <option value="MEDIUM">Media</option>
-          <option value="HIGH">Alta</option>
+          <option value="NONE">{t("app.inbox.priority.none")}</option>
+          <option value="LOW">{t("app.inbox.priority.low")}</option>
+          <option value="MEDIUM">{t("app.inbox.priority.medium")}</option>
+          <option value="HIGH">{t("app.inbox.priority.high")}</option>
         </select>
-        <select className="inbox-form__select" value={classification} onChange={(e) => setClassification(e.target.value as InboxClassification | "")}>
-          <option value="">Sin clasificar</option>
-          <option value="TASK">Tarea</option>
-          <option value="DOCUMENT">Documento</option>
-          <option value="INVOICE">Factura</option>
-          <option value="EVENT">Evento</option>
-          <option value="ALERT">Alerta</option>
-          <option value="IDEA">Idea</option>
-          <option value="FINANCIAL">Financiero</option>
-          <option value="REVIEW">Revisión</option>
+        <select className="inbox-form__select" value={classification} onChange={(e) => setClassification(e.target.value as InboxClassification | "")}> 
+          {classificationOptions.map((option) => (
+            <option key={option.value || "none"} value={option.value}>{option.label}</option>
+          ))}
         </select>
         <button className="inbox-form__btn inbox-form__btn--save" type="submit" disabled={saving}>
-          {saving ? "Guardando..." : "Guardar"}
+          {saving ? t("app.common.loading") : t("app.common.save")}
         </button>
-        <button className="inbox-form__btn inbox-form__btn--cancel" type="button" onClick={onCancel}>Cancelar</button>
+        <button className="inbox-form__btn inbox-form__btn--cancel" type="button" onClick={onCancel}>{t("app.common.cancel")}</button>
       </div>
       {error && <p className="inbox-form__error">{error}</p>}
     </form>
   );
-}
-
-// ─── List item ────────────────────────────────────────────────────────────────
+};
 
 const InboxListItem = ({ item, onDismiss, onEdited, onDeleted }: InboxListItemProps): ReactNode  => {
+  const t = useTranslations();
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const { showToast } = useToast();
+
+  const sourceLabels = useMemo<Record<string, string>>(() => ({
+    EMAIL: t("app.inbox.source.email"),
+    PAPERLESS: t("app.inbox.source.paperless"),
+    HOME_ASSISTANT: t("app.inbox.source.home"),
+    MANUAL: t("app.inbox.source.manual"),
+    API: t("app.inbox.source.api"),
+  }), [t]);
+
+  const priorityLabels = useMemo<Record<string, string>>(() => ({
+    HIGH: t("app.inbox.priority.high"),
+    MEDIUM: t("app.inbox.priority.medium"),
+    LOW: t("app.inbox.priority.low"),
+    NONE: "",
+  }), [t]);
 
   const handleDelete = useCallback(async () => {
     setDeleting(true);
     try {
       await fetch(`/inbox/api/${item.id}`, { method: "DELETE" });
       setConfirmDelete(false);
-      showToast("Item eliminado");
+      showToast(t("app.inbox.toast.deleted"));
       onDeleted();
     } catch {
-      showToast("Error al eliminar el item", "error");
+      showToast(t("app.inbox.error.delete"), "error");
     } finally {
       setDeleting(false);
     }
-  }, [item.id, onDeleted, showToast]);
+  }, [item.id, onDeleted, showToast, t]);
 
   if (editing) {
     return (
@@ -193,14 +208,14 @@ const InboxListItem = ({ item, onDismiss, onEdited, onDeleted }: InboxListItemPr
     <li className="inbox-item">
       <ConfirmDeleteModal isOpen={confirmDelete} itemName={item.title} onConfirm={() => void handleDelete()} onCancel={() => setConfirmDelete(false)} deleting={deleting} />
       <div className="inbox-item__main">
-        <span className="inbox-item__source">{SOURCE_LABELS[item.sourceType] ?? item.sourceType}</span>
+        <span className="inbox-item__source">{sourceLabels[item.sourceType] ?? item.sourceType}</span>
         <h3 className="inbox-item__title">{item.title}</h3>
         {item.body && <p className="inbox-item__body">{item.body.slice(0, 120)}{item.body.length > 120 ? "…" : ""}</p>}
       </div>
       <div className="inbox-item__meta">
         {item.priority !== "NONE" && (
           <span className={`inbox-item__priority inbox-item__priority--${item.priority.toLowerCase()}`}>
-            {PRIORITY_LABELS[item.priority]}
+            {priorityLabels[item.priority]}
           </span>
         )}
         <time className="inbox-item__date" dateTime={new Date(item.createdAt).toISOString()}>
@@ -208,26 +223,26 @@ const InboxListItem = ({ item, onDismiss, onEdited, onDeleted }: InboxListItemPr
         </time>
         {item.status !== "DISMISSED" && (
           <>
-            <button className="inbox-item__edit" onClick={() => setEditing(true)} title="Editar">✎</button>
-            <button className="inbox-item__btn inbox-item__btn--delete" onClick={() => setConfirmDelete(true)} title="Eliminar"><span className="material-symbols-outlined">delete</span></button>
-            <button className="inbox-item__dismiss" onClick={() => onDismiss(item.id)} title="Descartar">✕</button>
+            <button className="inbox-item__edit" onClick={() => setEditing(true)} title={t("app.common.edit")}>✎</button>
+            <button className="inbox-item__btn inbox-item__btn--delete" onClick={() => setConfirmDelete(true)} title={t("app.common.delete")}><span className="material-symbols-outlined">delete</span></button>
+            <button className="inbox-item__dismiss" onClick={() => onDismiss(item.id)} title={t("app.inbox.action.dismiss")}>✕</button>
           </>
         )}
       </div>
     </li>
   );
-}
-
-// ─── Content area ─────────────────────────────────────────────────────────────
+};
 
 const InboxContent = ({ isLoading, error, items, onDismiss, onEdited, onDeleted, hasActiveFilters }: InboxContentProps): ReactNode  => {
-  if (isLoading) return <div className="inbox-view__loading">Cargando...</div>;
+  const t = useTranslations();
+
+  if (isLoading) return <div className="inbox-view__loading">{t("app.common.loading")}</div>;
   if (error) return <div className="inbox-view__error" role="alert">{error}</div>;
   if (items.length === 0) {
     return (
       <div className="inbox-view__empty">
-        <p className="inbox-view__empty-title">{hasActiveFilters ? "Sin resultados" : "Sin elementos"}</p>
-        <p className="inbox-view__empty-text">{hasActiveFilters ? "No hay items que coincidan con los filtros." : "Haz clic en \"+ Nuevo item\" para añadir algo al inbox."}</p>
+        <p className="inbox-view__empty-title">{hasActiveFilters ? t("app.common.noResults") : t("app.inbox.empty.title")}</p>
+        <p className="inbox-view__empty-text">{hasActiveFilters ? t("app.inbox.empty.filtered") : t("app.inbox.empty.default")}</p>
       </div>
     );
   }
@@ -236,11 +251,10 @@ const InboxContent = ({ isLoading, error, items, onDismiss, onEdited, onDeleted,
       {items.map((item) => <InboxListItem key={item.id} item={item} onDismiss={onDismiss} onEdited={onEdited} onDeleted={onDeleted} />)}
     </ul>
   );
-}
-
-// ─── Main view ────────────────────────────────────────────────────────────────
+};
 
 const InboxView = (): ReactNode  => {
+  const t = useTranslations();
   const [items, setItems] = useState<InboxItem[]>([]);
   const [total, setTotal] = useState(0);
   const [activeTab, setActiveTab] = useState<StatusTab>("ALL");
@@ -251,6 +265,13 @@ const InboxView = (): ReactNode  => {
   const [filterPriority, setFilterPriority] = useState<Priority | "ALL">("ALL");
   const [page, setPage] = useState(1);
 
+  const statusTabs = useMemo<StatusTabOption[]>(() => ([
+    { value: "ALL", label: t("app.inbox.tab.all") },
+    { value: "PENDING", label: t("app.inbox.tab.pending") },
+    { value: "CLASSIFIED", label: t("app.inbox.tab.classified") },
+    { value: "DISMISSED", label: t("app.inbox.tab.dismissed") },
+  ]), [t]);
+
   const fetchItems = useCallback(async (status: StatusTab) => {
     setIsLoading(true);
     setError(null);
@@ -258,24 +279,46 @@ const InboxView = (): ReactNode  => {
       const params = new URLSearchParams();
       if (status !== "ALL") params.set("status", status);
       const response = await fetch(`/inbox/api?${params.toString()}`);
-      if (!response.ok) throw new Error("Error al cargar el inbox");
+      if (!response.ok) throw new Error(t("app.inbox.error.load"));
       const json = (await response.json()) as InboxApiResponse;
       setItems(json.data);
       setTotal(json.meta.total);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
+      setError(err instanceof Error ? err.message : t("app.common.error"));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
-    let cancelled = false;
-    fetchItems(activeTab) // eslint-disable-line react-hooks/set-state-in-effect
-      .catch(() => { /* handled inside fetchItems */ })
-      .finally(() => { if (cancelled) return; });
-    return () => { cancelled = true; };
-  }, [activeTab, fetchItems]);
+    let isMounted = true;
+
+    const loadItems = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams();
+        if (activeTab !== "ALL") params.set("status", activeTab);
+        const response = await fetch(`/inbox/api?${params.toString()}`);
+        if (!response.ok) throw new Error(t("app.inbox.error.load"));
+        const json = (await response.json()) as InboxApiResponse;
+        if (!isMounted) return;
+        setItems(json.data);
+        setTotal(json.meta.total);
+      } catch (err) {
+        if (!isMounted) return;
+        setError(err instanceof Error ? err.message : t("app.common.error"));
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    void loadItems();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab, t]);
 
   const handleDismiss = useCallback(async (id: string) => {
     const response = await fetch(`/inbox/api/${id}/dismiss`, { method: "POST" });
@@ -290,10 +333,10 @@ const InboxView = (): ReactNode  => {
   return (
     <div className="inbox-view">
       <header className="inbox-view__header">
-        <h1 className="inbox-view__title">Inbox</h1>
-        <span className="inbox-view__count">{total} elementos</span>
+        <h1 className="inbox-view__title">{t("app.inbox.title")}</h1>
+        <span className="inbox-view__count">{t("app.inbox.count", { count: total })}</span>
         <button className="inbox-view__add-btn" onClick={() => setShowForm(!showForm)}>
-          {showForm ? "✕" : "+ Nuevo item"}
+          {showForm ? "✕" : t("app.inbox.action.new")}
         </button>
       </header>
 
@@ -305,7 +348,7 @@ const InboxView = (): ReactNode  => {
       )}
 
       <nav className="inbox-view__tabs" role="tablist">
-        {STATUS_TABS.map((tab) => (
+        {statusTabs.map((tab) => (
           <button
             key={tab.value}
             role="tab"
@@ -322,7 +365,7 @@ const InboxView = (): ReactNode  => {
         <input
           className="filter-bar__search"
           type="search"
-          placeholder="Buscar en inbox..."
+          placeholder={t("app.inbox.searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
         />
@@ -331,19 +374,19 @@ const InboxView = (): ReactNode  => {
           value={filterPriority}
           onChange={(e) => { setFilterPriority(e.target.value as Priority | "ALL"); setPage(1); }}
         >
-          <option value="ALL">Todas las prioridades</option>
-          <option value="HIGH">Alta</option>
-          <option value="MEDIUM">Media</option>
-          <option value="LOW">Baja</option>
-          <option value="NONE">Sin prioridad</option>
+          <option value="ALL">{t("app.inbox.filter.allPriorities")}</option>
+          <option value="HIGH">{t("app.inbox.priority.high")}</option>
+          <option value="MEDIUM">{t("app.inbox.priority.medium")}</option>
+          <option value="LOW">{t("app.inbox.priority.low")}</option>
+          <option value="NONE">{t("app.inbox.priority.none")}</option>
         </select>
         {hasFilters && (
           <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterPriority("ALL"); setPage(1); }}>
-            Limpiar filtros
+            {t("app.inbox.filter.clear")}
           </button>
         )}
         {hasFilters && (
-          <span className="filter-bar__count">{filteredItems.length} de {items.length}</span>
+          <span className="filter-bar__count">{t("app.inbox.filter.count", { filtered: filteredItems.length, total: items.length })}</span>
         )}
       </div>
 
@@ -358,9 +401,9 @@ const InboxView = (): ReactNode  => {
           hasActiveFilters={hasFilters}
         />
       </div>
-      <Pagination currentPage={currentPage} totalItems={filteredItems.length} pageSize={PAGE_SIZE} itemLabel="items" onPageChange={setPage} />
+      <Pagination currentPage={currentPage} totalItems={filteredItems.length} pageSize={PAGE_SIZE} itemLabel={t("app.inbox.paginationLabel")} onPageChange={setPage} />
     </div>
   );
-}
+};
 
 export default InboxView;

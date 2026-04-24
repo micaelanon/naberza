@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
-import type { Priority, Task, TaskKind } from "@/modules/tasks/task.types";
+
 import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
 import { useFormSubmit } from "@/hooks";
+import type { Priority, Task, TaskKind } from "@/modules/tasks/task.types";
 
 import type {
   StatusTab,
@@ -19,16 +21,6 @@ import type {
   TasksContentProps,
 } from "./utils/types";
 import "./tasks-view.css";
-
-const STATUS_TABS: StatusTabOption[] = [
-  { value: "ALL", label: "Todas" },
-  { value: "PENDING", label: "Pendientes" },
-  { value: "IN_PROGRESS", label: "En progreso" },
-  { value: "COMPLETED", label: "Completadas" },
-];
-
-const PRIORITY_LABELS: Record<string, string> = { HIGH: "Alta", MEDIUM: "Media", LOW: "Baja", NONE: "" };
-const KIND_LABELS: Record<string, string> = { NORMAL: "Normal", PERSISTENT: "Persistente", RECURRING: "Recurrente" };
 
 const PAGE_SIZE = 10;
 
@@ -52,23 +44,23 @@ function filterTasks(tasks: Task[], query: string, priority: Priority | "ALL"): 
       const q = query.toLowerCase();
       const inTitle = task.title.toLowerCase().includes(q);
       const inDesc = task.description?.toLowerCase().includes(q) ?? false;
-      const inTags = task.tags.some((t) => t.toLowerCase().includes(q));
+      const inTags = task.tags.some((tag) => tag.toLowerCase().includes(q));
       if (!inTitle && !inDesc && !inTags) return false;
     }
     return true;
   });
 }
 
-// ─── Shared form fields ───────────────────────────────────────────────────────
-
 const TaskFormFields = ({ form, onChange, saving, error, submitLabel, onCancel }: TaskFormFieldsProps): ReactNode  => {
+  const t = useTranslations();
+
   return (
     <>
       <div className="task-form__row">
         <input
           className="task-form__input task-form__input--title"
           type="text"
-          placeholder="¿Qué necesitas hacer?"
+          placeholder={t("app.tasks.titlePlaceholder")}
           value={form.title}
           onChange={(e) => onChange({ title: e.target.value })}
           autoFocus
@@ -77,7 +69,7 @@ const TaskFormFields = ({ form, onChange, saving, error, submitLabel, onCancel }
       <div className="task-form__row">
         <textarea
           className="task-form__input task-form__input--description"
-          placeholder="Descripción (opcional)"
+          placeholder={t("app.tasks.descPlaceholder")}
           value={form.description}
           onChange={(e) => onChange({ description: e.target.value })}
           rows={2}
@@ -85,15 +77,15 @@ const TaskFormFields = ({ form, onChange, saving, error, submitLabel, onCancel }
       </div>
       <div className="task-form__row task-form__row--inline">
         <select className="task-form__select" value={form.priority} onChange={(e) => onChange({ priority: e.target.value as Priority })}>
-          <option value="NONE">Sin prioridad</option>
-          <option value="LOW">Baja</option>
-          <option value="MEDIUM">Media</option>
-          <option value="HIGH">Alta</option>
+          <option value="NONE">{t("app.tasks.priority.none")}</option>
+          <option value="LOW">{t("app.tasks.priority.low")}</option>
+          <option value="MEDIUM">{t("app.tasks.priority.medium")}</option>
+          <option value="HIGH">{t("app.tasks.priority.high")}</option>
         </select>
         <select className="task-form__select" value={form.kind} onChange={(e) => onChange({ kind: e.target.value as TaskKind })}>
-          <option value="NORMAL">Normal</option>
-          <option value="PERSISTENT">Persistente</option>
-          <option value="RECURRING">Recurrente</option>
+          <option value="NORMAL">{t("app.tasks.type.normal")}</option>
+          <option value="PERSISTENT">{t("app.tasks.type.persistent")}</option>
+          <option value="RECURRING">{t("app.tasks.type.recurring")}</option>
         </select>
         <input
           className="task-form__input task-form__input--date"
@@ -106,7 +98,7 @@ const TaskFormFields = ({ form, onChange, saving, error, submitLabel, onCancel }
         <input
           className="task-form__input"
           type="text"
-          placeholder="Etiquetas (separadas por coma)"
+          placeholder={t("app.tasks.tagsPlaceholder")}
           value={form.tags}
           onChange={(e) => onChange({ tags: e.target.value })}
         />
@@ -114,29 +106,32 @@ const TaskFormFields = ({ form, onChange, saving, error, submitLabel, onCancel }
       {error && <p className="task-form__error">{error}</p>}
       <div className="task-form__actions">
         <button className="task-form__btn task-form__btn--save" type="submit" disabled={saving}>
-          {saving ? "Guardando..." : submitLabel}
+          {saving ? t("app.common.loading") : submitLabel}
         </button>
         <button className="task-form__btn task-form__btn--cancel" type="button" onClick={onCancel}>
-          Cancelar
+          {t("app.common.cancel")}
         </button>
       </div>
     </>
   );
-}
-
-// ─── Create form ──────────────────────────────────────────────────────────────
+};
 
 const TaskCreateForm = ({ onCreated, onCancel }: TaskCreateFormProps): ReactNode  => {
+  const t = useTranslations();
   const [form, setForm] = useState<TaskFormState>(EMPTY_FORM);
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
-    onSuccess: () => showToast("Tarea creada"),
-    onError: (m) => showToast(m, "error"),
+    onSuccess: () => showToast(t("app.tasks.toast.created")),
+    onError: (message) => showToast(message, "error"),
   });
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title.trim()) { setError("El título es obligatorio"); return; }
+    if (!form.title.trim()) {
+      setError(t("app.tasks.error.requiredTitle"));
+      return;
+    }
+
     void submit(async () => {
       const res = await fetch("/tasks/api", {
         method: "POST",
@@ -147,17 +142,17 @@ const TaskCreateForm = ({ onCreated, onCancel }: TaskCreateFormProps): ReactNode
           priority: form.priority,
           kind: form.kind,
           dueAt: form.dueAt || undefined,
-          tags: form.tags ? form.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
+          tags: form.tags ? form.tags.split(",").map((tag) => tag.trim()).filter(Boolean) : undefined,
         }),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => null) as { error?: string } | null;
-        throw new Error(body?.error ?? "Error al crear la tarea");
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? t("app.tasks.error.create"));
       }
       setForm(EMPTY_FORM);
       onCreated();
     });
-  }, [form, onCreated, setError, submit]);
+  }, [form, onCreated, setError, submit, t]);
 
   return (
     <form className="task-form" onSubmit={handleSubmit}>
@@ -166,26 +161,29 @@ const TaskCreateForm = ({ onCreated, onCancel }: TaskCreateFormProps): ReactNode
         onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
         saving={saving}
         error={error}
-        submitLabel="Crear tarea"
+        submitLabel={t("app.tasks.action.create")}
         onCancel={onCancel}
       />
     </form>
   );
-}
-
-// ─── Edit form ────────────────────────────────────────────────────────────────
+};
 
 const TaskEditForm = ({ task, onSaved, onCancel }: TaskEditFormProps): ReactNode  => {
+  const t = useTranslations();
   const [form, setForm] = useState<TaskFormState>(() => taskToForm(task));
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
-    onSuccess: () => showToast("Cambios guardados"),
-    onError: (m) => showToast(m, "error"),
+    onSuccess: () => showToast(t("app.common.savedChanges")),
+    onError: (message) => showToast(message, "error"),
   });
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title.trim()) { setError("El título es obligatorio"); return; }
+    if (!form.title.trim()) {
+      setError(t("app.tasks.error.requiredTitle"));
+      return;
+    }
+
     void submit(async () => {
       const res = await fetch(`/tasks/api/${task.id}`, {
         method: "PATCH",
@@ -196,16 +194,16 @@ const TaskEditForm = ({ task, onSaved, onCancel }: TaskEditFormProps): ReactNode
           priority: form.priority,
           kind: form.kind,
           dueAt: form.dueAt || undefined,
-          tags: form.tags ? form.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+          tags: form.tags ? form.tags.split(",").map((tag) => tag.trim()).filter(Boolean) : [],
         }),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => null) as { error?: string } | null;
-        throw new Error(body?.error ?? "Error al guardar");
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? t("app.tasks.error.save"));
       }
       onSaved();
     });
-  }, [form, onSaved, setError, submit, task.id]);
+  }, [form, onSaved, setError, submit, t, task.id]);
 
   return (
     <form className="task-form task-form--edit" onSubmit={handleSubmit}>
@@ -214,16 +212,16 @@ const TaskEditForm = ({ task, onSaved, onCancel }: TaskEditFormProps): ReactNode
         onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
         saving={saving}
         error={error}
-        submitLabel="Guardar cambios"
+        submitLabel={t("app.tasks.action.save")}
         onCancel={onCancel}
       />
     </form>
   );
-}
-
-// ─── Task item actions ───────────────────────────────────────────────────────
+};
 
 const TaskItemActions = ({ task, isActive, onEdit, onComplete, onCancel, onDelete }: TaskItemActionsProps): ReactNode  => {
+  const t = useTranslations();
+
   return (
     <div className="task-item__actions">
       {task.dueAt && (
@@ -231,44 +229,56 @@ const TaskItemActions = ({ task, isActive, onEdit, onComplete, onCancel, onDelet
           {new Date(task.dueAt).toLocaleDateString("es-ES")}
         </time>
       )}
-      <button className="task-item__btn task-item__btn--delete" onClick={onDelete} title="Eliminar">
+      <button className="task-item__btn task-item__btn--delete" onClick={onDelete} title={t("app.common.delete")}>
         <span className="material-symbols-outlined">delete</span>
       </button>
       {isActive ? (
         <>
-          <button className="task-item__btn task-item__btn--edit" onClick={onEdit} title="Editar">✎</button>
-          <button className="task-item__btn task-item__btn--complete" onClick={() => onComplete(task.id)} title="Completar">✓</button>
-          <button className="task-item__btn task-item__btn--cancel" onClick={() => onCancel(task.id)} title="Cancelar">✕</button>
+          <button className="task-item__btn task-item__btn--edit" onClick={onEdit} title={t("app.common.edit")}>✎</button>
+          <button className="task-item__btn task-item__btn--complete" onClick={() => onComplete(task.id)} title={t("app.tasks.action.complete")}>✓</button>
+          <button className="task-item__btn task-item__btn--cancel" onClick={() => onCancel(task.id)} title={t("app.common.cancel")}>✕</button>
         </>
       ) : (
-        <span className="task-item__status-badge">{task.status === "COMPLETED" ? "Completada" : "Cancelada"}</span>
+        <span className="task-item__status-badge">{task.status === "COMPLETED" ? t("app.status.completed") : t("app.status.cancelled")}</span>
       )}
     </div>
   );
-}
-
-// ─── Task list item ───────────────────────────────────────────────────────────
+};
 
 const TaskListItem = ({ task, onComplete, onCancel, onEdited, onDeleted }: TaskListItemProps): ReactNode  => {
+  const t = useTranslations();
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const { showToast } = useToast();
   const isActive = task.status === "PENDING" || task.status === "IN_PROGRESS";
 
+  const priorityLabels = useMemo<Record<string, string>>(() => ({
+    HIGH: t("app.tasks.priority.high"),
+    MEDIUM: t("app.tasks.priority.medium"),
+    LOW: t("app.tasks.priority.low"),
+    NONE: "",
+  }), [t]);
+
+  const kindLabels = useMemo<Record<string, string>>(() => ({
+    NORMAL: t("app.tasks.type.normal"),
+    PERSISTENT: t("app.tasks.type.persistent"),
+    RECURRING: t("app.tasks.type.recurring"),
+  }), [t]);
+
   const handleDelete = useCallback(async () => {
     setDeleting(true);
     try {
       await fetch(`/tasks/api/${task.id}`, { method: "DELETE" });
       setConfirmDelete(false);
-      showToast("Tarea eliminada");
+      showToast(t("app.tasks.toast.deleted"));
       onDeleted();
     } catch {
-      showToast("Error al eliminar la tarea", "error");
+      showToast(t("app.tasks.error.delete"), "error");
     } finally {
       setDeleting(false);
     }
-  }, [onDeleted, showToast, task.id]);
+  }, [onDeleted, showToast, t, task.id]);
 
   if (editing) {
     return (
@@ -289,10 +299,10 @@ const TaskListItem = ({ task, onComplete, onCancel, onEdited, onDeleted }: TaskL
       />
       <div className="task-item__main">
         <div className="task-item__meta-top">
-          <span className="task-item__kind">{KIND_LABELS[task.kind] ?? task.kind}</span>
+          <span className="task-item__kind">{kindLabels[task.kind] ?? task.kind}</span>
           {task.priority !== "NONE" && (
             <span className={`task-item__priority task-item__priority--${task.priority.toLowerCase()}`}>
-              {PRIORITY_LABELS[task.priority]}
+              {priorityLabels[task.priority]}
             </span>
           )}
         </div>
@@ -309,25 +319,24 @@ const TaskListItem = ({ task, onComplete, onCancel, onEdited, onDeleted }: TaskL
       <TaskItemActions task={task} isActive={isActive} onEdit={() => setEditing(true)} onComplete={onComplete} onCancel={onCancel} onDelete={() => setConfirmDelete(true)} />
     </li>
   );
-}
-
-// ─── Content area ─────────────────────────────────────────────────────────────
+};
 
 const TasksContent = ({ isLoading, error, tasks, onComplete, onCancel, onEdited, onDeleted, hasActiveFilters }: TasksContentProps): ReactNode  => {
-  if (isLoading) return <div className="tasks-view__loading">Cargando...</div>;
+  const t = useTranslations();
+
+  if (isLoading) return <div className="tasks-view__loading">{t("app.common.loading")}</div>;
   if (error) return <div className="tasks-view__error" role="alert">{error}</div>;
   if (tasks.length === 0) {
     return (
       <div className="tasks-view__empty">
-        <p className="tasks-view__empty-title">{hasActiveFilters ? "Sin resultados" : "Sin tareas"}</p>
+        <p className="tasks-view__empty-title">{hasActiveFilters ? t("app.common.noResults") : t("app.tasks.empty.title")}</p>
         <p className="tasks-view__empty-text">
-          {hasActiveFilters
-            ? "No hay tareas que coincidan con los filtros."
-            : "Haz clic en \"+ Nueva tarea\" para crear tu primera tarea."}
+          {hasActiveFilters ? t("app.tasks.empty.filtered") : t("app.tasks.empty.default")}
         </p>
       </div>
     );
   }
+
   return (
     <ul className="tasks-view__list">
       {tasks.map((task) => (
@@ -335,11 +344,9 @@ const TasksContent = ({ isLoading, error, tasks, onComplete, onCancel, onEdited,
       ))}
     </ul>
   );
-}
+};
 
-// ─── Main view ────────────────────────────────────────────────────────────────
-
-const TasksView = (): ReactNode  => {
+function useTasksViewState(t: ReturnType<typeof useTranslations>) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [total, setTotal] = useState(0);
   const [activeTab, setActiveTab] = useState<StatusTab>("ALL");
@@ -350,6 +357,13 @@ const TasksView = (): ReactNode  => {
   const [page, setPage] = useState(1);
   const [filterPriority, setFilterPriority] = useState<Priority | "ALL">("ALL");
 
+  const statusTabs = useMemo<StatusTabOption[]>(() => ([
+    { value: "ALL", label: t("app.tasks.tab.all") },
+    { value: "PENDING", label: t("app.tasks.tab.pending") },
+    { value: "IN_PROGRESS", label: t("app.tasks.tab.inProgress") },
+    { value: "COMPLETED", label: t("app.tasks.tab.completed") },
+  ]), [t]);
+
   const fetchTasks = useCallback(async (status: StatusTab) => {
     setIsLoading(true);
     setError(null);
@@ -357,24 +371,87 @@ const TasksView = (): ReactNode  => {
       const params = new URLSearchParams();
       if (status !== "ALL") params.set("status", status);
       const response = await fetch(`/tasks/api?${params.toString()}`);
-      if (!response.ok) throw new Error("Error al cargar las tareas");
+      if (!response.ok) throw new Error(t("app.tasks.error.load"));
       const json = (await response.json()) as TasksApiResponse;
       setTasks(json.data);
       setTotal(json.meta.total);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
+      setError(err instanceof Error ? err.message : t("app.common.error"));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
-    let cancelled = false;
-    fetchTasks(activeTab) // eslint-disable-line react-hooks/set-state-in-effect
-      .catch(() => { /* handled inside fetchTasks */ })
-      .finally(() => { if (cancelled) return; });
-    return () => { cancelled = true; };
-  }, [activeTab, fetchTasks]);
+    let isMounted = true;
+
+    const loadTasks = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams();
+        if (activeTab !== "ALL") params.set("status", activeTab);
+        const response = await fetch(`/tasks/api?${params.toString()}`);
+        if (!response.ok) throw new Error(t("app.tasks.error.load"));
+        const json = (await response.json()) as TasksApiResponse;
+        if (!isMounted) return;
+        setTasks(json.data);
+        setTotal(json.meta.total);
+      } catch (err) {
+        if (!isMounted) return;
+        setError(err instanceof Error ? err.message : t("app.common.error"));
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    void loadTasks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab, t]);
+
+  return {
+    tasks,
+    total,
+    activeTab,
+    setActiveTab,
+    isLoading,
+    error,
+    showCreateForm,
+    setShowCreateForm,
+    searchQuery,
+    setSearchQuery,
+    page,
+    setPage,
+    filterPriority,
+    setFilterPriority,
+    statusTabs,
+    fetchTasks,
+  };
+}
+
+const TasksView = (): ReactNode  => {
+  const t = useTranslations();
+  const {
+    tasks,
+    total,
+    activeTab,
+    setActiveTab,
+    isLoading,
+    error,
+    showCreateForm,
+    setShowCreateForm,
+    searchQuery,
+    setSearchQuery,
+    page,
+    setPage,
+    filterPriority,
+    setFilterPriority,
+    statusTabs,
+    fetchTasks,
+  } = useTasksViewState(t);
 
   const handleComplete = useCallback(async (id: string) => {
     const response = await fetch(`/tasks/api/${id}/complete`, { method: "POST" });
@@ -394,10 +471,10 @@ const TasksView = (): ReactNode  => {
   return (
     <div className="tasks-view">
       <header className="tasks-view__header">
-        <h1 className="tasks-view__title">Tareas</h1>
-        <span className="tasks-view__count">{total} tareas</span>
+        <h1 className="tasks-view__title">{t("app.tasks.title")}</h1>
+        <span className="tasks-view__count">{t("app.tasks.count", { count: total })}</span>
         <button className="tasks-view__add-btn" onClick={() => setShowCreateForm(!showCreateForm)}>
-          {showCreateForm ? "✕" : "+ Nueva tarea"}
+          {showCreateForm ? "✕" : t("app.tasks.action.new")}
         </button>
       </header>
 
@@ -409,7 +486,7 @@ const TasksView = (): ReactNode  => {
       )}
 
       <nav className="tasks-view__tabs" role="tablist">
-        {STATUS_TABS.map((tab) => (
+        {statusTabs.map((tab) => (
           <button
             key={tab.value}
             role="tab"
@@ -426,7 +503,7 @@ const TasksView = (): ReactNode  => {
         <input
           className="filter-bar__search"
           type="search"
-          placeholder="Buscar tareas..."
+          placeholder={t("app.tasks.searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
         />
@@ -435,19 +512,19 @@ const TasksView = (): ReactNode  => {
           value={filterPriority}
           onChange={(e) => { setFilterPriority(e.target.value as Priority | "ALL"); setPage(1); }}
         >
-          <option value="ALL">Todas las prioridades</option>
-          <option value="HIGH">Alta</option>
-          <option value="MEDIUM">Media</option>
-          <option value="LOW">Baja</option>
-          <option value="NONE">Sin prioridad</option>
+          <option value="ALL">{t("app.tasks.filter.allPriorities")}</option>
+          <option value="HIGH">{t("app.tasks.priority.high")}</option>
+          <option value="MEDIUM">{t("app.tasks.priority.medium")}</option>
+          <option value="LOW">{t("app.tasks.priority.low")}</option>
+          <option value="NONE">{t("app.tasks.priority.none")}</option>
         </select>
         {hasFilters && (
           <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterPriority("ALL"); setPage(1); }}>
-            Limpiar filtros
+            {t("app.tasks.filter.clear")}
           </button>
         )}
         {hasFilters && (
-          <span className="filter-bar__count">{filteredTasks.length} de {tasks.length}</span>
+          <span className="filter-bar__count">{t("app.tasks.filter.count", { filtered: filteredTasks.length, total: tasks.length })}</span>
         )}
       </div>
 
@@ -463,9 +540,9 @@ const TasksView = (): ReactNode  => {
           hasActiveFilters={hasFilters}
         />
       </div>
-      <Pagination currentPage={currentPage} totalItems={filteredTasks.length} pageSize={PAGE_SIZE} itemLabel="tareas" onPageChange={setPage} />
+      <Pagination currentPage={currentPage} totalItems={filteredTasks.length} pageSize={PAGE_SIZE} itemLabel={t("app.tasks.paginationLabel")} onPageChange={setPage} />
     </div>
   );
-}
+};
 
 export default TasksView;

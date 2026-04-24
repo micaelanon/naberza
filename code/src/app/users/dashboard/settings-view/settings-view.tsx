@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui";
 import type { ReactNode } from "react";
@@ -31,40 +32,41 @@ const Section = ({ title, children }: SettingsSectionProps): ReactNode  => {
 };
 
 const SettingsView = (): ReactNode  => {
+  const t = useTranslations();
   const { data: session } = useSession();
   const { showToast } = useToast();
   const [theme, setTheme] = useState<Theme>("system");
 
   const handleThemeChange = useCallback((next: Theme) => {
     setTheme(next);
-    showToast(`Tema cambiado a ${THEME_TOAST[next]}`);
-  }, [showToast]);
+    showToast(t("app.settings.themeChanged", { theme: THEME_TOAST[next] }));
+  }, [showToast, t]);
 
   const handleCopyVersion = useCallback(async () => {
     await navigator.clipboard.writeText(APP_VERSION);
-    showToast("Versión copiada");
-  }, [showToast]);
+    showToast(t("app.settings.versionCopied"));
+  }, [showToast, t]);
 
   return (
     <div className="page-container settings-page">
       <div className="page-header">
-        <h1>Ajustes</h1>
+        <h1>{t("app.settings.title")}</h1>
       </div>
 
-      <Section title="Cuenta">
+      <Section title={t("app.settings.account")}>
         <div className="settings-row">
-          <span className="settings-row__label">Usuario</span>
-          <span className="settings-row__value">{session?.user?.name ?? "—"}</span>
+          <span className="settings-row__label">{t("app.common.user")}</span>
+          <span className="settings-row__value">{session?.user?.name ?? t("app.settings.userFallback")}</span>
         </div>
         <div className="settings-row">
-          <span className="settings-row__label">Email</span>
-          <span className="settings-row__value">{session?.user?.email ?? "—"}</span>
+          <span className="settings-row__label">{t("app.common.email")}</span>
+          <span className="settings-row__value">{session?.user?.email ?? t("app.settings.userFallback")}</span>
         </div>
       </Section>
 
-      <Section title="Apariencia">
+      <Section title={t("app.settings.appearance")}>
         <div className="settings-row settings-row--theme">
-          <span className="settings-row__label">Tema</span>
+          <span className="settings-row__label">{t("app.common.theme")}</span>
           <div className="settings-theme-options">
             {(["system", "light", "dark"] as const).map((t) => (
               <button
@@ -80,28 +82,28 @@ const SettingsView = (): ReactNode  => {
         </div>
       </Section>
 
-      <Section title="Sistema">
+      <Section title={t("app.common.system")}>
         <div className="settings-row">
-          <span className="settings-row__label">Versión</span>
+          <span className="settings-row__label">{t("app.common.version")}</span>
           <span className="settings-row__value">
             {APP_VERSION}
             <button
               type="button"
               className="settings-copy-btn"
               onClick={() => void handleCopyVersion()}
-              title="Copiar versión"
+              title={t("app.settings.copyVersionTitle")}
             >
               <span className="material-symbols-outlined">content_copy</span>
             </button>
           </span>
         </div>
         <div className="settings-row">
-          <span className="settings-row__label">Base de datos</span>
-          <span className="settings-row__value">PostgreSQL 16</span>
+          <span className="settings-row__label">{t("app.settings.database")}</span>
+          <span className="settings-row__value">{t("app.settings.databaseValue")}</span>
         </div>
         <div className="settings-row">
-          <span className="settings-row__label">Runtime</span>
-          <span className="settings-row__value">Next.js 16 / React 19</span>
+          <span className="settings-row__label">{t("app.settings.runtime")}</span>
+          <span className="settings-row__value">{t("app.settings.runtimeValue")}</span>
         </div>
       </Section>
     </div>

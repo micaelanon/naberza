@@ -1,0 +1,410 @@
+{
+  "app": {
+    "brand": {
+      "name": "Naberza"
+    },
+    "common": {
+      "account": "Cuenta",
+      "add": "Añadir",
+      "appearance": "Apariencia",
+      "cancel": "Cancelar",
+      "copy": "Copiar",
+      "create": "Crear",
+      "delete": "Eliminar",
+      "confirm": "Confirmar",
+      "deleting": "Eliminando...",
+      "edit": "Editar",
+      "email": "Email",
+      "error": "Ha ocurrido un error",
+      "loading": "Cargando...",
+      "noResults": "Sin resultados",
+      "notConfigured": "Sin configurar",
+      "optional": "(opcional)",
+      "required": "Campo obligatorio",
+      "review": "Revisión",
+      "retry": "Reintentar",
+      "save": "Guardar",
+      "savedChanges": "Cambios guardados",
+      "search": "Buscar...",
+      "settings": "Ajustes",
+      "system": "Sistema",
+      "theme": "Tema",
+      "user": "Usuario",
+      "version": "Versión"
+    },
+    "delete": {
+      "modal": {
+        "subtitle": "Esta acción no se puede deshacer."
+      }
+    },
+    "home": {
+      "accessPoints": "Puntos de acceso",
+      "accessRelevant": "Sensores de acceso relevantes",
+      "attentionImmediate": "Atención inmediata",
+      "attentionNow": "Atención ahora",
+      "configMissingBody": "Faltan `HOME_ASSISTANT_URL` y/o `HOME_ASSISTANT_TOKEN`. La guía sigue disponible en Integraciones.",
+      "configMissingTitle": "Home Assistant no está configurado en Naberza",
+      "connected": "Conectado",
+      "connectionError": "Error de conexión",
+      "eventsPending": "Eventos pendientes",
+      "eventsPendingEmpty": "No hay eventos pendientes.",
+      "eventsPendingMeta": "Persistencia interna de eventos del módulo Home.",
+      "eventsPendingTotal": "{count} pendientes",
+      "liveErrorBody": "Revisa URL, token o conectividad.",
+      "liveErrorTitle": "No se pudo consultar Home Assistant",
+      "locks": "Cerraduras",
+      "locksAndAccess": "Cerraduras y accesos",
+      "noState": "Sin estado",
+      "refresh": "Actualizar",
+      "refreshing": "Actualizando...",
+      "sectionCount": "{count} elementos",
+      "signalsUseful": "Señales útiles",
+      "subtitle": "Vista viva de accesos y señales relevantes desde Home Assistant, más el historial interno de eventos.",
+      "title": "Casa",
+      "urgentEmpty": "No hay nada urgente ahora mismo.",
+      "urgentSubtitle": "Lo más delicado primero: cierres abiertos, desconexiones o alertas activas.",
+      "usefulSignalsEmpty": "No hay sensores útiles destacados ahora mismo.",
+      "usefulSignalsSubtitle": "Batería, señal y otros sensores que ayudan a detectar problemas antes de que molesten.",
+      "error": {
+        "load": "Error al cargar Home"
+      },
+      "paginationLabel": "eventos"
+    },
+    "homeAccess": {
+      "empty": "No hay sensores binarios relevantes detectados.",
+      "subtitle": "Puertas, conectividad y sensores binarios que suelen importar para el día a día."
+    },
+    "homeCards": {
+      "accessPoints": "Puertas, aperturas, conectividad y sensores binarios relevantes.",
+      "attention": "Elementos de acceso o sensores con estado que conviene revisar.",
+      "events": "Historial interno de eventos de Home aún sin reconocer.",
+      "locks": "Incluye Nuki, Fermax u otras entidades del dominio `lock`."
+    },
+    "homeLocks": {
+      "empty": "No se detectaron cerraduras en Home Assistant.",
+      "subtitle": "Estados vivos de cerraduras detectadas en Home Assistant."
+    },
+    "mailAnalysis": {
+      "currentClassification": "Clasificación actual: {value}",
+      "currentConfidence": "Confianza actual: {value}",
+      "empty": {
+        "noInvoices": "No he detectado facturas probables ahora mismo.",
+        "noNewsletters": "No he detectado newsletters repetitivas suficientes.",
+        "noNoisySenders": "No he detectado emisores repetitivos de bajo valor con claridad.",
+        "noReview": "No he detectado correos de revisión prioritaria.",
+        "noSuggestions": "Aún no hay sugerencias suficientes en el correo ingerido.",
+        "noTopSenders": "No he podido detectar remitentes repetidos con claridad."
+      },
+      "noClassification": "sin clasificar",
+      "repeatedEmails": "{count} correos detectados",
+      "repeatedLowValue": "{count} correos repetidos",
+      "section": {
+        "invoices": "Facturas probables detectadas",
+        "newsletters": "Newsletters candidatas",
+        "noisy": "Emisores ruidosos o poco útiles",
+        "review": "Correos que merecen revisión",
+        "senders": "5 remitentes más repetidos",
+        "suggestions": "Sugerencias útiles"
+      },
+      "subtitle": "No te enseño el mail entero, solo señales y sugerencias útiles detectadas sobre lo ya ingerido.",
+      "title": "Análisis de correo"
+    },
+    "nav": {
+      "appTitle": "Dashboard",
+      "ariaLabel": "Navegación principal",
+      "audit": "Auditoría",
+      "automations": "Automaciones",
+      "documents": "Documentos",
+      "finance": "Finanzas",
+      "home": "Casa",
+      "invoices": "Facturas",
+      "ideas": "Ideas",
+      "inbox": "Inbox",
+      "integrations": "Integraciones",
+      "mail": "Correo",
+      "tasks": "Tareas",
+      "users": "Ajustes"
+    },
+    "settings": {
+      "account": "Cuenta",
+      "appearance": "Apariencia",
+      "copyVersionTitle": "Copiar versión",
+      "title": "Ajustes",
+      "userFallback": "—",
+      "copyVersion": "Copiar versión",
+      "database": "Base de datos",
+      "databaseValue": "PostgreSQL 16",
+      "runtime": "Runtime",
+      "runtimeValue": "Next.js 16 / React 19",
+      "themeChanged": "Tema cambiado a {theme}",
+      "theme": {
+        "dark": "Oscuro",
+        "light": "Claro",
+        "system": "Sistema"
+      },
+      "versionCopied": "Versión copiada"
+    },
+    "status": {
+      "cancelled": "Cancelada",
+      "completed": "Completada"
+    },
+    "tasks": {
+      "action": {
+        "complete": "Completar",
+        "create": "Crear tarea",
+        "new": "+ Nueva tarea",
+        "save": "Guardar cambios"
+      },
+      "count": "{count} tareas",
+      "empty": {
+        "default": "Haz clic en \"+ Nueva tarea\" para crear tu primera tarea.",
+        "filtered": "No hay tareas que coincidan con los filtros.",
+        "title": "Sin tareas"
+      },
+      "error": {
+        "create": "Error al crear la tarea",
+        "delete": "Error al eliminar la tarea",
+        "load": "Error al cargar las tareas",
+        "requiredTitle": "El título es obligatorio",
+        "save": "Error al guardar"
+      },
+      "filter": {
+        "allPriorities": "Todas las prioridades",
+        "clear": "Limpiar filtros",
+        "count": "{filtered} de {total}"
+      },
+      "paginationLabel": "tareas",
+      "priority": {
+        "high": "Alta",
+        "low": "Baja",
+        "medium": "Media",
+        "none": "Sin prioridad"
+      },
+      "searchPlaceholder": "Buscar tareas...",
+      "tab": {
+        "all": "Todas",
+        "completed": "Completadas",
+        "inProgress": "En progreso",
+        "pending": "Pendientes"
+      },
+      "tagsPlaceholder": "Etiquetas (separadas por coma)",
+      "title": "Tareas",
+      "titlePlaceholder": "¿Qué necesitas hacer?",
+      "toast": {
+        "created": "Tarea creada",
+        "deleted": "Tarea eliminada"
+      },
+      "type": {
+        "normal": "Normal",
+        "persistent": "Persistente",
+        "recurring": "Recurrente"
+      },
+      "descPlaceholder": "Descripción (opcional)"
+    },
+    "inbox": {
+      "action": {
+        "add": "Añadir al inbox",
+        "dismiss": "Descartar",
+        "new": "+ Nuevo item"
+      },
+      "category": {
+        "alert": "Alerta",
+        "document": "Documento",
+        "event": "Evento",
+        "financial": "Financiero",
+        "idea": "Idea",
+        "invoice": "Factura",
+        "review": "Revisión",
+        "task": "Tarea",
+        "unclassified": "Sin clasificar"
+      },
+      "count": "{count} elementos",
+      "detailPlaceholder": "Detalles (opcional)",
+      "editTitlePlaceholder": "Título",
+      "empty": {
+        "default": "Haz clic en \"+ Nuevo item\" para añadir algo al inbox.",
+        "filtered": "No hay items que coincidan con los filtros.",
+        "title": "Sin elementos"
+      },
+      "error": {
+        "create": "Error al crear el item",
+        "delete": "Error al eliminar el item",
+        "load": "Error al cargar el inbox",
+        "requiredTitle": "El título es obligatorio",
+        "save": "Error al guardar"
+      },
+      "filter": {
+        "allPriorities": "Todas las prioridades",
+        "clear": "Limpiar filtros",
+        "count": "{filtered} de {total}"
+      },
+      "paginationLabel": "items",
+      "priority": {
+        "high": "Alta",
+        "low": "Baja",
+        "medium": "Media",
+        "none": "Sin prioridad"
+      },
+      "searchPlaceholder": "Buscar en inbox...",
+      "source": {
+        "api": "API",
+        "email": "Email",
+        "home": "Home",
+        "manual": "Manual",
+        "paperless": "Paperless"
+      },
+      "tab": {
+        "all": "Todos",
+        "classified": "Clasificados",
+        "dismissed": "Descartados",
+        "pending": "Pendientes"
+      },
+      "title": "Inbox",
+      "titlePlaceholder": "¿Qué quieres anotar?",
+      "toast": {
+        "created": "Añadido al inbox",
+        "deleted": "Item eliminado"
+      }
+    },
+    "invoices": {
+      "action": {
+        "create": "Crear factura",
+        "markPaid": "Marcar como pagada",
+        "new": "+ Nueva factura",
+        "save": "Guardar cambios"
+      },
+      "amountPlaceholder": "Importe (€)",
+      "categoryPlaceholder": "Categoría (ej: Suministros)",
+      "count": "{count}",
+      "dueDateLabel": "Fecha vencimiento",
+      "editCategoryPlaceholder": "Categoría",
+      "editIssuerPlaceholder": "Emisor",
+      "empty": {
+        "default": "No hay facturas. Haz clic en \"+ Nueva factura\" para añadir una.",
+        "filtered": "No hay facturas que coincidan con los filtros."
+      },
+      "error": {
+        "create": "Error al crear la factura",
+        "delete": "Error al eliminar la factura",
+        "load": "Error al cargar facturas",
+        "requiredIssuerAmount": "Emisor y importe son obligatorios",
+        "save": "Error al guardar"
+      },
+      "filter": {
+        "allStatuses": "Todos los estados",
+        "clear": "Limpiar filtros",
+        "count": "{filtered} de {total}"
+      },
+      "issuerPlaceholder": "Emisor (ej: Endesa)",
+      "issueDateLabel": "Fecha emisión",
+      "notesPlaceholder": "Notas (opcional)",
+      "paginationLabel": "facturas",
+      "searchPlaceholder": "Buscar facturas...",
+      "status": {
+        "cancelled": "Cancelada",
+        "overdue": "Vencida",
+        "paid": "Pagada",
+        "pending": "Pendiente"
+      },
+      "title": "Facturas",
+      "toast": {
+        "created": "Factura creada",
+        "deleted": "Factura eliminada"
+      }
+    },
+    "finance": {
+      "action": {
+        "create": "Registrar",
+        "new": "+ Nuevo movimiento",
+        "save": "Guardar cambios"
+      },
+      "categoryPlaceholder": "Categoría (ej: Transporte, Comida)",
+      "editCategoryPlaceholder": "Categoría",
+      "empty": {
+        "default": "No hay movimientos. Haz clic en \"+ Nuevo movimiento\" para registrar uno.",
+        "filtered": "No hay movimientos que coincidan con los filtros."
+      },
+      "error": {
+        "create": "Error al crear el movimiento",
+        "delete": "Error al eliminar el movimiento",
+        "load": "Error al cargar movimientos",
+        "requiredAmount": "El importe es obligatorio",
+        "save": "Error al guardar"
+      },
+      "filter": {
+        "allTypes": "Todos los tipos",
+        "clear": "Limpiar filtros",
+        "count": "{filtered} de {total}",
+        "expenses": "Gastos",
+        "income": "Ingresos",
+        "recurring": "Recurrentes",
+        "snapshots": "Snapshots de saldo"
+      },
+      "paginationLabel": "movimientos",
+      "searchPlaceholder": "Buscar movimientos...",
+      "title": "Finanzas",
+      "toast": {
+        "created": "Movimiento registrado",
+        "deleted": "Movimiento eliminado"
+      },
+      "type": {
+        "expense": "Gasto",
+        "income": "Ingreso",
+        "recurring": "Cargo recurrente",
+        "recurringShort": "Recurrente",
+        "snapshot": "Snapshot de saldo",
+        "snapshotShort": "Saldo"
+      },
+      "amountPlaceholder": "Importe (€)",
+      "descPlaceholder": "Descripción"
+    },
+    "ideas": {
+      "action": {
+        "capture": "Capturar idea",
+        "new": "+ Nueva idea",
+        "save": "Guardar cambios"
+      },
+      "descPlaceholder": "Desarrolla la idea (opcional)",
+      "editDescPlaceholder": "Descripción (opcional)",
+      "editTitlePlaceholder": "Título",
+      "empty": {
+        "default": "No hay ideas. Haz clic en \"+ Nueva idea\" para capturar algo.",
+        "filtered": "No hay ideas que coincidan con los filtros."
+      },
+      "error": {
+        "create": "Error al crear la idea",
+        "delete": "Error al eliminar la idea",
+        "load": "Error al cargar ideas",
+        "requiredTitle": "El título es obligatorio",
+        "save": "Error al guardar"
+      },
+      "filter": {
+        "allStatuses": "Todos los estados",
+        "archived": "Archivadas",
+        "captured": "Capturadas",
+        "clear": "Limpiar filtros",
+        "count": "{filtered} de {total}",
+        "promoted": "Promovidas",
+        "reviewing": "En revisión"
+      },
+      "paginationLabel": "ideas",
+      "searchPlaceholder": "Buscar ideas...",
+      "status": {
+        "archived": "Archivada",
+        "captured": "Capturada",
+        "promoted": "Promovida",
+        "reviewing": "En revisión"
+      },
+      "tagsPlaceholder": "Etiquetas (separadas por coma)",
+      "title": "Ideas",
+      "titlePlaceholder": "¿Qué idea tienes?",
+      "toast": {
+        "created": "Idea capturada",
+        "deleted": "Idea eliminada"
+      }
+    },
+    "toast": {
+      "close": "Cerrar"
+    }
+  }
+}
