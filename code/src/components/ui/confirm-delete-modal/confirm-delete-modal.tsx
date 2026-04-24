@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 import { KEYBOARD_KEYS } from "@/lib/constants";
 
@@ -15,6 +16,8 @@ const ConfirmDeleteModal = ({
   onCancel,
   deleting = false,
 }: ConfirmDeleteModalProps): ReactNode  => {
+  const t = useTranslations();
+
   const handleKey = useCallback((e: KeyboardEvent) => {
     if (e.key === KEYBOARD_KEYS.ESCAPE) onCancel();
   }, [onCancel]);
@@ -31,17 +34,17 @@ const ConfirmDeleteModal = ({
     <div className="cdm-backdrop" role="dialog" aria-modal="true" onClick={onCancel}>
       <div className="cdm" onClick={(e) => e.stopPropagation()}>
         <span className="material-symbols-outlined cdm__icon">delete_forever</span>
-        <h2 className="cdm__title">¿Eliminar este elemento?</h2>
+        <h2 className="cdm__title">{t("app.common.delete")}</h2>
         <p className="cdm__message">
-          Vas a eliminar <span className="cdm__item-name">&ldquo;{itemName}&rdquo;</span>.
-          Esta acción no se puede deshacer.
+          {itemName ? <span className="cdm__item-name">&ldquo;{itemName}&rdquo;</span> : null}.
+          {t("app.delete.modal.subtitle")}
         </p>
         <div className="cdm__actions">
           <button className="cdm__btn cdm__btn--cancel" type="button" onClick={onCancel} disabled={deleting}>
-            Cancelar
+            {t("app.common.cancel")}
           </button>
           <button className="cdm__btn cdm__btn--delete" type="button" onClick={onConfirm} disabled={deleting}>
-            {deleting ? "Eliminando..." : "Eliminar"}
+            {deleting ? t("app.common.deleting") : t("app.common.delete")}
           </button>
         </div>
       </div>

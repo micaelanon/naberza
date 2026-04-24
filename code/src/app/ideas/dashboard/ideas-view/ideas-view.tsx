@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+
+import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
+import { useFormSubmit } from "@/hooks";
 import type { IdeaSummary } from "@/modules/ideas";
 import type { IdeaStatus } from "@/modules/ideas/ideas.types";
-import { useFormSubmit } from "@/hooks";
-import { ConfirmDeleteModal, Pagination, useToast } from "@/components/ui";
 
 const PAGE_SIZE = 10;
 
@@ -16,28 +18,30 @@ function filterIdeas(ideas: IdeaSummary[], query: string, status: IdeaStatus | "
       const q = query.toLowerCase();
       const inTitle = idea.title.toLowerCase().includes(q);
       const inBody = idea.body?.toLowerCase().includes(q) ?? false;
-      const inTags = idea.tags.some((t) => t.toLowerCase().includes(q));
+      const inTags = idea.tags.some((tag) => tag.toLowerCase().includes(q));
       if (!inTitle && !inBody && !inTags) return false;
     }
     return true;
   });
 }
 
-// ─── Create form ──────────────────────────────────────────────────────────────
-
 const IdeaCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode  => {
+  const t = useTranslations();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [tags, setTags] = useState("");
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
-    onSuccess: () => showToast("Idea capturada"),
-    onError: (m) => showToast(m, "error"),
+    onSuccess: () => showToast(t("app.ideas.toast.created")),
+    onError: (message) => showToast(message, "error"),
   });
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) { setError("El título es obligatorio"); return; }
+    if (!title.trim()) {
+      setError(t("app.ideas.error.requiredTitle"));
+      return;
+    }
     void submit(async () => {
       const res = await fetch("/ideas/api", {
         method: "POST",
@@ -45,107 +49,116 @@ const IdeaCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onCanc
         body: JSON.stringify({
           title: title.trim(),
           body: body.trim() || undefined,
-          tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+          tags: tags ? tags.split(",").map((tag) => tag.trim()).filter(Boolean) : [],
         }),
       });
-      if (!res.ok) throw new Error("Error al crear la idea");
-      setTitle(""); setBody(""); setTags("");
+      if (!res.ok) throw new Error(t("app.ideas.error.create"));
+      setTitle("");
+      setBody("");
+      setTags("");
       onCreated();
     });
-  }, [body, onCreated, setError, submit, tags, title]);
+  }, [body, onCreated, setError, submit, t, tags, title]);
 
   return (
     <form className="idea-form" onSubmit={handleSubmit}>
-      <input className="idea-form__input" type="text" placeholder="¿Qué se te ocurre?" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
-      <textarea className="idea-form__textarea" placeholder="Describe la idea (opcional)" value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
-      <input className="idea-form__input" type="text" placeholder="Etiquetas (separadas por coma)" value={tags} onChange={(e) => setTags(e.target.value)} />
+      <input className="idea-form__input" type="text" placeholder={t("app.ideas.titlePlaceholder")} value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
+      <textarea className="idea-form__textarea" placeholder={t("app.ideas.descPlaceholder")} value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
+      <input className="idea-form__input" type="text" placeholder={t("app.ideas.tagsPlaceholder")} value={tags} onChange={(e) => setTags(e.target.value)} />
       {error && <p className="idea-form__error">{error}</p>}
       <div className="idea-form__actions">
-        <button className="idea-form__btn idea-form__btn--save" type="submit" disabled={saving}>{saving ? "Guardando..." : "Capturar idea"}</button>
-        <button className="idea-form__btn idea-form__btn--cancel" type="button" onClick={onCancel}>Cancelar</button>
+        <button className="idea-form__btn idea-form__btn--save" type="submit" disabled={saving}>{saving ? t("app.common.loading") : t("app.ideas.action.capture")}</button>
+        <button className="idea-form__btn idea-form__btn--cancel" type="button" onClick={onCancel}>{t("app.common.cancel")}</button>
       </div>
     </form>
   );
-}
-
-// ─── Edit form ────────────────────────────────────────────────────────────────
+};
 
 const IdeaEditForm = ({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved: () => void; onCancel: () => void }): ReactNode  => {
+  const t = useTranslations();
   const [title, setTitle] = useState(idea.title);
   const [body, setBody] = useState(idea.body ?? "");
   const [tags, setTags] = useState(idea.tags.join(", "));
   const [status, setStatus] = useState<IdeaStatus>(idea.status);
   const { showToast } = useToast();
   const { saving, error, setError, submit } = useFormSubmit({
-    onSuccess: () => showToast("Cambios guardados"),
-    onError: (m) => showToast(m, "error"),
+    onSuccess: () => showToast(t("app.common.savedChanges")),
+    onError: (message) => showToast(message, "error"),
   });
+
+  const statusOptions = useMemo(() => ([
+    { value: "CAPTURED", label: t("app.ideas.status.captured") },
+    { value: "REVIEWING", label: t("app.ideas.status.reviewing") },
+    { value: "PROMOTED", label: t("app.ideas.status.promoted") },
+    { value: "ARCHIVED", label: t("app.ideas.status.archived") },
+  ]), [t]);
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) { setError("El título es obligatorio"); return; }
+    if (!title.trim()) {
+      setError(t("app.ideas.error.requiredTitle"));
+      return;
+    }
     void submit(async () => {
       const res = await fetch(`/ideas/api/${idea.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          body: body.trim() || undefined,
-          tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
-          status,
-        }),
+        body: JSON.stringify({ title: title.trim(), body: body.trim() || undefined, tags: tags ? tags.split(",").map((tag) => tag.trim()).filter(Boolean) : [], status }),
       });
       if (!res.ok) {
-        const b = await res.json().catch(() => null) as { error?: string } | null;
-        throw new Error(b?.error ?? "Error al guardar");
+        const bodyResponse = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(bodyResponse?.error ?? t("app.ideas.error.save"));
       }
       onSaved();
     });
-  }, [body, idea.id, onSaved, setError, status, submit, tags, title]);
+  }, [body, idea.id, onSaved, setError, status, submit, t, tags, title]);
 
   return (
     <form className="idea-form idea-form--edit" onSubmit={handleSubmit}>
-      <input className="idea-form__input" type="text" placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
-      <textarea className="idea-form__textarea" placeholder="Descripción (opcional)" value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
+      <input className="idea-form__input" type="text" placeholder={t("app.ideas.editTitlePlaceholder")} value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
+      <textarea className="idea-form__textarea" placeholder={t("app.ideas.editDescPlaceholder")} value={body} onChange={(e) => setBody(e.target.value)} rows={2} />
       <div className="idea-form__row">
-        <input className="idea-form__input" type="text" placeholder="Etiquetas (separadas por coma)" value={tags} onChange={(e) => setTags(e.target.value)} />
+        <input className="idea-form__input" type="text" placeholder={t("app.ideas.tagsPlaceholder")} value={tags} onChange={(e) => setTags(e.target.value)} />
         <select className="idea-form__select" value={status} onChange={(e) => setStatus(e.target.value as IdeaStatus)}>
-          <option value="CAPTURED">Capturada</option>
-          <option value="REVIEWING">En revisión</option>
-          <option value="PROMOTED">Promovida</option>
-          <option value="ARCHIVED">Archivada</option>
+          {statusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
       </div>
       {error && <p className="idea-form__error">{error}</p>}
       <div className="idea-form__actions">
-        <button className="idea-form__btn idea-form__btn--save" type="submit" disabled={saving}>{saving ? "Guardando..." : "Guardar cambios"}</button>
-        <button className="idea-form__btn idea-form__btn--cancel" type="button" onClick={onCancel}>Cancelar</button>
+        <button className="idea-form__btn idea-form__btn--save" type="submit" disabled={saving}>{saving ? t("app.common.loading") : t("app.ideas.action.save")}</button>
+        <button className="idea-form__btn idea-form__btn--cancel" type="button" onClick={onCancel}>{t("app.common.cancel")}</button>
       </div>
     </form>
   );
-}
-
-// ─── List item ────────────────────────────────────────────────────────────────
+};
 
 const IdeaListItem = ({ idea, onEdited, onDeleted }: { idea: IdeaSummary; onEdited: () => void; onDeleted: () => void }): ReactNode  => {
+  const t = useTranslations();
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const { showToast } = useToast();
+
+  const statusLabels = useMemo<Record<string, string>>(() => ({
+    CAPTURED: t("app.ideas.status.captured"),
+    REVIEWING: t("app.ideas.status.reviewing"),
+    PROMOTED: t("app.ideas.status.promoted"),
+    ARCHIVED: t("app.ideas.status.archived"),
+  }), [t]);
 
   const handleDelete = useCallback(async () => {
     setDeleting(true);
     try {
       await fetch(`/ideas/api/${idea.id}`, { method: "DELETE" });
       setConfirmDelete(false);
-      showToast("Idea eliminada");
+      showToast(t("app.ideas.toast.deleted"));
       onDeleted();
     } catch {
-      showToast("Error al eliminar la idea", "error");
+      showToast(t("app.ideas.error.delete"), "error");
     } finally {
       setDeleting(false);
     }
-  }, [idea.id, onDeleted, showToast]);
+  }, [idea.id, onDeleted, showToast, t]);
 
   if (editing) {
     return (
@@ -160,18 +173,17 @@ const IdeaListItem = ({ idea, onEdited, onDeleted }: { idea: IdeaSummary; onEdit
       <ConfirmDeleteModal isOpen={confirmDelete} itemName={idea.title} onConfirm={() => void handleDelete()} onCancel={() => setConfirmDelete(false)} deleting={deleting} />
       <div className="idea-item__main">
         <strong>{idea.title}</strong>
-        {idea.status !== "CAPTURED" && <span className="page-badge">{idea.status}</span>}
+        {idea.status !== "CAPTURED" && <span className="page-badge">{statusLabels[idea.status] ?? idea.status}</span>}
         {idea.tags.length > 0 && <span className="page-tags">{idea.tags.join(", ")}</span>}
       </div>
-      <button className="idea-item__btn-delete" onClick={() => setConfirmDelete(true)} title="Eliminar"><span className="material-symbols-outlined">delete</span></button>
-      <button className="idea-item__edit-btn" onClick={() => setEditing(true)} title="Editar">✎</button>
+      <button className="idea-item__btn-delete" onClick={() => setConfirmDelete(true)} title={t("app.common.delete")}><span className="material-symbols-outlined">delete</span></button>
+      <button className="idea-item__edit-btn" onClick={() => setEditing(true)} title={t("app.common.edit")}>✎</button>
     </li>
   );
-}
-
-// ─── Main view ────────────────────────────────────────────────────────────────
+};
 
 const IdeasView = (): ReactNode  => {
+  const t = useTranslations();
   const [ideas, setIdeas] = useState<IdeaSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -181,6 +193,14 @@ const IdeasView = (): ReactNode  => {
   const [filterStatus, setFilterStatus] = useState<IdeaStatus | "ALL">("ALL");
   const [page, setPage] = useState(1);
 
+  const statusOptions = useMemo(() => ([
+    { value: "ALL", label: t("app.ideas.filter.allStatuses") },
+    { value: "CAPTURED", label: t("app.ideas.filter.captured") },
+    { value: "REVIEWING", label: t("app.ideas.filter.reviewing") },
+    { value: "PROMOTED", label: t("app.ideas.filter.promoted") },
+    { value: "ARCHIVED", label: t("app.ideas.filter.archived") },
+  ]), [t]);
+
   const fetchIdeas = useCallback(async () => {
     setLoading(true);
     try {
@@ -188,20 +208,40 @@ const IdeasView = (): ReactNode  => {
       const body = (await res.json()) as { data: IdeaSummary[]; total: number };
       setIdeas(body.data);
       setTotal(body.total);
+      setError(null);
     } catch {
-      setError("Error al cargar ideas");
+      setError(t("app.ideas.error.load"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
-    let cancelled = false;
-    fetchIdeas() // eslint-disable-line react-hooks/set-state-in-effect
-      .catch(() => { /* handled inside fetchIdeas */ })
-      .finally(() => { if (cancelled) return; });
-    return () => { cancelled = true; };
-  }, [fetchIdeas]);
+    let isMounted = true;
+
+    const loadIdeas = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/ideas/api");
+        const body = (await res.json()) as { data: IdeaSummary[]; total: number };
+        if (!isMounted) return;
+        setIdeas(body.data);
+        setTotal(body.total);
+        setError(null);
+      } catch {
+        if (!isMounted) return;
+        setError(t("app.ideas.error.load"));
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    void loadIdeas();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [t]);
 
   if (loading) return null;
   if (error) return <p className="page-error">{error}</p>;
@@ -214,56 +254,28 @@ const IdeasView = (): ReactNode  => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Ideas <span className="count">({total})</span></h1>
-        <button className="page-add-btn" onClick={() => setShowForm(!showForm)}>{showForm ? "✕" : "+ Nueva idea"}</button>
+        <h1>{t("app.ideas.title")} <span className="count">({total})</span></h1>
+        <button className="page-add-btn" onClick={() => setShowForm(!showForm)}>{showForm ? "✕" : t("app.ideas.action.new")}</button>
       </div>
-      {showForm && (
-        <IdeaCreateForm
-          onCreated={() => { setShowForm(false); void fetchIdeas(); }}
-          onCancel={() => setShowForm(false)}
-        />
-      )}
+      {showForm && <IdeaCreateForm onCreated={() => { setShowForm(false); void fetchIdeas(); }} onCancel={() => setShowForm(false)} />}
       <div className="filter-bar">
-        <input
-          className="filter-bar__search"
-          type="search"
-          placeholder="Buscar ideas..."
-          value={searchQuery}
-          onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-        />
-        <select
-          className="filter-bar__select"
-          value={filterStatus}
-          onChange={(e) => { setFilterStatus(e.target.value as IdeaStatus | "ALL"); setPage(1); }}
-        >
-          <option value="ALL">Todos los estados</option>
-          <option value="CAPTURED">Capturadas</option>
-          <option value="REVIEWING">En revisión</option>
-          <option value="PROMOTED">Promovidas</option>
-          <option value="ARCHIVED">Archivadas</option>
+        <input className="filter-bar__search" type="search" placeholder={t("app.ideas.searchPlaceholder")} value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }} />
+        <select className="filter-bar__select" value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value as IdeaStatus | "ALL"); setPage(1); }}>
+          {statusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
-        {hasFilters && (
-          <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterStatus("ALL"); setPage(1); }}>
-            Limpiar filtros
-          </button>
-        )}
-        {hasFilters && (
-          <span className="filter-bar__count">{filteredIdeas.length} de {ideas.length}</span>
-        )}
+        {hasFilters && <button className="filter-bar__clear" onClick={() => { setSearchQuery(""); setFilterStatus("ALL"); setPage(1); }}>{t("app.ideas.filter.clear")}</button>}
+        {hasFilters && <span className="filter-bar__count">{t("app.ideas.filter.count", { filtered: filteredIdeas.length, total: ideas.length })}</span>}
       </div>
       {filteredIdeas.length === 0
-        ? <p className="page-empty">{hasFilters ? "No hay ideas que coincidan con los filtros." : "No hay ideas. Haz clic en \"+ Nueva idea\" para capturar algo."}</p>
+        ? <p className="page-empty">{hasFilters ? t("app.ideas.empty.filtered") : t("app.ideas.empty.default")}</p>
         : (
           <ul className="page-list">
-            {paginatedIdeas.map((idea) => (
-              <IdeaListItem key={idea.id} idea={idea} onEdited={() => void fetchIdeas()} onDeleted={() => void fetchIdeas()} />
-            ))}
+            {paginatedIdeas.map((idea) => <IdeaListItem key={idea.id} idea={idea} onEdited={() => void fetchIdeas()} onDeleted={() => void fetchIdeas()} />)}
           </ul>
-        )
-      }
-      <Pagination currentPage={currentPage} totalItems={filteredIdeas.length} pageSize={PAGE_SIZE} itemLabel="ideas" onPageChange={setPage} />
+        )}
+      <Pagination currentPage={currentPage} totalItems={filteredIdeas.length} pageSize={PAGE_SIZE} itemLabel={t("app.ideas.paginationLabel")} onPageChange={setPage} />
     </div>
   );
-}
+};
 
 export default IdeasView;

@@ -9,24 +9,6 @@ import { SidebarVersion } from "./sidebar-version";
 import type { SidebarProps } from "./utils/types";
 import "./sidebar.css";
 
-const NAV_ITEMS = [
-  { id: "home", label: "Dashboard", icon: "grid_view", href: "/" },
-  { id: "mail", label: "Correo", icon: "mark_email_unread", href: ROUTE_PATHS.MAIL_ANALYSIS },
-  { id: "tasks", label: "Tareas", icon: "check_circle", href: ROUTE_PATHS.TASKS },
-  { id: "documents", label: "Documentos", icon: "description", href: ROUTE_PATHS.DOCUMENTS },
-  { id: "invoices", label: "Facturas", icon: "receipt_long", href: ROUTE_PATHS.INVOICES },
-  { id: "finance", label: "Finanzas", icon: "account_balance_wallet", href: ROUTE_PATHS.FINANCE },
-  { id: "home-module", label: "Casa", icon: "home", href: ROUTE_PATHS.HOME },
-  { id: "ideas", label: "Ideas", icon: "lightbulb", href: ROUTE_PATHS.IDEAS },
-  { id: "automations", label: "Automaciones", icon: "smart_toy", href: ROUTE_PATHS.AUTOMATIONS },
-  { id: "integrations", label: "Integraciones", icon: "hub", href: ROUTE_PATHS.INTEGRATIONS },
-];
-
-const BOTTOM_ITEMS = [
-  { id: "audit", label: "Auditoría", icon: "history", href: ROUTE_PATHS.AUDIT },
-  { id: "users", label: "Ajustes", icon: "settings", href: ROUTE_PATHS.USERS },
-];
-
 const Sidebar = ({ versionLabel }: SidebarProps) => {
   const pathname = usePathname();
 
@@ -34,6 +16,24 @@ const Sidebar = ({ versionLabel }: SidebarProps) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href.split("/dashboard")[0]);
   };
+
+  const navItems = [
+    { id: "home", label: "Dashboard", icon: "grid_view", href: "/" },
+    { id: "mail", label: "Correo", icon: "mark_email_unread", href: ROUTE_PATHS.MAIL_ANALYSIS },
+    { id: "tasks", label: "Tareas", icon: "check_circle", href: ROUTE_PATHS.TASKS },
+    { id: "documents", label: "Documentos", icon: "description", href: ROUTE_PATHS.DOCUMENTS },
+    { id: "invoices", label: "Facturas", icon: "receipt_long", href: ROUTE_PATHS.INVOICES },
+    { id: "finance", label: "Finanzas", icon: "account_balance_wallet", href: ROUTE_PATHS.FINANCE },
+    { id: "home-module", label: "Casa", icon: "home", href: ROUTE_PATHS.HOME },
+    { id: "ideas", label: "Ideas", icon: "lightbulb", href: ROUTE_PATHS.IDEAS },
+    { id: "automations", label: "Automaciones", icon: "smart_toy", href: ROUTE_PATHS.AUTOMATIONS },
+    { id: "integrations", label: "Integraciones", icon: "hub", href: ROUTE_PATHS.INTEGRATIONS },
+  ];
+
+  const bottomItems = [
+    { id: "audit", label: "Auditoría", icon: "history", href: ROUTE_PATHS.AUDIT },
+    { id: "users", label: "Ajustes", icon: "settings", href: ROUTE_PATHS.USERS },
+  ];
 
   return (
     <nav className="sidebar" aria-label="Navegación principal">
@@ -43,7 +43,7 @@ const Sidebar = ({ versionLabel }: SidebarProps) => {
       </div>
 
       <ul className="sidebar__nav" role="list">
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <li key={item.id}>
             <Link
               href={item.href}
@@ -59,7 +59,7 @@ const Sidebar = ({ versionLabel }: SidebarProps) => {
       </ul>
 
       <ul className="sidebar__bottom" role="list">
-        {BOTTOM_ITEMS.map((item) => (
+        {bottomItems.map((item) => (
           <li key={item.id}>
             <Link
               href={item.href}

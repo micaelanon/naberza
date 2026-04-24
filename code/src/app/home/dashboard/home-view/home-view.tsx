@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+
 import { Pagination } from "@/components/ui";
 import type { HomeEventSummary } from "@/modules/home";
 
@@ -39,10 +41,7 @@ const HomeLiveList = ({ items, empty }: HomeLiveListProps): ReactNode  => {
   return (
     <ul className="home-live-list">
       {items.map((item) => (
-        <li
-          key={item.entityId}
-          className={`home-live-list__item ${item.attention ? "home-live-list__item--attention" : ""}`}
-        >
+        <li key={item.entityId} className={`home-live-list__item ${item.attention ? "home-live-list__item--attention" : ""}`}>
           <div>
             <div className="home-live-list__title">{item.name}</div>
             <div className="home-live-list__meta">{item.entityId}</div>
@@ -56,7 +55,7 @@ const HomeLiveList = ({ items, empty }: HomeLiveListProps): ReactNode  => {
       ))}
     </ul>
   );
-}
+};
 
 function createInitialLive(): HomeLiveResponse {
   return {
@@ -92,40 +91,44 @@ async function fetchHomeViewPayload(): Promise<HomeViewPayload> {
   };
 }
 
-function getLiveStatus(live: HomeLiveResponse): HomeLiveStatus {
-  if (!live.configured) return { className: "home-page__pill--warn", text: "Sin configurar" };
-  if (live.connected) return { className: "home-page__pill--ok", text: "Conectado" };
-  return { className: "home-page__pill--error", text: "Error de conexión" };
+function getLiveStatus(live: HomeLiveResponse, t: ReturnType<typeof useTranslations>): HomeLiveStatus {
+  if (!live.configured) return { className: "home-page__pill--warn", text: t("app.common.notConfigured") };
+  if (live.connected) return { className: "home-page__pill--ok", text: t("app.home.connected") };
+  return { className: "home-page__pill--error", text: t("app.home.connectionError") };
 }
 
 const HomeSummaryCards = ({ live, total }: HomeSummaryCardsProps): ReactNode  => {
+  const t = useTranslations();
+
   return (
     <section className="home-page__cards">
       <article className="home-page__card">
-        <h2>Atención ahora</h2>
+        <h2>{t("app.home.attentionNow")}</h2>
         <p>{live.overview.attentionItems.length}</p>
-        <p className="home-page__muted">Elementos de acceso o sensores con estado que conviene revisar.</p>
+        <p className="home-page__muted">{t("app.homeCards.attention")}</p>
       </article>
       <article className="home-page__card">
-        <h2>Cerraduras</h2>
+        <h2>{t("app.home.locks")}</h2>
         <p>{live.overview.locks.length}</p>
-        <p className="home-page__muted">Incluye Nuki, Fermax u otras entidades del dominio `lock`.</p>
+        <p className="home-page__muted">{t("app.homeCards.locks")}</p>
       </article>
       <article className="home-page__card">
-        <h2>Puntos de acceso</h2>
+        <h2>{t("app.home.accessPoints")}</h2>
         <p>{live.overview.accessPoints.length}</p>
-        <p className="home-page__muted">Puertas, aperturas, conectividad y sensores binarios relevantes.</p>
+        <p className="home-page__muted">{t("app.homeCards.accessPoints")}</p>
       </article>
       <article className="home-page__card">
-        <h2>Eventos pendientes</h2>
+        <h2>{t("app.home.eventsPending")}</h2>
         <p>{total}</p>
-        <p className="home-page__muted">Historial interno de eventos de Home aún sin reconocer.</p>
+        <p className="home-page__muted">{t("app.homeCards.events")}</p>
       </article>
     </section>
   );
-}
+};
 
 const HomeLiveSection = ({ title, subtitle, count, items, empty }: HomeLiveSectionProps): ReactNode  => {
+  const t = useTranslations();
+
   return (
     <section className="home-page__section">
       <div className="home-page__section-header">
@@ -133,27 +136,28 @@ const HomeLiveSection = ({ title, subtitle, count, items, empty }: HomeLiveSecti
           <h2>{title}</h2>
           <p className="home-page__muted">{subtitle}</p>
         </div>
-        <span className="home-page__muted">{count} elementos</span>
+        <span className="home-page__muted">{t("app.home.sectionCount", { count })}</span>
       </div>
       <HomeLiveList items={items} empty={empty} />
     </section>
   );
-}
+};
 
 const HomeEventsSection = ({ events, total, page, onPageChange }: HomeEventsSectionProps): ReactNode  => {
+  const t = useTranslations();
   const paginatedEvents = events.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <section className="home-page__section">
       <div className="home-page__section-header">
         <div>
-          <h2>Eventos pendientes</h2>
-          <p className="home-page__muted">Persistencia interna de eventos del módulo Home.</p>
+          <h2>{t("app.home.eventsPending")}</h2>
+          <p className="home-page__muted">{t("app.home.eventsPendingMeta")}</p>
         </div>
-        <span className="home-page__muted">{total} pendientes</span>
+        <span className="home-page__muted">{t("app.home.eventsPendingTotal", { count: total })}</span>
       </div>
       {events.length === 0 ? (
-        <p className="page-empty">No hay eventos pendientes.</p>
+        <p className="page-empty">{t("app.home.eventsPendingEmpty")}</p>
       ) : (
         <>
           <ul className="home-event-list">
@@ -164,26 +168,21 @@ const HomeEventsSection = ({ events, total, page, onPageChange }: HomeEventsSect
                   <div className="home-page__muted">{evt.eventType}</div>
                 </div>
                 <div>
-                  <span className="home-event-item__state">{evt.state ?? "Sin estado"}</span>
+                  <span className="home-event-item__state">{evt.state ?? t("app.home.noState")}</span>
                   <div className="home-event-item__severity">{evt.severity}</div>
                 </div>
               </li>
             ))}
           </ul>
-          <Pagination
-            currentPage={page}
-            totalItems={events.length}
-            pageSize={PAGE_SIZE}
-            itemLabel="eventos"
-            onPageChange={onPageChange}
-          />
+          <Pagination currentPage={page} totalItems={events.length} pageSize={PAGE_SIZE} itemLabel={t("app.home.paginationLabel")} onPageChange={onPageChange} />
         </>
       )}
     </section>
   );
-}
+};
 
 function useHomeViewData(): UseHomeViewDataResult {
+  const t = useTranslations();
   const [events, setEvents] = useState<HomeEventSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -206,7 +205,7 @@ function useHomeViewData(): UseHomeViewDataResult {
         setError(null);
       } catch (err) {
         if (!active) return;
-        setError(err instanceof Error ? err.message : "Error al cargar Home");
+        setError(err instanceof Error ? err.message : t("app.home.error.load"));
       } finally {
         if (active) setLoading(false);
       }
@@ -217,7 +216,7 @@ function useHomeViewData(): UseHomeViewDataResult {
     return () => {
       active = false;
     };
-  }, []);
+  }, [t]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -228,18 +227,19 @@ function useHomeViewData(): UseHomeViewDataResult {
       setLive(payload.live);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar Home");
+      setError(err instanceof Error ? err.message : t("app.home.error.load"));
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   return { events, total, loading, refreshing, error, page, setPage, live, handleRefresh };
 }
 
 const HomeView = (): ReactNode  => {
+  const t = useTranslations();
   const { events, total, loading, refreshing, error, page, setPage, live, handleRefresh } = useHomeViewData();
-  const liveStatus = getLiveStatus(live);
+  const liveStatus = useMemo(() => getLiveStatus(live, t), [live, t]);
 
   if (loading) return null;
   if (error) return <p className="page-error">{error}</p>;
@@ -248,15 +248,13 @@ const HomeView = (): ReactNode  => {
     <div className="page-container home-page">
       <header className="home-page__header">
         <div>
-          <h1>Home</h1>
-          <p className="home-page__subtitle">
-            Vista viva de accesos y señales relevantes desde Home Assistant, más el historial interno de eventos.
-          </p>
+          <h1>{t("app.home.title")}</h1>
+          <p className="home-page__subtitle">{t("app.home.subtitle")}</p>
         </div>
         <div className="home-page__actions">
           <span className={`home-page__pill ${liveStatus.className}`}>{liveStatus.text}</span>
-          <button className="home-page__refresh" onClick={handleRefresh} disabled={refreshing}>
-            {refreshing ? "Actualizando..." : "Actualizar"}
+          <button className="home-page__refresh" onClick={() => void handleRefresh()} disabled={refreshing}>
+            {refreshing ? t("app.home.refreshing") : t("app.home.refresh")}
           </button>
         </div>
       </header>
@@ -265,55 +263,53 @@ const HomeView = (): ReactNode  => {
 
       {!live.configured && (
         <section className="home-page__section">
-          <h2>Home Assistant no está configurado en Naberza</h2>
-          <p className="home-page__muted">
-            Faltan `HOME_ASSISTANT_URL` y/o `HOME_ASSISTANT_TOKEN`. La guía sigue disponible en Integraciones.
-          </p>
+          <h2>{t("app.home.configMissingTitle")}</h2>
+          <p className="home-page__muted">{t("app.home.configMissingBody")}</p>
         </section>
       )}
 
       {live.configured && !live.connected && (
         <section className="home-page__section">
-          <h2>No se pudo consultar Home Assistant</h2>
-          <p className="home-page__muted">{live.error ?? "Revisa URL, token o conectividad."}</p>
+          <h2>{t("app.home.liveErrorTitle")}</h2>
+          <p className="home-page__muted">{live.error ?? t("app.home.liveErrorBody")}</p>
         </section>
       )}
 
       <HomeLiveSection
-        title="Atención inmediata"
-        subtitle="Lo más delicado primero: cierres abiertos, desconexiones o alertas activas."
+        title={t("app.home.attentionImmediate")}
+        subtitle={t("app.home.urgentSubtitle")}
         count={live.overview.attentionItems.length}
         items={live.overview.attentionItems}
-        empty="No hay nada urgente ahora mismo."
+        empty={t("app.home.urgentEmpty")}
       />
 
       <HomeLiveSection
-        title="Cerraduras y accesos"
-        subtitle="Estados vivos de cerraduras detectadas en Home Assistant."
+        title={t("app.home.locksAndAccess")}
+        subtitle={t("app.homeLocks.subtitle")}
         count={live.overview.locks.length}
         items={live.overview.locks}
-        empty="No se detectaron cerraduras en Home Assistant."
+        empty={t("app.homeLocks.empty")}
       />
 
       <HomeLiveSection
-        title="Sensores de acceso relevantes"
-        subtitle="Puertas, conectividad y sensores binarios que suelen importar para el día a día."
+        title={t("app.home.accessRelevant")}
+        subtitle={t("app.homeAccess.subtitle")}
         count={live.overview.accessPoints.length}
         items={live.overview.accessPoints}
-        empty="No hay sensores binarios relevantes detectados."
+        empty={t("app.homeAccess.empty")}
       />
 
       <HomeLiveSection
-        title="Señales útiles"
-        subtitle="Batería, señal y otros sensores que ayudan a detectar problemas antes de que molesten."
+        title={t("app.home.signalsUseful")}
+        subtitle={t("app.home.usefulSignalsSubtitle")}
         count={live.overview.sensors.length}
         items={live.overview.sensors}
-        empty="No hay sensores útiles destacados ahora mismo."
+        empty={t("app.home.usefulSignalsEmpty")}
       />
 
       <HomeEventsSection events={events} total={total} page={page} onPageChange={setPage} />
     </div>
   );
-}
+};
 
 export default HomeView;

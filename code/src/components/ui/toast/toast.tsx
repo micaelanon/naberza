@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import type { Toast, ToastContextValue, ToastKind } from "./utils/types";
 import "./toast.css";
@@ -29,6 +30,7 @@ const ICONS: Record<ToastKind, string> = {
 };
 
 const ToastItem = ({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }): ReactNode  => {
+  const t = useTranslations();
   const [exiting, setExiting] = useState(false);
 
   const dismiss = useCallback(() => {
@@ -45,7 +47,7 @@ const ToastItem = ({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
     <div className={`toast toast--${toast.kind}${exiting ? " toast--exit" : ""}`} role="status" aria-live="polite">
       <span className="material-symbols-outlined toast__icon">{ICONS[toast.kind]}</span>
       <span className="toast__message">{toast.message}</span>
-      <button className="toast__close" onClick={dismiss} aria-label="Cerrar">✕</button>
+      <button className="toast__close" onClick={dismiss} aria-label={t("app.toast.close")}>✕</button>
     </div>
   );
 }
@@ -70,7 +72,7 @@ export function ToastProvider({ children }: { children: ReactNode }): ReactNode 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="toast-container" aria-label="Notificaciones">
+      <div className="toast-container" aria-label="Notifications">
         {toasts.map((t) => (
           <ToastItem key={t.id} toast={t} onDismiss={dismiss} />
         ))}

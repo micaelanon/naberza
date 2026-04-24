@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import ClientProviders from "./_providers/client-providers";
 import "@/app/globals.css";
 
@@ -21,11 +23,13 @@ export const metadata: Metadata = {
   },
 };
 
-const RootLayout = ({
+const RootLayout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) => {
+}>): Promise<React.JSX.Element> => {
+  const messages = await getMessages();
+
   return (
     <html lang="es" className={inter.variable}>
       <head>
@@ -37,7 +41,11 @@ const RootLayout = ({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
       </head>
-      <body><ClientProviders>{children}</ClientProviders></body>
+      <body>
+        <NextIntlClientProvider messages={messages}>
+          <ClientProviders>{children}</ClientProviders>
+        </NextIntlClientProvider>
+      </body>
     </html>
   );
 };
