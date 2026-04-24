@@ -56,7 +56,7 @@ const InboxCreateForm = ({ onCreated, onCancel }: InboxCreateFormProps): ReactNo
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) { setError("El título es obligatorio"); return; }
     void submit(async () => {
@@ -69,7 +69,7 @@ const InboxCreateForm = ({ onCreated, onCancel }: InboxCreateFormProps): ReactNo
       setTitle(""); setBody(""); setPriority("NONE");
       onCreated();
     });
-  };
+  }, [body, onCreated, priority, setError, submit, title]);
 
   return (
     <form className="inbox-form" onSubmit={handleSubmit}>
@@ -105,7 +105,7 @@ const InboxEditForm = ({ item, onSaved, onCancel }: InboxEditFormProps): ReactNo
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) { setError("El título es obligatorio"); return; }
     void submit(async () => {
@@ -125,7 +125,7 @@ const InboxEditForm = ({ item, onSaved, onCancel }: InboxEditFormProps): ReactNo
       }
       onSaved();
     });
-  };
+  }, [body, classification, item.id, onSaved, priority, setError, submit, title]);
 
   return (
     <form className="inbox-form inbox-form--edit" onSubmit={handleSubmit}>
@@ -167,7 +167,7 @@ const InboxListItem = ({ item, onDismiss, onEdited, onDeleted }: InboxListItemPr
   const [deleting, setDeleting] = useState(false);
   const { showToast } = useToast();
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     setDeleting(true);
     try {
       await fetch(`/inbox/api/${item.id}`, { method: "DELETE" });
@@ -179,7 +179,7 @@ const InboxListItem = ({ item, onDismiss, onEdited, onDeleted }: InboxListItemPr
     } finally {
       setDeleting(false);
     }
-  };
+  }, [item.id, onDeleted, showToast]);
 
   if (editing) {
     return (
@@ -277,10 +277,10 @@ const InboxView = (): ReactNode  => {
     return () => { cancelled = true; };
   }, [activeTab, fetchItems]);
 
-  const handleDismiss = async (id: string) => {
+  const handleDismiss = useCallback(async (id: string) => {
     const response = await fetch(`/inbox/api/${id}/dismiss`, { method: "POST" });
     if (response.ok) void fetchItems(activeTab);
-  };
+  }, [activeTab, fetchItems]);
 
   const filteredItems = filterInboxItems(items, searchQuery, filterPriority);
   const hasFilters = searchQuery.trim() !== "" || filterPriority !== "ALL";

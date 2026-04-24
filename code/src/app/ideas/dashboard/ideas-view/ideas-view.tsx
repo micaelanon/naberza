@@ -35,7 +35,7 @@ const IdeaCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onCanc
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) { setError("El título es obligatorio"); return; }
     void submit(async () => {
@@ -52,7 +52,7 @@ const IdeaCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onCanc
       setTitle(""); setBody(""); setTags("");
       onCreated();
     });
-  };
+  }, [body, onCreated, setError, submit, tags, title]);
 
   return (
     <form className="idea-form" onSubmit={handleSubmit}>
@@ -81,7 +81,7 @@ const IdeaEditForm = ({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved:
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) { setError("El título es obligatorio"); return; }
     void submit(async () => {
@@ -101,7 +101,7 @@ const IdeaEditForm = ({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved:
       }
       onSaved();
     });
-  };
+  }, [body, idea.id, onSaved, setError, status, submit, tags, title]);
 
   return (
     <form className="idea-form idea-form--edit" onSubmit={handleSubmit}>
@@ -133,7 +133,7 @@ const IdeaListItem = ({ idea, onEdited, onDeleted }: { idea: IdeaSummary; onEdit
   const [deleting, setDeleting] = useState(false);
   const { showToast } = useToast();
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     setDeleting(true);
     try {
       await fetch(`/ideas/api/${idea.id}`, { method: "DELETE" });
@@ -145,7 +145,7 @@ const IdeaListItem = ({ idea, onEdited, onDeleted }: { idea: IdeaSummary; onEdit
     } finally {
       setDeleting(false);
     }
-  };
+  }, [idea.id, onDeleted, showToast]);
 
   if (editing) {
     return (

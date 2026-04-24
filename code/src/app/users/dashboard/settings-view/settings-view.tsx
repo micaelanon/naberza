@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui";
 import type { ReactNode } from "react";
@@ -28,22 +28,22 @@ const Section = ({ title, children }: SettingsSectionProps): ReactNode  => {
       <div className="settings-section__body">{children}</div>
     </div>
   );
-}
+};
 
 const SettingsView = (): ReactNode  => {
   const { data: session } = useSession();
   const { showToast } = useToast();
   const [theme, setTheme] = useState<Theme>("system");
 
-  const handleThemeChange = (next: Theme) => {
+  const handleThemeChange = useCallback((next: Theme) => {
     setTheme(next);
     showToast(`Tema cambiado a ${THEME_TOAST[next]}`);
-  };
+  }, [showToast]);
 
-  const handleCopyVersion = async () => {
+  const handleCopyVersion = useCallback(async () => {
     await navigator.clipboard.writeText(APP_VERSION);
     showToast("Versión copiada");
-  };
+  }, [showToast]);
 
   return (
     <div className="page-container settings-page">
@@ -106,6 +106,6 @@ const SettingsView = (): ReactNode  => {
       </Section>
     </div>
   );
-}
+};
 
 export default SettingsView;

@@ -35,7 +35,7 @@ const InvoiceCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onC
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!issuer.trim() || !amount) { setError("Emisor y importe son obligatorios"); return; }
     void submit(async () => {
@@ -55,7 +55,7 @@ const InvoiceCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onC
       setIssuer(""); setAmount(""); setDueDate(""); setCategory(""); setNotes("");
       onCreated();
     });
-  };
+  }, [amount, category, dueDate, issueDate, issuer, notes, onCreated, setError, submit]);
 
   return (
     <form className="invoice-form" onSubmit={handleSubmit}>
@@ -97,7 +97,7 @@ const InvoiceEditForm = ({ invoice, onSaved, onCancel }: {
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!issuer.trim() || !amount) { setError("Emisor y importe son obligatorios"); return; }
     void submit(async () => {
@@ -119,7 +119,7 @@ const InvoiceEditForm = ({ invoice, onSaved, onCancel }: {
       }
       onSaved();
     });
-  };
+  }, [amount, category, dueDate, invoice.id, issueDate, issuer, onSaved, setError, status, submit]);
 
   return (
     <form className="invoice-form" onSubmit={handleSubmit}>
@@ -160,7 +160,7 @@ const InvoiceListItem = ({ invoice, onEdited, onPaid, onDeleted }: {
   const [deleting, setDeleting] = useState(false);
   const { showToast } = useToast();
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     setDeleting(true);
     try {
       await fetch(`/invoices/api/${invoice.id}`, { method: "DELETE" });
@@ -172,7 +172,7 @@ const InvoiceListItem = ({ invoice, onEdited, onPaid, onDeleted }: {
     } finally {
       setDeleting(false);
     }
-  };
+  }, [invoice.id, onDeleted, showToast]);
 
   if (editing) {
     return (
@@ -240,10 +240,10 @@ const InvoicesView = (): ReactNode  => {
     return () => { cancelled = true; };
   }, [fetchInvoices]);
 
-  const handlePaid = async (id: string) => {
+  const handlePaid = useCallback(async (id: string) => {
     const res = await fetch(`/invoices/api/${id}/pay`, { method: "POST" });
     if (res.ok) void fetchInvoices();
-  };
+  }, [fetchInvoices]);
 
   if (loading) return null;
   if (error) return <p className="page-error">{error}</p>;
