@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Pagination } from "@/components/ui";
 import type { HomeEventSummary } from "@/modules/home";
@@ -219,7 +219,7 @@ function useHomeViewData(): UseHomeViewDataResult {
     };
   }, []);
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
       const payload = await fetchHomeViewPayload();
@@ -232,7 +232,7 @@ function useHomeViewData(): UseHomeViewDataResult {
     } finally {
       setRefreshing(false);
     }
-  };
+  }, []);
 
   return { events, total, loading, refreshing, error, page, setPage, live, handleRefresh };
 }

@@ -41,7 +41,7 @@ const FinanceCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onC
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!amount) { setError("El importe es obligatorio"); return; }
     void submit(async () => {
@@ -62,7 +62,7 @@ const FinanceCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onC
       setCategory("");
       onCreated();
     });
-  };
+  }, [amount, category, date, description, onCreated, setError, submit, type]);
 
   return (
     <form className="finance-form" onSubmit={(e) => void handleSubmit(e)}>
@@ -105,7 +105,7 @@ const FinanceEditForm = ({ entry, onSaved, onCancel }: {
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!amount) { setError("El importe es obligatorio"); return; }
     void submit(async () => {
@@ -126,7 +126,7 @@ const FinanceEditForm = ({ entry, onSaved, onCancel }: {
       }
       onSaved();
     });
-  };
+  }, [amount, category, date, description, entry.id, onSaved, setError, submit, type]);
 
   return (
     <form className="finance-form" onSubmit={(e) => void handleSubmit(e)}>
@@ -159,7 +159,7 @@ const FinanceEntryItem = ({ entry, onEdited, onDeleted }: { entry: FinanceEntryS
   const [deleting, setDeleting] = useState(false);
   const { showToast } = useToast();
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     setDeleting(true);
     try {
       await fetch(`/finance/api/${entry.id}`, { method: "DELETE" });
@@ -171,7 +171,7 @@ const FinanceEntryItem = ({ entry, onEdited, onDeleted }: { entry: FinanceEntryS
     } finally {
       setDeleting(false);
     }
-  };
+  }, [entry.id, onDeleted, showToast]);
 
   if (editing) {
     return (

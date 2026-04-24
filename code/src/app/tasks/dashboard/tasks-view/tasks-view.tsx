@@ -134,7 +134,7 @@ const TaskCreateForm = ({ onCreated, onCancel }: TaskCreateFormProps): ReactNode
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) { setError("El título es obligatorio"); return; }
     void submit(async () => {
@@ -157,7 +157,7 @@ const TaskCreateForm = ({ onCreated, onCancel }: TaskCreateFormProps): ReactNode
       setForm(EMPTY_FORM);
       onCreated();
     });
-  };
+  }, [form, onCreated, setError, submit]);
 
   return (
     <form className="task-form" onSubmit={handleSubmit}>
@@ -183,7 +183,7 @@ const TaskEditForm = ({ task, onSaved, onCancel }: TaskEditFormProps): ReactNode
     onError: (m) => showToast(m, "error"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) { setError("El título es obligatorio"); return; }
     void submit(async () => {
@@ -205,7 +205,7 @@ const TaskEditForm = ({ task, onSaved, onCancel }: TaskEditFormProps): ReactNode
       }
       onSaved();
     });
-  };
+  }, [form, onSaved, setError, submit, task.id]);
 
   return (
     <form className="task-form task-form--edit" onSubmit={handleSubmit}>
@@ -256,7 +256,7 @@ const TaskListItem = ({ task, onComplete, onCancel, onEdited, onDeleted }: TaskL
   const { showToast } = useToast();
   const isActive = task.status === "PENDING" || task.status === "IN_PROGRESS";
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     setDeleting(true);
     try {
       await fetch(`/tasks/api/${task.id}`, { method: "DELETE" });
@@ -268,7 +268,7 @@ const TaskListItem = ({ task, onComplete, onCancel, onEdited, onDeleted }: TaskL
     } finally {
       setDeleting(false);
     }
-  };
+  }, [onDeleted, showToast, task.id]);
 
   if (editing) {
     return (
@@ -376,15 +376,15 @@ const TasksView = (): ReactNode  => {
     return () => { cancelled = true; };
   }, [activeTab, fetchTasks]);
 
-  const handleComplete = async (id: string) => {
+  const handleComplete = useCallback(async (id: string) => {
     const response = await fetch(`/tasks/api/${id}/complete`, { method: "POST" });
     if (response.ok) void fetchTasks(activeTab);
-  };
+  }, [activeTab, fetchTasks]);
 
-  const handleCancel = async (id: string) => {
+  const handleCancel = useCallback(async (id: string) => {
     const response = await fetch(`/tasks/api/${id}/cancel`, { method: "POST" });
     if (response.ok) void fetchTasks(activeTab);
-  };
+  }, [activeTab, fetchTasks]);
 
   const filteredTasks = filterTasks(tasks, searchQuery, filterPriority);
   const hasFilters = searchQuery.trim() !== "" || filterPriority !== "ALL";

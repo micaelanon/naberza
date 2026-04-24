@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { ConfirmDeleteModalProps } from "./utils/types";
 import "./confirm-delete-modal.css";
@@ -12,14 +12,15 @@ const ConfirmDeleteModal = ({
   onCancel,
   deleting = false,
 }: ConfirmDeleteModalProps): ReactNode  => {
+  const handleKey = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") onCancel();
+  }, [onCancel]);
+
   useEffect(() => {
     if (!isOpen) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCancel();
-    };
     document.addEventListener("keydown", handleKey);
     return () => { document.removeEventListener("keydown", handleKey); };
-  }, [isOpen, onCancel]);
+  }, [handleKey, isOpen]);
 
   if (!isOpen) return null;
 
@@ -43,6 +44,6 @@ const ConfirmDeleteModal = ({
       </div>
     </div>
   );
-}
+};
 
 export default ConfirmDeleteModal;
