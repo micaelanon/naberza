@@ -2,6 +2,8 @@
  * Health check service — probes database and optional external dependencies.
  */
 
+import { HEALTH_STATUS } from "@/lib/constants";
+
 import type { DependencyHealth, HealthReport, HealthStatus } from "./health.types";
 
 const startTime = Date.now();
@@ -12,11 +14,11 @@ async function checkDatabase(): Promise<DependencyHealth> {
     // Lazy import to avoid initializing Prisma at module load in test env
     const { prisma } = await import("@/lib/db");
     await prisma.$queryRaw`SELECT 1`;
-    return { name: "database", status: "ok", latencyMs: Date.now() - start };
+    return { name: "database", status: HEALTH_STATUS.OK, latencyMs: Date.now() - start };
   } catch (error) {
     return {
       name: "database",
-      status: "error",
+      status: HEALTH_STATUS.ERROR,
       latencyMs: Date.now() - start,
       detail: error instanceof Error ? error.message : "unknown error",
     };
@@ -26,17 +28,17 @@ async function checkDatabase(): Promise<DependencyHealth> {
 function checkEnvFlag(name: string, envVar: string | undefined): DependencyHealth {
   return {
     name,
-    status: envVar ? "ok" : "degraded",
+    status: envVar ? HEALTH_STATUS.OK : HEALTH_STATUS.DEGRADED,
     detail: envVar ? undefined : `${name.toUpperCase()} env var not configured`,
   };
 }
 
 function deriveOverallStatus(dependencies: DependencyHealth[]): HealthStatus {
-  const hasError = dependencies.some((d) => d.status === "error");
-  const hasDegraded = dependencies.some((d) => d.status === "degraded");
-  if (hasError) return "error";
-  if (hasDegraded) return "degraded";
-  return "ok";
+  const hasError = dependencies.some((d) => d.status === HEALTH_STATUS.ERROR);
+  const hasDegraded = dependencies.some((d) => d.status === HEALTH_STATUS.DEGRADED);
+  if (hasError) return HEALTH_STATUS.ERROR;
+  if (hasDegraded) return HEALTH_STATUS.DEGRADED;
+  return HEALTH_STATUS.OK;
 }
 
 export async function buildHealthReport(version: string): Promise<HealthReport> {

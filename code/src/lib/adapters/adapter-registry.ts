@@ -1,5 +1,6 @@
-import { eventBus } from "@/lib/events";
 import { auditService } from "@/lib/audit";
+import { AUDIT_STATUS, CONNECTION_STATUS } from "@/lib/constants";
+import { eventBus } from "@/lib/events";
 
 import type { BaseAdapter, ConnectionConfig, ConnectionType, HealthCheckResult } from "./adapter-types";
 import { AdapterError } from "./adapter-types";
@@ -39,7 +40,7 @@ class AdapterRegistry {
       entityType: "SourceConnection",
       entityId: config.id,
       actor: "system",
-      status: "success",
+      status: AUDIT_STATUS.SUCCESS,
       output: { name: config.name, type: config.type },
     });
 
@@ -71,7 +72,7 @@ class AdapterRegistry {
       entityType: "SourceConnection",
       entityId: connectionId,
       actor: "system",
-      status: "success",
+      status: AUDIT_STATUS.SUCCESS,
     });
 
     await eventBus.emit("integration.disconnected", {
@@ -97,7 +98,7 @@ class AdapterRegistry {
   getByType<T extends BaseAdapter>(type: ConnectionType): T[] {
     const matches: T[] = [];
     for (const registered of this.adapters.values()) {
-      if (registered.config.type === type && registered.config.status === "active") {
+      if (registered.config.type === type && registered.config.status === CONNECTION_STATUS.ACTIVE) {
         matches.push(registered.adapter as T);
       }
     }
@@ -143,8 +144,8 @@ class AdapterRegistry {
       registered.lastHealth = result;
       registered.config.lastHealthCheck = result.checkedAt;
 
-      if (!result.healthy && registered.config.status === "active") {
-        registered.config.status = "error";
+      if (!result.healthy && registered.config.status === CONNECTION_STATUS.ACTIVE) {
+        registered.config.status = CONNECTION_STATUS.ERROR;
         registered.config.lastError = result.message;
 
         await eventBus.emit("integration.health.degraded", {
@@ -157,8 +158,8 @@ class AdapterRegistry {
           latencyMs: result.latencyMs,
           message: result.message,
         });
-      } else if (result.healthy && registered.config.status === "error") {
-        registered.config.status = "active";
+      } else if (result.healthy && registered.config.status === CONNECTION_STATUS.ERROR) {
+        registered.config.status = CONNECTION_STATUS.ACTIVE;
         registered.config.lastError = undefined;
       }
 
@@ -172,7 +173,7 @@ class AdapterRegistry {
       };
 
       registered.lastHealth = result;
-      registered.config.status = "error";
+      registered.config.status = CONNECTION_STATUS.ERROR;
       registered.config.lastError = result.message;
 
       return result;

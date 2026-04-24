@@ -1,6 +1,8 @@
 import { withAuth } from "next-auth/middleware";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+
+import { ROUTE_PATHS } from "@/lib/constants";
 import { applySecurityHeaders, validateOrigin } from "@/lib/security";
 
 function middleware(request: NextRequest) {
@@ -15,7 +17,7 @@ function middleware(request: NextRequest) {
 
 export default withAuth(middleware, {
   pages: {
-    signIn: "/login",
+    signIn: ROUTE_PATHS.LOGIN,
   },
 });
 

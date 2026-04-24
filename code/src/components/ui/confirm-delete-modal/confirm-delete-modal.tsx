@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+
+import { KEYBOARD_KEYS } from "@/lib/constants";
+
 import type { ReactNode } from "react";
 import type { ConfirmDeleteModalProps } from "./utils/types";
 import "./confirm-delete-modal.css";
@@ -13,7 +16,7 @@ const ConfirmDeleteModal = ({
   deleting = false,
 }: ConfirmDeleteModalProps): ReactNode  => {
   const handleKey = useCallback((e: KeyboardEvent) => {
-    if (e.key === "Escape") onCancel();
+    if (e.key === KEYBOARD_KEYS.ESCAPE) onCancel();
   }, [onCancel]);
 
   useEffect(() => {

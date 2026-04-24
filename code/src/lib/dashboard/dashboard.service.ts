@@ -1,11 +1,12 @@
-import { InboxRepository } from "@/modules/inbox/inbox.repository";
-import { TaskRepository } from "@/modules/tasks/task.repository";
+import { ROUTE_PATHS } from "@/lib/constants";
+import { AutomationRepository } from "@/modules/automations/automation.repository";
 import { DocumentRepository } from "@/modules/documents/document.repository";
-import { InvoiceRepository } from "@/modules/invoices/invoice.repository";
+import { FinanceRepository } from "@/modules/finance/finance.repository";
 import { HomeRepository } from "@/modules/home/home.repository";
 import { IdeasRepository } from "@/modules/ideas/ideas.repository";
-import { AutomationRepository } from "@/modules/automations/automation.repository";
-import { FinanceRepository } from "@/modules/finance/finance.repository";
+import { InboxRepository } from "@/modules/inbox/inbox.repository";
+import { InvoiceRepository } from "@/modules/invoices/invoice.repository";
+import { TaskRepository } from "@/modules/tasks/task.repository";
 import type { DashboardStats, DashboardLayout } from "./dashboard.types";
 
 const inboxRepo = new InboxRepository();
@@ -70,7 +71,7 @@ export function buildDashboardLayout(stats: DashboardStats): DashboardLayout {
       label: "Inbox",
       count: stats.inboxPending,
       icon: "inbox",
-      href: "/inbox/dashboard",
+      href: ROUTE_PATHS.INBOX,
       color: "var(--color-olive)",
     },
     {
@@ -78,7 +79,7 @@ export function buildDashboardLayout(stats: DashboardStats): DashboardLayout {
       label: "Tareas pendientes",
       count: stats.tasksPending,
       icon: "check_circle",
-      href: "/tasks/dashboard",
+      href: ROUTE_PATHS.TASKS,
       color: "var(--color-moss)",
     },
     {
@@ -86,7 +87,7 @@ export function buildDashboardLayout(stats: DashboardStats): DashboardLayout {
       label: "Vencen hoy",
       count: stats.tasksDueToday,
       icon: "today",
-      href: "/tasks/dashboard",
+      href: ROUTE_PATHS.TASKS,
       color: "var(--color-cream)",
     },
     {
@@ -94,7 +95,7 @@ export function buildDashboardLayout(stats: DashboardStats): DashboardLayout {
       label: "Facturas sin pagar",
       count: stats.invoicesUnpaid,
       icon: "receipt_long",
-      href: "/invoices/dashboard",
+      href: ROUTE_PATHS.INVOICES,
       color: "var(--color-olive)",
     },
   ];
@@ -105,42 +106,42 @@ export function buildDashboardLayout(stats: DashboardStats): DashboardLayout {
       label: "Ideas capturadas",
       count: stats.ideasCaptured,
       icon: "lightbulb",
-      href: "/ideas/dashboard",
+      href: ROUTE_PATHS.IDEAS,
     },
     {
       id: "documents",
       label: "Documentos",
       count: stats.documentsTotal,
       icon: "description",
-      href: "/documents/dashboard",
+      href: ROUTE_PATHS.DOCUMENTS,
     },
     {
       id: "approvals",
       label: "Aprobaciones",
       count: stats.approvalsPending,
       icon: "approval",
-      href: "/automations/dashboard",
+      href: ROUTE_PATHS.AUTOMATIONS,
     },
     {
       id: "finance-anomalies",
       label: "Anomalías financieras",
       count: stats.financeAnomalies,
       icon: "warning",
-      href: "/finance/dashboard",
+      href: ROUTE_PATHS.FINANCE,
     },
     {
       id: "home",
       label: "Alertas del hogar",
       count: stats.homeAlerts,
       icon: "home",
-      href: "/home/dashboard",
+      href: ROUTE_PATHS.HOME,
     },
     {
       id: "audit",
       label: "Auditoría",
       count: 0,
       icon: "bar_chart",
-      href: "/audit/dashboard",
+      href: ROUTE_PATHS.AUDIT,
     },
   ];
 

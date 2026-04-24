@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/ui";
+import { ROUTE_PATHS } from "@/lib/constants";
 import { analyzeMailInbox } from "@/lib/mail-analysis/mail-analysis";
 import "../home.css";
 
@@ -11,9 +12,9 @@ const Section = ({ title, empty, children }: { title: string; empty?: string; ch
       {children || (empty ? <p className="page-empty">{empty}</p> : null)}
     </section>
   );
-}
+};
 
-export default async function MailAnalysisPage() {
+const MailAnalysisPage = async () => {
   const analysis = await analyzeMailInbox();
 
   return (
@@ -79,7 +80,7 @@ export default async function MailAnalysisPage() {
           ) : (
             <div className="digest-list">
               {analysis.probableInvoices.map((item) => (
-                <a key={item.id} href="/inbox/dashboard" className="digest-card digest-card--warning">
+                <a key={item.id} href={ROUTE_PATHS.INBOX} className="digest-card digest-card--warning">
                   <div className="digest-card__title">{item.title}</div>
                   <div className="digest-card__detail">Clasificación actual: {item.classification ?? "sin clasificar"}</div>
                 </a>
@@ -94,7 +95,7 @@ export default async function MailAnalysisPage() {
           ) : (
             <div className="digest-list">
               {analysis.reviewQueue.map((item) => (
-                <a key={item.id} href="/inbox/dashboard" className="digest-card digest-card--urgent">
+                <a key={item.id} href={ROUTE_PATHS.INBOX} className="digest-card digest-card--urgent">
                   <div className="digest-card__title">{item.title}</div>
                   <div className="digest-card__detail">Confianza actual: {item.classificationConfidence ?? "—"}</div>
                 </a>
@@ -121,4 +122,6 @@ export default async function MailAnalysisPage() {
       </div>
     </AppShell>
   );
-}
+};
+
+export default MailAnalysisPage;

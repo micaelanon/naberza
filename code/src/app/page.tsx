@@ -1,9 +1,10 @@
 import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/lib/auth";
 import { AppShell } from "@/components/ui";
-import { getDashboardStats } from "@/lib/dashboard";
+import { ROUTE_PATHS } from "@/lib/constants";
+import { authOptions } from "@/lib/auth";
 import { getActionDigest } from "@/lib/dashboard/action-digest";
+import { getDashboardStats } from "@/lib/dashboard";
 import type { DashboardStats } from "@/lib/dashboard/dashboard.types";
 import "./home.css";
 
@@ -70,9 +71,9 @@ const DigestSection = ({
       )}
     </section>
   );
-}
+};
 
-export default async function HomePage() {
+const HomePage = async () => {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -85,7 +86,7 @@ export default async function HomePage() {
           <p className="home-page__description">
             Inbox centralizado, tareas, documentos, automatización del hogar y control financiero.
           </p>
-          <a href="/login" className="home-page__cta">
+          <a href={ROUTE_PATHS.LOGIN} className="home-page__cta">
             Entrar
           </a>
         </div>
@@ -128,4 +129,6 @@ export default async function HomePage() {
       </div>
     </AppShell>
   );
-}
+};
+
+export default HomePage;

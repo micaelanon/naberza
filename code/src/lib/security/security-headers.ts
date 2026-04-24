@@ -8,6 +8,8 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+import { API_PATHS } from "@/lib/constants";
+
 const SECURITY_HEADERS: Record<string, string> = {
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
@@ -48,7 +50,7 @@ export function validateOrigin(request: NextRequest): NextResponse | null {
   if (request.nextUrl.pathname.startsWith("/webhooks/")) return null;
 
   // Skip CSRF check for health endpoint
-  if (request.nextUrl.pathname === "/api/health") return null;
+  if (request.nextUrl.pathname === API_PATHS.HEALTH) return null;
 
   const origin = request.headers.get("origin");
   const host = request.headers.get("host");

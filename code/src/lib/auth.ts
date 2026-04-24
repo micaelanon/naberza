@@ -2,6 +2,8 @@ import NextAuth from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+import { ROUTE_PATHS } from "@/lib/constants";
+
 /**
  * NextAuth configuration for Naberza OS.
  *
@@ -61,8 +63,8 @@ export const authOptions: NextAuthOptions = {
   },
 
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: ROUTE_PATHS.LOGIN,
+    error: ROUTE_PATHS.LOGIN,
   },
 
   callbacks: {

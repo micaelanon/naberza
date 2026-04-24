@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+import { CONNECTION_STATUS } from "@/lib/constants";
 import { HomeAssistantAdapter } from "@/lib/adapters/home-assistant";
 import { env } from "@/lib/env";
 import { buildHomeLiveOverview } from "@/modules/home";
@@ -36,7 +38,7 @@ export async function GET(): Promise<NextResponse<HomeLiveResponse>> {
       id: "ha-live",
       name: "Home Assistant",
       type: "home_assistant",
-      status: "active",
+      status: CONNECTION_STATUS.ACTIVE,
       permissions: { read: true, write: false },
       config: {
         baseUrl: env.homeAssistantUrl,
