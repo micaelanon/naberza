@@ -1,6 +1,6 @@
 import { ImapFlow } from "imapflow";
-import type { BaseAdapter, ConnectionConfig, HealthCheckResult } from "../adapter-types";
-import { AdapterError } from "../adapter-types";
+import type { BaseAdapter, ConnectionConfig, HealthCheckResult } from "@/lib/adapters/adapter-types";
+import { AdapterError } from "@/lib/adapters/adapter-types";
 
 export interface MailImapConfig {
   host: string;

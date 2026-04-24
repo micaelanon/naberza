@@ -1,4 +1,4 @@
-import type { IntegrationStatus } from "../../../api/status/route";
+import type { IntegrationStatus } from "@/app/integrations/api/status/route";
 
 export type TabKey = "local" | "prod";
 

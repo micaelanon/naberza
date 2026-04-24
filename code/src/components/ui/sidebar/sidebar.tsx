@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { ROUTE_PATHS } from "@/lib/constants";
 
@@ -11,6 +12,7 @@ import "./sidebar.css";
 
 const Sidebar = ({ versionLabel }: SidebarProps) => {
   const pathname = usePathname();
+  const t = useTranslations();
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -18,25 +20,25 @@ const Sidebar = ({ versionLabel }: SidebarProps) => {
   };
 
   const navItems = [
-    { id: "home", label: "Dashboard", icon: "grid_view", href: "/" },
-    { id: "mail", label: "Correo", icon: "mark_email_unread", href: ROUTE_PATHS.MAIL_ANALYSIS },
-    { id: "tasks", label: "Tareas", icon: "check_circle", href: ROUTE_PATHS.TASKS },
-    { id: "documents", label: "Documentos", icon: "description", href: ROUTE_PATHS.DOCUMENTS },
-    { id: "invoices", label: "Facturas", icon: "receipt_long", href: ROUTE_PATHS.INVOICES },
-    { id: "finance", label: "Finanzas", icon: "account_balance_wallet", href: ROUTE_PATHS.FINANCE },
-    { id: "home-module", label: "Casa", icon: "home", href: ROUTE_PATHS.HOME },
-    { id: "ideas", label: "Ideas", icon: "lightbulb", href: ROUTE_PATHS.IDEAS },
-    { id: "automations", label: "Automaciones", icon: "smart_toy", href: ROUTE_PATHS.AUTOMATIONS },
-    { id: "integrations", label: "Integraciones", icon: "hub", href: ROUTE_PATHS.INTEGRATIONS },
+    { id: "home", label: t("app.nav.appTitle"), icon: "grid_view", href: "/" },
+    { id: "mail", label: t("app.nav.mail"), icon: "mark_email_unread", href: ROUTE_PATHS.MAIL_ANALYSIS },
+    { id: "tasks", label: t("app.nav.tasks"), icon: "check_circle", href: ROUTE_PATHS.TASKS },
+    { id: "documents", label: t("app.nav.documents"), icon: "description", href: ROUTE_PATHS.DOCUMENTS },
+    { id: "invoices", label: t("app.nav.invoices"), icon: "receipt_long", href: ROUTE_PATHS.INVOICES },
+    { id: "finance", label: t("app.nav.finance"), icon: "account_balance_wallet", href: ROUTE_PATHS.FINANCE },
+    { id: "home-module", label: t("app.nav.home"), icon: "home", href: ROUTE_PATHS.HOME },
+    { id: "ideas", label: t("app.nav.ideas"), icon: "lightbulb", href: ROUTE_PATHS.IDEAS },
+    { id: "automations", label: t("app.nav.automations"), icon: "smart_toy", href: ROUTE_PATHS.AUTOMATIONS },
+    { id: "integrations", label: t("app.nav.integrations"), icon: "hub", href: ROUTE_PATHS.INTEGRATIONS },
   ];
 
   const bottomItems = [
-    { id: "audit", label: "Auditoría", icon: "history", href: ROUTE_PATHS.AUDIT },
-    { id: "users", label: "Ajustes", icon: "settings", href: ROUTE_PATHS.USERS },
+    { id: "audit", label: t("app.nav.audit"), icon: "history", href: ROUTE_PATHS.AUDIT },
+    { id: "users", label: t("app.nav.users"), icon: "settings", href: ROUTE_PATHS.USERS },
   ];
 
   return (
-    <nav className="sidebar" aria-label="Navegación principal">
+    <nav className="sidebar" aria-label={t("app.nav.ariaLabel")}>
       <div className="sidebar__brand">
         <span className="sidebar__brand-icon">⬡</span>
         <span className="sidebar__brand-name">Naberza</span>

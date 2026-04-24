@@ -1,4 +1,4 @@
-import type { SidebarVersionProps } from "../utils/types";
+import type { SidebarVersionProps } from "@/components/ui/sidebar/utils/types";
 
 const SidebarVersion = ({ versionLabel }: SidebarVersionProps) => {
   return (

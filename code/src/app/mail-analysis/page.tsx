@@ -4,7 +4,7 @@ import { AppShell } from "@/components/ui";
 import { ROUTE_PATHS } from "@/lib/constants";
 import { analyzeMailInbox } from "@/lib/mail-analysis/mail-analysis";
 
-import "../home.css";
+import "@/app/home.css";
 
 export const dynamic = "force-dynamic";
 
