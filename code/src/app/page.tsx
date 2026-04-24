@@ -14,7 +14,7 @@ function getGreeting(): string {
   return "Buenas noches";
 }
 
-function StatsBar({ stats }: { stats: DashboardStats }) {
+const StatsBar = ({ stats }: { stats: DashboardStats }) => {
   const items = [
     { label: "inbox pendiente", value: stats.inboxPending, urgent: stats.inboxPending > 10 },
     { label: "tareas", value: stats.tasksPending, urgent: stats.tasksDueToday > 0 },
@@ -41,7 +41,7 @@ function StatsBar({ stats }: { stats: DashboardStats }) {
   );
 }
 
-function DigestSection({
+const DigestSection = ({
   title,
   empty,
   items,
@@ -49,7 +49,7 @@ function DigestSection({
   title: string;
   empty: string;
   items: Array<{ id: string; title: string; detail: string; href: string; tone?: "default" | "warning" | "urgent" }>;
-}) {
+}) => {
   return (
     <section className="digest-section">
       <h2 className="home-page__section-title">{title}</h2>

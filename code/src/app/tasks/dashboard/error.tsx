@@ -1,7 +1,7 @@
 "use client";
 import type { TasksErrorProps } from "./utils/types";
 
-export default function TasksError({ error, reset }: TasksErrorProps) {
+const TasksError = ({ error, reset }: TasksErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load tasks</h2>
@@ -10,3 +10,5 @@ export default function TasksError({ error, reset }: TasksErrorProps) {
     </div>
   );
 }
+
+export default TasksError;

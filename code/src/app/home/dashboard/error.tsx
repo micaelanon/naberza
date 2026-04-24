@@ -1,7 +1,7 @@
 "use client";
 import type { HomeErrorProps } from "./utils/types";
 
-export default function HomeError({ error, reset }: HomeErrorProps) {
+const HomeError = ({ error, reset }: HomeErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load home</h2>
@@ -10,3 +10,5 @@ export default function HomeError({ error, reset }: HomeErrorProps) {
     </div>
   );
 }
+
+export default HomeError;

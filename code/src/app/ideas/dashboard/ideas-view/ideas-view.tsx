@@ -25,7 +25,7 @@ function filterIdeas(ideas: IdeaSummary[], query: string, status: IdeaStatus | "
 
 // ─── Create form ──────────────────────────────────────────────────────────────
 
-function IdeaCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
+const IdeaCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode  => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [tags, setTags] = useState("");
@@ -70,7 +70,7 @@ function IdeaCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
 
 // ─── Edit form ────────────────────────────────────────────────────────────────
 
-function IdeaEditForm({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved: () => void; onCancel: () => void }): ReactNode {
+const IdeaEditForm = ({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved: () => void; onCancel: () => void }): ReactNode  => {
   const [title, setTitle] = useState(idea.title);
   const [body, setBody] = useState(idea.body ?? "");
   const [tags, setTags] = useState(idea.tags.join(", "));
@@ -127,7 +127,7 @@ function IdeaEditForm({ idea, onSaved, onCancel }: { idea: IdeaSummary; onSaved:
 
 // ─── List item ────────────────────────────────────────────────────────────────
 
-function IdeaListItem({ idea, onEdited, onDeleted }: { idea: IdeaSummary; onEdited: () => void; onDeleted: () => void }): ReactNode {
+const IdeaListItem = ({ idea, onEdited, onDeleted }: { idea: IdeaSummary; onEdited: () => void; onDeleted: () => void }): ReactNode  => {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -171,7 +171,7 @@ function IdeaListItem({ idea, onEdited, onDeleted }: { idea: IdeaSummary; onEdit
 
 // ─── Main view ────────────────────────────────────────────────────────────────
 
-export default function IdeasView(): ReactNode {
+const IdeasView = (): ReactNode  => {
   const [ideas, setIdeas] = useState<IdeaSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -265,3 +265,5 @@ export default function IdeasView(): ReactNode {
     </div>
   );
 }
+
+export default IdeasView;

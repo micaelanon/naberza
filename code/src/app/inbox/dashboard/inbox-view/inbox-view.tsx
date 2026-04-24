@@ -46,7 +46,7 @@ const PAGE_SIZE = 10;
 
 // ─── Create form ──────────────────────────────────────────────────────────────
 
-function InboxCreateForm({ onCreated, onCancel }: InboxCreateFormProps): ReactNode {
+const InboxCreateForm = ({ onCreated, onCancel }: InboxCreateFormProps): ReactNode  => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [priority, setPriority] = useState<Priority>("NONE");
@@ -94,7 +94,7 @@ function InboxCreateForm({ onCreated, onCancel }: InboxCreateFormProps): ReactNo
 
 // ─── Edit form ────────────────────────────────────────────────────────────────
 
-function InboxEditForm({ item, onSaved, onCancel }: InboxEditFormProps): ReactNode {
+const InboxEditForm = ({ item, onSaved, onCancel }: InboxEditFormProps): ReactNode  => {
   const [title, setTitle] = useState(item.title);
   const [body, setBody] = useState(item.body ?? "");
   const [priority, setPriority] = useState<Priority>(item.priority);
@@ -161,7 +161,7 @@ function InboxEditForm({ item, onSaved, onCancel }: InboxEditFormProps): ReactNo
 
 // ─── List item ────────────────────────────────────────────────────────────────
 
-function InboxListItem({ item, onDismiss, onEdited, onDeleted }: InboxListItemProps): ReactNode {
+const InboxListItem = ({ item, onDismiss, onEdited, onDeleted }: InboxListItemProps): ReactNode  => {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -220,7 +220,7 @@ function InboxListItem({ item, onDismiss, onEdited, onDeleted }: InboxListItemPr
 
 // ─── Content area ─────────────────────────────────────────────────────────────
 
-function InboxContent({ isLoading, error, items, onDismiss, onEdited, onDeleted, hasActiveFilters }: InboxContentProps): ReactNode {
+const InboxContent = ({ isLoading, error, items, onDismiss, onEdited, onDeleted, hasActiveFilters }: InboxContentProps): ReactNode  => {
   if (isLoading) return <div className="inbox-view__loading">Cargando...</div>;
   if (error) return <div className="inbox-view__error" role="alert">{error}</div>;
   if (items.length === 0) {
@@ -240,7 +240,7 @@ function InboxContent({ isLoading, error, items, onDismiss, onEdited, onDeleted,
 
 // ─── Main view ────────────────────────────────────────────────────────────────
 
-export default function InboxView(): ReactNode {
+const InboxView = (): ReactNode  => {
   const [items, setItems] = useState<InboxItem[]>([]);
   const [total, setTotal] = useState(0);
   const [activeTab, setActiveTab] = useState<StatusTab>("ALL");
@@ -362,3 +362,5 @@ export default function InboxView(): ReactNode {
     </div>
   );
 }
+
+export default InboxView;

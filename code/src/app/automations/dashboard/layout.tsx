@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 
-export default function automationsDashboardLayout({ children }: { children: ReactNode }): ReactNode {
+const automationsDashboardLayout = ({ children }: { children: ReactNode }): ReactNode  => {
   return <>{children}</>;
 }
+
+export default automationsDashboardLayout;

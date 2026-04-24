@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Track and manage invoices',
 };
 
-export default function InvoicesViewLayout(): ReactNode {
+const InvoicesViewLayout = (): ReactNode  => {
   return <InvoicesView />;
 }
+
+export default InvoicesViewLayout;

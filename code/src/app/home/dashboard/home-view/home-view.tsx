@@ -33,7 +33,7 @@ function formatRelativeDate(value: string | Date | null): string {
   });
 }
 
-function HomeLiveList({ items, empty }: HomeLiveListProps): ReactNode {
+const HomeLiveList = ({ items, empty }: HomeLiveListProps): ReactNode  => {
   if (items.length === 0) return <p className="home-live-list__empty">{empty}</p>;
 
   return (
@@ -98,7 +98,7 @@ function getLiveStatus(live: HomeLiveResponse): HomeLiveStatus {
   return { className: "home-page__pill--error", text: "Error de conexión" };
 }
 
-function HomeSummaryCards({ live, total }: HomeSummaryCardsProps): ReactNode {
+const HomeSummaryCards = ({ live, total }: HomeSummaryCardsProps): ReactNode  => {
   return (
     <section className="home-page__cards">
       <article className="home-page__card">
@@ -125,7 +125,7 @@ function HomeSummaryCards({ live, total }: HomeSummaryCardsProps): ReactNode {
   );
 }
 
-function HomeLiveSection({ title, subtitle, count, items, empty }: HomeLiveSectionProps): ReactNode {
+const HomeLiveSection = ({ title, subtitle, count, items, empty }: HomeLiveSectionProps): ReactNode  => {
   return (
     <section className="home-page__section">
       <div className="home-page__section-header">
@@ -140,7 +140,7 @@ function HomeLiveSection({ title, subtitle, count, items, empty }: HomeLiveSecti
   );
 }
 
-function HomeEventsSection({ events, total, page, onPageChange }: HomeEventsSectionProps): ReactNode {
+const HomeEventsSection = ({ events, total, page, onPageChange }: HomeEventsSectionProps): ReactNode  => {
   const paginatedEvents = events.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
@@ -237,7 +237,7 @@ function useHomeViewData(): UseHomeViewDataResult {
   return { events, total, loading, refreshing, error, page, setPage, live, handleRefresh };
 }
 
-export default function HomeView(): ReactNode {
+const HomeView = (): ReactNode  => {
   const { events, total, loading, refreshing, error, page, setPage, live, handleRefresh } = useHomeViewData();
   const liveStatus = getLiveStatus(live);
 
@@ -315,3 +315,5 @@ export default function HomeView(): ReactNode {
     </div>
   );
 }
+
+export default HomeView;

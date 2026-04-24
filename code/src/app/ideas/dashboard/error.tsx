@@ -1,7 +1,7 @@
 "use client";
 import type { IdeasErrorProps } from "./utils/types";
 
-export default function IdeasError({ error, reset }: IdeasErrorProps) {
+const IdeasError = ({ error, reset }: IdeasErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load ideas</h2>
@@ -10,3 +10,5 @@ export default function IdeasError({ error, reset }: IdeasErrorProps) {
     </div>
   );
 }
+
+export default IdeasError;

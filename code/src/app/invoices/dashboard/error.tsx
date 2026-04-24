@@ -1,7 +1,7 @@
 "use client";
 import type { InvoicesErrorProps } from "./utils/types";
 
-export default function InvoicesError({ error, reset }: InvoicesErrorProps) {
+const InvoicesError = ({ error, reset }: InvoicesErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load invoices</h2>
@@ -10,3 +10,5 @@ export default function InvoicesError({ error, reset }: InvoicesErrorProps) {
     </div>
   );
 }
+
+export default InvoicesError;

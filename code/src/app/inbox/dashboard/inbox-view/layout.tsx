@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Manage incoming items and messages',
 };
 
-export default function InboxViewLayout(): ReactNode {
+const InboxViewLayout = (): ReactNode  => {
   return <InboxView />;
 }
+
+export default InboxViewLayout;

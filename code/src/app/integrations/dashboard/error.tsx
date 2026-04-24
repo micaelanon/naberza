@@ -1,7 +1,7 @@
 "use client";
 import type { IntegrationsErrorProps } from "./utils/types";
 
-export default function IntegrationsError({ error, reset }: IntegrationsErrorProps) {
+const IntegrationsError = ({ error, reset }: IntegrationsErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load integrations</h2>
@@ -10,3 +10,5 @@ export default function IntegrationsError({ error, reset }: IntegrationsErrorPro
     </div>
   );
 }
+
+export default IntegrationsError;

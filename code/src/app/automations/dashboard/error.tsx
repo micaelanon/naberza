@@ -1,7 +1,7 @@
 "use client";
 import type { AutomationsErrorProps } from "./utils/types";
 
-export default function AutomationsError({ error, reset }: AutomationsErrorProps) {
+const AutomationsError = ({ error, reset }: AutomationsErrorProps) => {
   return (
     <div className="page-error">
       <h2>Failed to load automations</h2>
@@ -10,3 +10,5 @@ export default function AutomationsError({ error, reset }: AutomationsErrorProps
     </div>
   );
 }
+
+export default AutomationsError;

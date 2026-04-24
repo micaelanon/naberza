@@ -5,13 +5,13 @@ import type { ReactNode } from "react";
 import type { ConfirmDeleteModalProps } from "./utils/types";
 import "./confirm-delete-modal.css";
 
-export default function ConfirmDeleteModal({
+const ConfirmDeleteModal = ({
   isOpen,
   itemName,
   onConfirm,
   onCancel,
   deleting = false,
-}: ConfirmDeleteModalProps): ReactNode {
+}: ConfirmDeleteModalProps): ReactNode  => {
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -44,3 +44,5 @@ export default function ConfirmDeleteModal({
     </div>
   );
 }
+
+export default ConfirmDeleteModal;

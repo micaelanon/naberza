@@ -22,7 +22,7 @@ function filterInvoices(invoices: InvoiceSummary[], query: string, status: Invoi
 
 // ─── Create form ──────────────────────────────────────────────────────────────
 
-function InvoiceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode {
+const InvoiceCreateForm = ({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }): ReactNode  => {
   const [issuer, setIssuer] = useState("");
   const [amount, setAmount] = useState("");
   const [issueDate, setIssueDate] = useState(new Date().toISOString().slice(0, 10));
@@ -80,11 +80,11 @@ function InvoiceCreateForm({ onCreated, onCancel }: { onCreated: () => void; onC
 
 // ─── Edit form ────────────────────────────────────────────────────────────────
 
-function InvoiceEditForm({ invoice, onSaved, onCancel }: {
+const InvoiceEditForm = ({ invoice, onSaved, onCancel }: {
   invoice: InvoiceSummary;
   onSaved: () => void;
   onCancel: () => void;
-}): ReactNode {
+}): ReactNode  => {
   const [issuer, setIssuer] = useState(invoice.issuer);
   const [amount, setAmount] = useState(String(Number(invoice.amount)));
   const [issueDate, setIssueDate] = useState(new Date(invoice.issueDate).toISOString().slice(0, 10));
@@ -149,12 +149,12 @@ function InvoiceEditForm({ invoice, onSaved, onCancel }: {
 
 // ─── List item ────────────────────────────────────────────────────────────────
 
-function InvoiceListItem({ invoice, onEdited, onPaid, onDeleted }: {
+const InvoiceListItem = ({ invoice, onEdited, onPaid, onDeleted }: {
   invoice: InvoiceSummary;
   onEdited: () => void;
   onPaid: (id: string) => void;
   onDeleted: () => void;
-}): ReactNode {
+}): ReactNode  => {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -208,7 +208,7 @@ function InvoiceListItem({ invoice, onEdited, onPaid, onDeleted }: {
 
 // ─── Main view ────────────────────────────────────────────────────────────────
 
-export default function InvoicesView(): ReactNode {
+const InvoicesView = (): ReactNode  => {
   const [invoices, setInvoices] = useState<InvoiceSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -313,3 +313,5 @@ export default function InvoicesView(): ReactNode {
     </div>
   );
 }
+
+export default InvoicesView;

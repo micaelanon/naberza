@@ -7,7 +7,7 @@ import { Pagination } from "@/components/ui";
 import type { ReactNode } from "react";
 import type { DocumentSummary } from "@/modules/documents";
 
-export default function DocumentsView(): ReactNode {
+const DocumentsView = (): ReactNode  => {
   const [documents, setDocuments] = useState<DocumentSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -52,3 +52,5 @@ export default function DocumentsView(): ReactNode {
     </div>
   );
 }
+
+export default DocumentsView;

@@ -24,7 +24,7 @@ const BOTTOM_ITEMS = [
   { id: "users", label: "Ajustes", icon: "settings", href: "/users/dashboard" },
 ];
 
-export default function Sidebar({ versionLabel }: SidebarProps) {
+const Sidebar = ({ versionLabel }: SidebarProps) => {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
@@ -75,3 +75,5 @@ export default function Sidebar({ versionLabel }: SidebarProps) {
     </nav>
   );
 }
+
+export default Sidebar;

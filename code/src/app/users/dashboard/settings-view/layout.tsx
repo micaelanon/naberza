@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Manage user preferences and settings',
 };
 
-export default function SettingsViewLayout(): ReactNode {
+const SettingsViewLayout = (): ReactNode  => {
   return <SettingsView />;
 }
+
+export default SettingsViewLayout;

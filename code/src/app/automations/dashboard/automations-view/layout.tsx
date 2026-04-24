@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Configure and manage automations',
 };
 
-export default function AutomationsViewLayout(): ReactNode {
+const AutomationsViewLayout = (): ReactNode  => {
   return <AutomationsView />;
 }
+
+export default AutomationsViewLayout;

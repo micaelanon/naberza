@@ -6,6 +6,8 @@ export const metadata = {
   description: 'View financial tracking and analysis',
 };
 
-export default function FinanceViewLayout(): ReactNode {
+const FinanceViewLayout = (): ReactNode  => {
   return <FinanceView />;
 }
+
+export default FinanceViewLayout;

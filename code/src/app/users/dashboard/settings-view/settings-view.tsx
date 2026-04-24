@@ -21,7 +21,7 @@ const THEME_TOAST: Record<Theme, string> = {
   dark: "oscuro",
 };
 
-function Section({ title, children }: SettingsSectionProps): ReactNode {
+const Section = ({ title, children }: SettingsSectionProps): ReactNode  => {
   return (
     <div className="settings-section">
       <h2 className="settings-section__title">{title}</h2>
@@ -30,7 +30,7 @@ function Section({ title, children }: SettingsSectionProps): ReactNode {
   );
 }
 
-export default function SettingsView(): ReactNode {
+const SettingsView = (): ReactNode  => {
   const { data: session } = useSession();
   const { showToast } = useToast();
   const [theme, setTheme] = useState<Theme>("system");
@@ -107,3 +107,5 @@ export default function SettingsView(): ReactNode {
     </div>
   );
 }
+
+export default SettingsView;
