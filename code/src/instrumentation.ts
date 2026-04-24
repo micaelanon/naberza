@@ -7,8 +7,12 @@
  * ensures we don't attempt Prisma or event bus calls in the Edge runtime.
  */
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
+  if (process.env.NEXT_RUNTIME !== "nodejs") return;
+
+  try {
     const { bootstrap } = await import("@/lib/bootstrap");
     bootstrap();
+  } catch (error) {
+    console.error("[Instrumentation] bootstrap failed", error);
   }
 }
