@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
-import type { IntegrationStatus } from "../../api/status/route";
+import type { IntegrationStatus } from "@/app/integrations/api/status/route";
 import type { StatusMap, TabKey } from "./utils/types";
 import "./integrations-guide.css";
 

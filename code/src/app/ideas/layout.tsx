@@ -1,8 +1,11 @@
 import { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
+
 import { AppShell } from "@/components/ui";
 
-const IdeasLayout = ({ children }: { children: ReactNode }): ReactNode  => {
-  return <AppShell title="Ideas">{children}</AppShell>;
-}
+const IdeasLayout = async ({ children }: { children: ReactNode }): Promise<ReactNode> => {
+  const t = await getTranslations();
+  return <AppShell title={t("app.nav.ideas")}>{children}</AppShell>;
+};
 
 export default IdeasLayout;
