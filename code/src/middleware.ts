@@ -1,6 +1,8 @@
 import { withAuth } from "next-auth/middleware";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+
+import { API_PATHS, ROUTE_PATHS } from "@/lib/constants";
 import { applySecurityHeaders, validateOrigin } from "@/lib/security";
 
 function middleware(request: NextRequest) {
@@ -15,13 +17,13 @@ function middleware(request: NextRequest) {
 
 export default withAuth(middleware, {
   pages: {
-    signIn: "/login",
+    signIn: ROUTE_PATHS.LOGIN,
   },
 });
 
 export const config = {
   // Protect all routes except public ones
   matcher: [
-    "/((?!login|api/auth|api/health|_next/static|_next/image|favicon\\.ico|favicon\\.svg).*)",
+    `/((?!${ROUTE_PATHS.LOGIN.slice(1)}|api/auth|${API_PATHS.HEALTH.slice(1)}|_next/static|_next/image|favicon\\.ico|favicon\\.svg).*)`,
   ],
 };

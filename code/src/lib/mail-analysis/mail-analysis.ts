@@ -1,3 +1,4 @@
+import { ROUTE_PATHS } from "@/lib/constants";
 import { InboxRepository } from "@/modules/inbox/inbox.repository";
 import type { InboxItem } from "@/modules/inbox/inbox.types";
 
@@ -257,7 +258,7 @@ function buildSuggestions(
       title: "Newsletter prescindible candidata",
       detail: `${group.sender} · ${group.count} correos detectados`,
       kind: "newsletter",
-      href: "/mail-analysis",
+      href: ROUTE_PATHS.MAIL_ANALYSIS,
     });
   }
 
@@ -267,7 +268,7 @@ function buildSuggestions(
       title: "Factura probable detectada",
       detail: invoice.title,
       kind: "invoice",
-      href: "/inbox/dashboard",
+      href: ROUTE_PATHS.INBOX,
     });
   }
 
@@ -277,7 +278,7 @@ function buildSuggestions(
       title: "Correo que merece revisión",
       detail: review.title,
       kind: "review",
-      href: "/inbox/dashboard",
+      href: ROUTE_PATHS.INBOX,
     });
   }
 
@@ -287,7 +288,7 @@ function buildSuggestions(
       title: "Remitente muy repetido en tu correo",
       detail: `${sender.sender} · ${sender.count} mensajes`,
       kind: "sender",
-      href: "/mail-analysis",
+      href: ROUTE_PATHS.MAIL_ANALYSIS,
     });
   }
 
@@ -297,7 +298,7 @@ function buildSuggestions(
       title: "Emisor ruidoso para revisar",
       detail: `${sender.sender} aparece ${sender.count} veces y parece poco accionable`,
       kind: "pattern",
-      href: "/mail-analysis",
+      href: ROUTE_PATHS.MAIL_ANALYSIS,
     });
   }
 

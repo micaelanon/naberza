@@ -1,9 +1,10 @@
-import { InboxRepository } from "@/modules/inbox/inbox.repository";
-import { TaskRepository } from "@/modules/tasks/task.repository";
-import { InvoiceRepository } from "@/modules/invoices/invoice.repository";
-import { HomeRepository } from "@/modules/home/home.repository";
+import { ROUTE_PATHS } from "@/lib/constants";
 import { AutomationRepository } from "@/modules/automations/automation.repository";
 import { DocumentRepository } from "@/modules/documents/document.repository";
+import { HomeRepository } from "@/modules/home/home.repository";
+import { InboxRepository } from "@/modules/inbox/inbox.repository";
+import { InvoiceRepository } from "@/modules/invoices/invoice.repository";
+import { TaskRepository } from "@/modules/tasks/task.repository";
 
 export interface ActionDigestItem {
   id: string;
@@ -47,7 +48,7 @@ function buildOverdueInvoiceItem(overdueInvoices: Awaited<ReturnType<InvoiceRepo
     id: `invoice-overdue-${first.id}`,
     title: `${overdueInvoices.length} ${pluralize(overdueInvoices.length, "factura vencida", "facturas vencidas")}`,
     detail: `${first.issuer} · ${formatCurrency(first.amount.toString())} · venció el ${formatDate(first.dueDate)}`,
-    href: "/invoices/dashboard",
+    href: ROUTE_PATHS.INVOICES,
     tone: "urgent",
   };
 }
@@ -58,7 +59,7 @@ function buildDueTodayTaskItem(tasksDueToday: Awaited<ReturnType<TaskRepository[
     id: `task-due-${tasksDueToday.items[0].id}`,
     title: `${tasksDueToday.total} ${pluralize(tasksDueToday.total, "tarea vence hoy", "tareas vencen hoy")}`,
     detail: tasksDueToday.items[0].title,
-    href: "/tasks/dashboard",
+    href: ROUTE_PATHS.TASKS,
     tone: "urgent",
   };
 }
@@ -70,7 +71,7 @@ function buildHomeWarningItem(homeWarnings: Awaited<ReturnType<HomeRepository["l
     id: `home-warning-${first.id}`,
     title: `${homeWarnings.length} ${pluralize(homeWarnings.length, "alerta del hogar", "alertas del hogar")}`,
     detail: `${first.entityId} · ${first.state}`,
-    href: "/home/dashboard",
+    href: ROUTE_PATHS.HOME,
     tone: "warning",
   };
 }
@@ -82,7 +83,7 @@ function buildApprovalItem(pendingApprovals: Awaited<ReturnType<AutomationReposi
     id: `approval-${first.id}`,
     title: `${pendingApprovals.length} ${pluralize(pendingApprovals.length, "aprobación pendiente", "aprobaciones pendientes")}`,
     detail: `Creada el ${formatDate(first.createdAt)}`,
-    href: "/automations/dashboard",
+    href: ROUTE_PATHS.AUTOMATIONS,
     tone: "warning",
   };
 }
@@ -93,7 +94,7 @@ function buildInboxItem(pendingInbox: Awaited<ReturnType<InboxRepository["findAl
     id: `inbox-${pendingInbox.items[0].id}`,
     title: `${pendingInbox.total} ${pluralize(pendingInbox.total, "item sin clasificar", "items sin clasificar")}`,
     detail: pendingInbox.items[0].title,
-    href: "/inbox/dashboard",
+    href: ROUTE_PATHS.INBOX,
   };
 }
 
@@ -105,7 +106,7 @@ function buildPendingTaskItem(pendingTasks: Awaited<ReturnType<TaskRepository["f
     id: `task-pending-${first.id}`,
     title: `${pendingTasks.total} ${pluralize(pendingTasks.total, "tarea pendiente", "tareas pendientes")}`,
     detail,
-    href: "/tasks/dashboard",
+    href: ROUTE_PATHS.TASKS,
   };
 }
 
@@ -120,7 +121,7 @@ function buildPendingInvoiceItem(
     id: `invoice-pending-${upcoming.id}`,
     title: `${pendingInvoices.length} ${pluralize(pendingInvoices.length, "factura sin pagar", "facturas sin pagar")}`,
     detail: `${upcoming.issuer} · ${formatCurrency(upcoming.amount.toString())}${dueText}`,
-    href: "/invoices/dashboard",
+    href: ROUTE_PATHS.INVOICES,
   };
 }
 
@@ -130,7 +131,7 @@ function buildUsefulSignals(documentsCount: number, isQuietDay: boolean): Action
       id: "documents-total",
       title: `${documentsCount} documentos archivados`,
       detail: "Paperless ya está aportando contexto documental al sistema.",
-      href: "/documents/dashboard",
+      href: ROUTE_PATHS.DOCUMENTS,
     },
   ];
 
@@ -139,7 +140,7 @@ function buildUsefulSignals(documentsCount: number, isQuietDay: boolean): Action
       id: "quiet-day",
       title: "Día tranquilo",
       detail: "No hay nada urgente detectado ahora mismo.",
-      href: "/",
+      href: ROUTE_PATHS.HOME,
     });
   }
 
