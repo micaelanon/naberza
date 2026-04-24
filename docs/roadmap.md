@@ -1,6 +1,6 @@
 # Naberza OS — Roadmap
 
-## Estado actual (2026-04-19)
+## Estado actual (2026-04-24)
 
 - **Phase 0 — Foundation**: ✅ completada
 - **Phase 1 — Core Loop**: ✅ completada
@@ -130,7 +130,7 @@
 
 ## Phase 7 — Make the app actually usable
 **Goal**: Full CRUD UI, UX polish, and real usability across all modules
-**Status**: 🔄 In progress (470 tests)
+**Status**: ✅ Complete
 
 - [x] Create forms: tasks, inbox, ideas, invoices, finance (PR #73)
 - [x] Sidebar visual polish + warm palette tokens (PR #74)
@@ -143,9 +143,30 @@
 - [x] Dashboard with real data for all modules + StatsBar (PR #82)
 - [x] Toast notifications for all CRUD actions (PR #83)
 - [x] Reusable Pagination component; documents + home paginated (PR #84)
-- [ ] invoices-view: migrate to useFormSubmit + pagination (P7-08)
-- [ ] Settings page with session info, theme toggle, version (P7-09)
-- [ ] Pagination for CRUD-heavy list views (tasks, inbox, ideas, finance) (P7-11)
+- [x] invoices-view: migrate to useFormSubmit + pagination (PR #85)
+- [x] Settings page with session info, theme toggle, version (PR #86)
+- [x] Roadmap update to real completed state (PR #87)
+- [x] Pagination for CRUD-heavy list views (tasks, inbox, ideas, finance) (PR #88)
+- [x] Actionable daily digest on dashboard (PR #89)
+- [x] Mail analysis focused on actionable inbox processing (PR #90)
+- [x] Live Home Assistant overview (PR #91)
+- [x] Refactor: lint/tooling alignment (PR #96)
+- [x] Refactor: top-level types extraction (PR #97)
+- [x] Refactor: normalize component declarations (PR #98)
+- [x] Refactor: remove remaining client console usage (PR #99)
+
+---
+
+## Phase 8 — Alignment after usability push
+**Goal**: Keep docs, conventions and implementation aligned after the Phase 7 usability work
+**Status**: 🔄 In progress
+
+- [x] Lint/tooling alignment
+- [x] Type extraction cleanup
+- [x] Component declaration normalization
+- [x] Client console cleanup
+- [ ] Refresh top-level documentation to match the real shipped state
+- [ ] Decide and document the next execution track after the usability/refactor pass
 
 ---
 
