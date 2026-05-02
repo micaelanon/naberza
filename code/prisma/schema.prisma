@@ -646,3 +646,40 @@ enum ProjectStatus {
   COMPLETED
   ARCHIVED
 }
+
+// ─────────────────────────────────────────────
+// SUBSCRIPTIONS module
+// ─────────────────────────────────────────────
+
+model Subscription {
+  id              String             @id @default(cuid())
+  name            String
+  provider        String?
+  amount          Decimal            @db.Decimal(10, 2)
+  currency        String             @default("EUR")
+  billingCycle    BillingCycle
+  nextRenewalAt   DateTime           @map("next_renewal_at")
+  status          SubscriptionStatus @default(ACTIVE)
+  notes           String?
+  url             String?
+  alertDaysBefore Int                @default(7) @map("alert_days_before")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([nextRenewalAt])
+  @@map("subscriptions")
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  ONE_TIME
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAUSED
+}
