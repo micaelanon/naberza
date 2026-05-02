@@ -1,4 +1,7 @@
+import { Readable } from "node:stream";
+
 import { ImapFlow } from "imapflow";
+
 import type { BaseAdapter, ConnectionConfig, HealthCheckResult } from "@/lib/adapters/adapter-types";
 import { AdapterError } from "@/lib/adapters/adapter-types";
 
@@ -28,6 +31,11 @@ export interface EmailMessage {
   date: Date;
   attachments: EmailAttachmentMeta[];
   isRead: boolean;
+}
+
+export interface EmailMessageSnippet {
+  body: string;
+  bodyHtml?: string;
 }
 
 function assertMailImapConfig(config: Record<string, unknown>): MailImapConfig {
@@ -88,6 +96,30 @@ function parseInternalDate(raw: Date | string | undefined): Date {
   if (raw instanceof Date) return raw;
   if (typeof raw === "string") return new Date(raw);
   return new Date();
+}
+
+function isTrashMoveFallbackError(err: unknown): boolean {
+  if (!(err instanceof Error)) {
+    return false;
+  }
+
+  const errorMessage = err.message.toLowerCase();
+  return errorMessage.includes("no [trycreate]") || errorMessage.includes("mailbox doesn't exist");
+}
+
+async function readStreamContent(content: Readable): Promise<string> {
+  const chunks: Buffer[] = [];
+
+  for await (const chunk of content) {
+    if (typeof chunk === "string") {
+      chunks.push(Buffer.from(chunk));
+      continue;
+    }
+
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+
+  return Buffer.concat(chunks).toString("utf8");
 }
 
 export class MailImapAdapter implements BaseAdapter {
@@ -206,6 +238,50 @@ export class MailImapAdapter implements BaseAdapter {
       await client.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
     } catch (err) {
       throw new AdapterError("EXTERNAL_ERROR", `Failed to mark message ${uid} as read`, err);
+    } finally {
+      await client.logout().catch(() => undefined);
+    }
+  }
+
+  async trashMessage(uid: number): Promise<void> {
+    const client = this.createClient();
+
+    try {
+      await client.connect();
+      await client.mailboxOpen(this.config.mailbox ?? "INBOX");
+      await client.messageMove(String(uid), "[Gmail]/Trash", { uid: true });
+    } catch (err) {
+      if (isTrashMoveFallbackError(err)) {
+        try {
+          await client.messageDelete(String(uid), { uid: true });
+          return;
+        } catch (fallbackError) {
+          throw new AdapterError("EXTERNAL_ERROR", `Failed to trash message ${uid}`, fallbackError);
+        }
+      }
+
+      throw new AdapterError("EXTERNAL_ERROR", `Failed to trash message ${uid}`, err);
+    } finally {
+      await client.logout().catch(() => undefined);
+    }
+  }
+
+  async fetchMessageSnippet(uid: number): Promise<EmailMessageSnippet> {
+    const client = this.createClient();
+
+    try {
+      await client.connect();
+      await client.mailboxOpen(this.config.mailbox ?? "INBOX");
+
+      const downloadResult = await client.download(String(uid), "TEXT", { uid: true });
+      const bodyContent = await readStreamContent(downloadResult.content);
+      const isHtmlContent = downloadResult.meta.contentType.toLowerCase().includes("text/html");
+
+      return isHtmlContent
+        ? { body: bodyContent, bodyHtml: bodyContent }
+        : { body: bodyContent };
+    } catch (err) {
+      throw new AdapterError("EXTERNAL_ERROR", `Failed to fetch message snippet ${uid}`, err);
     } finally {
       await client.logout().catch(() => undefined);
     }
