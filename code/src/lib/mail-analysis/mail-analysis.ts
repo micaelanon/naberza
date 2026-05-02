@@ -14,6 +14,7 @@ export interface MailSenderGroup {
   sender: string;
   count: number;
   samples: string[];
+  unsubscribeUrl?: string;
 }
 
 export interface MailAnalysisResult {
@@ -143,6 +144,48 @@ function sanitizeUrlCandidate(value: string): string {
   return value.slice(start, end);
 }
 
+export function extractUnsubscribeLink(body: string | null): string | undefined {
+  if (!body) return undefined;
+
+  // Intentar header List-Unsubscribe:
+  const headerUrl = tryListUnsubscribeHeader(body);
+  if (headerUrl) return headerUrl;
+
+  // Buscar enlaces unsubscribe en el body
+  const lowerBody = body.toLowerCase();
+  const keywords = ["unsubscribe", "darse de baja", "cancelar suscripción"];
+
+  for (const keyword of keywords) {
+    const idx = lowerBody.indexOf(keyword);
+    if (idx === -1) continue;
+
+    const before = body.slice(Math.max(0, idx - 400), idx);
+    const urlMatch = before.match(/https?:\/\/[^\s<>"')]+/g);
+    if (urlMatch) {
+      const url = sanitizeUrlCandidate(urlMatch[urlMatch.length - 1]);
+      if (url.startsWith("https://")) return url;
+    }
+  }
+
+  return undefined;
+}
+
+function tryListUnsubscribeHeader(body: string): string | undefined {
+  const line = body.split("\n").find((l) =>
+    l.trim().toLowerCase().startsWith("list-unsubscribe:")
+  );
+  if (!line) return undefined;
+
+  const value = line.slice("list-unsubscribe:".length).trim();
+  // eslint-disable-next-line sonarjs/slow-regex
+  const urlMatch = value.match(/<([^>]+)>/);
+  if (!urlMatch) return undefined;
+
+  const url = sanitizeUrlCandidate(urlMatch[1]);
+  if (url.startsWith("https://")) return url;
+  return undefined;
+}
+
 function containsUrlFromAllowedHost(text: string, allowedHost: string): boolean {
   const parts = text.split(/\s+/u);
 
@@ -226,18 +269,23 @@ function looksImportantReview(item: InboxItem): boolean {
 }
 
 function buildSenderGroups(items: InboxItem[]): MailSenderGroup[] {
-  const map = new Map<string, { count: number; samples: string[] }>();
+  const map = new Map<string, { count: number; samples: string[]; firstBody: string }>();
 
   for (const item of items) {
     const sender = extractSender(item.body);
-    const current = map.get(sender) ?? { count: 0, samples: [] };
+    const current = map.get(sender) ?? { count: 0, samples: [], firstBody: item.body ?? "" };
     current.count += 1;
     if (current.samples.length < 3) current.samples.push(item.title);
     map.set(sender, current);
   }
 
   return [...map.entries()]
-    .map(([sender, value]) => ({ sender, count: value.count, samples: value.samples }))
+    .map(([sender, value]) => ({
+      sender,
+      count: value.count,
+      samples: value.samples,
+      unsubscribeUrl: extractUnsubscribeLink(value.firstBody),
+    }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 }

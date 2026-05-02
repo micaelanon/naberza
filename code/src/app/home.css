@@ -173,3 +173,20 @@
   font-size: .9rem;
   color: var(--color-text-secondary);
 }
+
+.digest-card__action {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-olive, #606c38);
+  border: 1px solid var(--color-olive, #606c38);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.digest-card__action:hover {
+  background: var(--color-olive, #606c38);
+  color: white;
+}
