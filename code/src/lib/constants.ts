@@ -13,6 +13,7 @@ export const ROUTE_PATHS = {
   AUDIT: "/audit/dashboard",
   LOGIN: "/login",
   MAIL_ANALYSIS: "/mail-analysis",
+  EMAIL_TRIAGE: "/email-triage/dashboard",
 } as const;
 
 // ─── API endpoints (internos) ──────────────────────────────────────

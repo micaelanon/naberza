@@ -90,17 +90,17 @@ model UserPreference {
 // ─────────────────────────────────────────────
 
 model SourceConnection {
-  id               String           @id @default(cuid())
-  name             String
-  type             ConnectionType
-  status           ConnectionStatus @default(INACTIVE)
-  config           Json             // encrypted at application level
-  permissionRead   Boolean          @default(true) @map("permission_read")
-  permissionWrite  Boolean          @default(false) @map("permission_write")
-  lastHealthCheck  DateTime?        @map("last_health_check")
-  lastError        String?          @map("last_error")
-  createdAt        DateTime         @default(now()) @map("created_at")
-  updatedAt        DateTime         @updatedAt @map("updated_at")
+  id              String           @id @default(cuid())
+  name            String
+  type            ConnectionType
+  status          ConnectionStatus @default(INACTIVE)
+  config          Json // encrypted at application level
+  permissionRead  Boolean          @default(true) @map("permission_read")
+  permissionWrite Boolean          @default(false) @map("permission_write")
+  lastHealthCheck DateTime?        @map("last_health_check")
+  lastError       String?          @map("last_error")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
 
   inboxItems InboxItem[]
   homeEvents HomeEvent[]
@@ -128,24 +128,24 @@ enum ConnectionStatus {
 // ─────────────────────────────────────────────
 
 model InboxItem {
-  id                      String              @id @default(cuid())
-  title                   String
-  body                    String?             @db.Text
-  sourceType              InboxSourceType     @map("source_type")
-  sourceConnectionId      String?             @map("source_connection_id")
-  sourceExternalId        String?             @map("source_external_id")
-  sourceRawPayload        Json?               @map("source_raw_payload")
-  classification          InboxClassification?
-  classifiedBy            ClassifiedBy?       @map("classified_by")
-  classificationConfidence Float?             @map("classification_confidence")
-  status                  InboxStatus         @default(PENDING)
-  routedToModule          String?             @map("routed_to_module")
-  routedToEntityId        String?             @map("routed_to_entity_id")
-  priority                Priority            @default(NONE)
-  metadata                Json?
-  processedAt             DateTime?           @map("processed_at")
-  createdAt               DateTime            @default(now()) @map("created_at")
-  updatedAt               DateTime            @updatedAt @map("updated_at")
+  id                       String               @id @default(cuid())
+  title                    String
+  body                     String?              @db.Text
+  sourceType               InboxSourceType      @map("source_type")
+  sourceConnectionId       String?              @map("source_connection_id")
+  sourceExternalId         String?              @map("source_external_id")
+  sourceRawPayload         Json?                @map("source_raw_payload")
+  classification           InboxClassification?
+  classifiedBy             ClassifiedBy?        @map("classified_by")
+  classificationConfidence Float?               @map("classification_confidence")
+  status                   InboxStatus          @default(PENDING)
+  routedToModule           String?              @map("routed_to_module")
+  routedToEntityId         String?              @map("routed_to_entity_id")
+  priority                 Priority             @default(NONE)
+  metadata                 Json?
+  processedAt              DateTime?            @map("processed_at")
+  createdAt                DateTime             @default(now()) @map("created_at")
+  updatedAt                DateTime             @updatedAt @map("updated_at")
 
   sourceConnection SourceConnection? @relation(fields: [sourceConnectionId], references: [id])
 
@@ -248,19 +248,19 @@ enum TaskStatus {
 // ─────────────────────────────────────────────
 
 model Document {
-  id                 String           @id @default(cuid())
+  id                 String       @id @default(cuid())
   title              String
-  externalId         String           @map("external_id")
-  externalUrl        String?          @map("external_url")
-  sourceConnectionId String           @map("source_connection_id")
-  documentType       DocumentType     @default(OTHER) @map("document_type")
+  externalId         String       @map("external_id")
+  externalUrl        String?      @map("external_url")
+  sourceConnectionId String       @map("source_connection_id")
+  documentType       DocumentType @default(OTHER) @map("document_type")
   correspondent      String?
   tags               String[]
-  contentPreview     String?          @map("content_preview") @db.Text
-  archivedAt         DateTime?        @map("archived_at")
-  inboxItemId        String?          @unique @map("inbox_item_id")
-  createdAt          DateTime         @default(now()) @map("created_at")
-  updatedAt          DateTime         @updatedAt @map("updated_at")
+  contentPreview     String?      @map("content_preview") @db.Text
+  archivedAt         DateTime?    @map("archived_at")
+  inboxItemId        String?      @unique @map("inbox_item_id")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
 
   inboxItem InboxItem? @relation(fields: [inboxItemId], references: [id])
   invoices  Invoice[]
@@ -326,18 +326,18 @@ enum InvoiceStatus {
 // ─────────────────────────────────────────────
 
 model FinancialEntry {
-  id            String            @id @default(cuid())
+  id            String             @id @default(cuid())
   type          FinancialEntryType
-  amount        Decimal           @db.Decimal(12, 2)
-  currency      String            @default("EUR")
+  amount        Decimal            @db.Decimal(12, 2)
+  currency      String             @default("EUR")
   category      String?
   description   String?
-  date          DateTime          @db.Date
-  invoiceId     String?           @map("invoice_id")
-  isAnomaly     Boolean           @default(false) @map("is_anomaly")
-  anomalyReason String?           @map("anomaly_reason")
-  createdAt     DateTime          @default(now()) @map("created_at")
-  updatedAt     DateTime          @updatedAt @map("updated_at")
+  date          DateTime           @db.Date
+  invoiceId     String?            @map("invoice_id")
+  isAnomaly     Boolean            @default(false) @map("is_anomaly")
+  anomalyReason String?            @map("anomaly_reason")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
 
   invoice Invoice? @relation(fields: [invoiceId], references: [id])
 
@@ -360,16 +360,16 @@ enum FinancialEntryType {
 // ─────────────────────────────────────────────
 
 model HomeEvent {
-  id                 String          @id @default(cuid())
-  eventType          String          @map("event_type")
-  entityId           String          @map("entity_id")
+  id                 String       @id @default(cuid())
+  eventType          String       @map("event_type")
+  entityId           String       @map("entity_id")
   state              String?
-  previousState      String?         @map("previous_state")
+  previousState      String?      @map("previous_state")
   attributes         Json?
-  sourceConnectionId String          @map("source_connection_id")
-  severity           HomeSeverity    @default(INFO)
-  acknowledgedAt     DateTime?       @map("acknowledged_at")
-  createdAt          DateTime        @default(now()) @map("created_at")
+  sourceConnectionId String       @map("source_connection_id")
+  severity           HomeSeverity @default(INFO)
+  acknowledgedAt     DateTime?    @map("acknowledged_at")
+  createdAt          DateTime     @default(now()) @map("created_at")
 
   sourceConnection SourceConnection @relation(fields: [sourceConnectionId], references: [id])
 
@@ -391,16 +391,16 @@ enum HomeSeverity {
 // ─────────────────────────────────────────────
 
 model Idea {
-  id                String     @id @default(cuid())
-  title             String
-  body              String?    @db.Text
-  tags              String[]
-  status            IdeaStatus @default(CAPTURED)
-  promotedToModule  String?    @map("promoted_to_module")
-  promotedToEntityId String?   @map("promoted_to_entity_id")
-  inboxItemId       String?    @unique @map("inbox_item_id")
-  createdAt         DateTime   @default(now()) @map("created_at")
-  updatedAt         DateTime   @updatedAt @map("updated_at")
+  id                 String     @id @default(cuid())
+  title              String
+  body               String?    @db.Text
+  tags               String[]
+  status             IdeaStatus @default(CAPTURED)
+  promotedToModule   String?    @map("promoted_to_module")
+  promotedToEntityId String?    @map("promoted_to_entity_id")
+  inboxItemId        String?    @unique @map("inbox_item_id")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
 
   inboxItem InboxItem? @relation(fields: [inboxItemId], references: [id])
 
@@ -443,15 +443,15 @@ model AutomationRule {
 }
 
 model ApprovalRequest {
-  id                   String          @id @default(cuid())
-  automationRuleId     String          @map("automation_rule_id")
-  triggerEventPayload  Json            @map("trigger_event_payload")
-  proposedActions      Json            @map("proposed_actions")
-  status               ApprovalStatus  @default(PENDING)
-  decidedAt            DateTime?       @map("decided_at")
-  expiresAt            DateTime        @map("expires_at")
-  reason               String?
-  createdAt            DateTime        @default(now()) @map("created_at")
+  id                  String         @id @default(cuid())
+  automationRuleId    String         @map("automation_rule_id")
+  triggerEventPayload Json           @map("trigger_event_payload")
+  proposedActions     Json           @map("proposed_actions")
+  status              ApprovalStatus @default(PENDING)
+  decidedAt           DateTime?      @map("decided_at")
+  expiresAt           DateTime       @map("expires_at")
+  reason              String?
+  createdAt           DateTime       @default(now()) @map("created_at")
 
   automationRule AutomationRule @relation(fields: [automationRuleId], references: [id])
 
@@ -472,19 +472,19 @@ enum ApprovalStatus {
 // ─────────────────────────────────────────────
 
 model AuditEvent {
-  id          String      @id @default(cuid())
-  module      String
-  action      String
-  entityType  String?     @map("entity_type")
-  entityId    String?     @map("entity_id")
-  actor       AuditActor
-  actorDetail String?     @map("actor_detail")
-  input       Json?
-  output      Json?
-  status      AuditStatus
-  errorMessage String?    @map("error_message")
-  metadata    Json?
-  createdAt   DateTime    @default(now()) @map("created_at")
+  id           String      @id @default(cuid())
+  module       String
+  action       String
+  entityType   String?     @map("entity_type")
+  entityId     String?     @map("entity_id")
+  actor        AuditActor
+  actorDetail  String?     @map("actor_detail")
+  input        Json?
+  output       Json?
+  status       AuditStatus
+  errorMessage String?     @map("error_message")
+  metadata     Json?
+  createdAt    DateTime    @default(now()) @map("created_at")
 
   // Append-only: no updatedAt, no soft delete
   @@index([module])
@@ -507,4 +507,71 @@ enum AuditStatus {
   SUCCESS
   FAILURE
   PENDING
+}
+
+// ─────────────────────────────────────────────
+// EMAIL TRIAGE module
+// ─────────────────────────────────────────────
+
+model EmailTriageSession {
+  id             String              @id @default(cuid())
+  status         TriageSessionStatus @default(PENDING)
+  connectionId   String              @map("connection_id")
+  totalFetched   Int                 @default(0) @map("total_fetched")
+  totalProcessed Int                 @default(0) @map("total_processed")
+  trashCount     Int                 @default(0) @map("trash_count")
+  archiveCount   Int                 @default(0) @map("archive_count")
+  keepCount      Int                 @default(0) @map("keep_count")
+  reviewCount    Int                 @default(0) @map("review_count")
+  executedAt     DateTime?           @map("executed_at")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+
+  items EmailTriageItem[]
+
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("email_triage_sessions")
+}
+
+model EmailTriageItem {
+  id             String          @id @default(cuid())
+  sessionId      String          @map("session_id")
+  uid            Int
+  fromAddress    String          @map("from_address")
+  subject        String
+  emailDate      DateTime        @map("email_date")
+  hasAttachments Boolean         @default(false) @map("has_attachments")
+  aiDecision     TriageDecision  @map("ai_decision")
+  aiReason       String?         @map("ai_reason")
+  aiConfidence   Float?          @map("ai_confidence")
+  aiCategory     String?         @map("ai_category")
+  userDecision   TriageDecision? @map("user_decision")
+  executed       Boolean         @default(false)
+  executedAt     DateTime?       @map("executed_at")
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  session EmailTriageSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([aiDecision])
+  @@index([executed])
+  @@map("email_triage_items")
+}
+
+enum TriageSessionStatus {
+  PENDING
+  FETCHING
+  CLASSIFYING
+  READY
+  EXECUTING
+  DONE
+  FAILED
+}
+
+enum TriageDecision {
+  TRASH
+  ARCHIVE
+  KEEP
+  REVIEW
 }

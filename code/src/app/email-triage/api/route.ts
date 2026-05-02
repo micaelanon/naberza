@@ -1,0 +1,58 @@
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+import { authOptions } from "@/lib/auth";
+import { EmailTriageRepository } from "@/modules/email-triage/email-triage.repository";
+import { EmailTriageService } from "@/modules/email-triage/email-triage.service";
+import { MailImapAdapter } from "@/lib/adapters/mail/mail-imap.adapter";
+
+const repository = new EmailTriageRepository();
+const service = new EmailTriageService(repository, () => {
+  // Uses env-configured IMAP mailbox. Future: resolve from connection config.
+  const connectionConfig = {
+    id: "email-imap",
+    name: "Mailbox IMAP",
+    type: "email_imap" as const,
+    status: "active" as const,
+    permissions: { read: true, write: true },
+    config: {
+      host: process.env.MAILBOX_IMAP_HOST ?? "",
+      port: Number(process.env.MAILBOX_IMAP_PORT ?? "993"),
+      secure: true,
+      user: process.env.MAILBOX_IMAP_USER ?? "",
+      password: process.env.MAILBOX_IMAP_PASSWORD ?? "",
+    },
+  };
+  return new MailImapAdapter(connectionConfig);
+});
+
+export async function POST(_request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const result = await service.startSession();
+    return NextResponse.json({ data: result }, { status: 201 });
+  } catch (error) {
+    console.error("[EmailTriage API] POST /api/email-triage:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const sessions = await service.listSessions();
+    return NextResponse.json({ data: sessions });
+  } catch (error) {
+    console.error("[EmailTriage API] GET /api/email-triage:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
