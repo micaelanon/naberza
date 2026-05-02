@@ -1,0 +1,344 @@
+.email-triage-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 900px;
+}
+
+.email-triage-view__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.email-triage-view__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #2a2a2a);
+  margin: 0;
+}
+
+.email-triage-view__subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #888);
+  margin: 0;
+}
+
+.email-triage-view__actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.email-triage-view__start-btn {
+  padding: 0.5rem 1.25rem;
+  background: var(--color-olive, #606c38);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.email-triage-view__start-btn:hover {
+  background: var(--color-olive-dark, #4a5428);
+}
+
+.email-triage-view__start-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.email-triage-view__warning {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #888);
+  max-width: 600px;
+  line-height: 1.4;
+}
+
+/* ─── Progress ─────────────────────────────────── */
+
+.email-triage-view__progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.email-triage-view__progress-bar {
+  width: 100%;
+  max-width: 400px;
+  height: 8px;
+  background: var(--color-border, #e5e5e5);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.email-triage-view__progress-fill {
+  height: 100%;
+  background: var(--color-olive, #606c38);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.email-triage-view__progress-text {
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #888);
+}
+
+/* ─── Summary sections ─────────────────────────── */
+
+.email-triage-view__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.email-triage-section {
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.email-triage-section__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.email-triage-section__header:hover {
+  background: var(--color-surface, #fafaf7);
+}
+
+.email-triage-section__icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.email-triage-section__label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.email-triage-section__count {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, #888);
+  background: var(--color-border, #e5e5e5);
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.email-triage-section__body {
+  padding: 0.5rem 1rem 1rem;
+}
+
+.email-triage-section__group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  transition: background 0.15s;
+}
+
+.email-triage-section__group:hover {
+  background: var(--color-surface, #fafaf7);
+}
+
+.email-triage-section__group-category {
+  flex: 1;
+  color: var(--color-text-muted, #888);
+  font-size: 0.75rem;
+}
+
+.email-triage-section__group-count {
+  font-weight: 500;
+  min-width: 2rem;
+  text-align: right;
+}
+
+.email-triage-section__group-override {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  background: none;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--color-text-muted, #888);
+  transition: background 0.15s, color 0.15s;
+}
+
+.email-triage-section__group-override:hover {
+  background: var(--color-olive, #606c38);
+  color: white;
+  border-color: var(--color-olive, #606c38);
+}
+
+/* ─── Execute ──────────────────────────────────── */
+
+.email-triage-view__execute {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 8px;
+}
+
+.email-triage-view__execute-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--color-error, #c0392b);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.email-triage-view__execute-btn:hover {
+  background: #a93226;
+}
+
+.email-triage-view__execute-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.email-triage-view__execute-info {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #888);
+}
+
+/* ─── Done ─────────────────────────────────────── */
+
+.email-triage-view__done {
+  text-align: center;
+  padding: 2rem;
+}
+
+.email-triage-view__done-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.email-triage-view__done-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2a2a2a);
+}
+
+/* ─── Failed ───────────────────────────────────── */
+
+.email-triage-view__failed {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-error-text);
+}
+
+/* ─── Loading / Error states ───────────────────── */
+
+.email-triage-view__loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-muted, #888);
+}
+
+.email-triage-view__error {
+  padding: 1rem;
+  color: var(--color-error-text);
+  background: var(--color-error-bg);
+  border-radius: 6px;
+}
+
+/* ─── Confirm execute modal inline ─────────────── */
+
+.email-triage-view__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-text);
+  border-radius: 8px;
+}
+
+.email-triage-view__confirm-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-error-text);
+  margin: 0;
+}
+
+.email-triage-view__confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.email-triage-view__confirm-yes {
+  padding: 0.5rem 1rem;
+  background: var(--color-error, #c0392b);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.email-triage-view__confirm-yes:hover {
+  background: #a93226;
+}
+
+.email-triage-view__confirm-no {
+  padding: 0.5rem 1rem;
+  background: var(--color-border, #e5e5e5);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* ─── Sessions history ─────────────────────────── */
+
+.email-triage-view__history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.email-triage-view__history-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.email-triage-view__history-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+}
+
+.email-triage-view__history-status {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+}

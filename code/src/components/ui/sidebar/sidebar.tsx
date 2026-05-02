@@ -21,7 +21,8 @@ const Sidebar = ({ versionLabel }: SidebarProps) => {
 
   const navItems = [
     { id: "home", label: t("app.nav.appTitle"), icon: "grid_view", href: "/" },
-    { id: "mail", label: t("app.nav.mail"), icon: "mark_email_unread", href: ROUTE_PATHS.MAIL_ANALYSIS },
+    { id: "mail-analysis", label: t("app.nav.mail"), icon: "mark_email_unread", href: ROUTE_PATHS.MAIL_ANALYSIS },
+    { id: "email-triage", label: t("app.nav.emailTriage"), icon: "inbox", href: ROUTE_PATHS.EMAIL_TRIAGE },
     { id: "tasks", label: t("app.nav.tasks"), icon: "check_circle", href: ROUTE_PATHS.TASKS },
     { id: "documents", label: t("app.nav.documents"), icon: "description", href: ROUTE_PATHS.DOCUMENTS },
     { id: "invoices", label: t("app.nav.invoices"), icon: "receipt_long", href: ROUTE_PATHS.INVOICES },
