@@ -32,6 +32,7 @@ const Sidebar = ({ versionLabel }: SidebarProps) => {
     { id: "automations", label: t("app.nav.automations"), icon: "smart_toy", href: ROUTE_PATHS.AUTOMATIONS },
     { id: "integrations", label: t("app.nav.integrations"), icon: "hub", href: ROUTE_PATHS.INTEGRATIONS },
     { id: "wishlist", label: t("app.nav.wishlist"), icon: "favorite", href: ROUTE_PATHS.WISHLIST },
+    { id: "projects", label: t("app.nav.projects"), icon: "folder", href: ROUTE_PATHS.PROJECTS },
   ];
 
   const bottomItems = [

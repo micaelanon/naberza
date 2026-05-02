@@ -604,3 +604,45 @@ enum WishlistStatus {
   BOUGHT
   DISCARDED
 }
+
+// ─────────────────────────────────────────────
+// PROJECTS module
+// ─────────────────────────────────────────────
+
+model Project {
+  id          String         @id @default(cuid())
+  name        String
+  description String?        @db.Text
+  status      ProjectStatus  @default(ACTIVE)
+  tags        String[]
+  startedAt   DateTime?      @map("started_at")
+  dueAt       DateTime?      @map("due_at")
+  completedAt DateTime?      @map("completed_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  notes ProjectNote[]
+
+  @@index([status])
+  @@map("projects")
+}
+
+model ProjectNote {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  body      String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("project_notes")
+}
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
