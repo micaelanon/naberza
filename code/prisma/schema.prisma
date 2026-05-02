@@ -575,3 +575,32 @@ enum TriageDecision {
   KEEP
   REVIEW
 }
+
+// ─────────────────────────────────────────────
+// WISHLIST module
+// ─────────────────────────────────────────────
+
+model WishlistItem {
+  id          String         @id @default(cuid())
+  title       String
+  url         String?
+  notes       String?        @db.Text
+  priceEst    Decimal?       @map("price_est") @db.Decimal(10, 2)
+  currency    String         @default("EUR")
+  priority    Priority       @default(MEDIUM)
+  status      WishlistStatus @default(PENDING)
+  tags        String[]
+  purchasedAt DateTime?      @map("purchased_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([priority])
+  @@map("wishlist_items")
+}
+
+enum WishlistStatus {
+  PENDING
+  BOUGHT
+  DISCARDED
+}
