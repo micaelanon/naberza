@@ -70,6 +70,16 @@ const MailAnalysisPage = async () => {
                   <div className="digest-card__title">{group.sender}</div>
                   <div className="digest-card__detail">{t("app.mailAnalysis.repeatedEmails", { count: group.count })}</div>
                   <div className="digest-card__detail">{group.samples.join(" · ")}</div>
+                  {group.unsubscribeUrl && (
+                    <a
+                      href={group.unsubscribeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="digest-card__action"
+                    >
+                      Abrir link de baja
+                    </a>
+                  )}
                 </div>
               ))}
             </div>
