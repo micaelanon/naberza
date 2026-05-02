@@ -27,4 +27,6 @@ export const env = {
   smtpPassword: process.env.SMTP_PASSWORD,
   smtpFromAddress: process.env.SMTP_FROM_ADDRESS ?? "naberza@localhost",
   smtpDefaultTo: process.env.SMTP_DEFAULT_TO,
+  // AI — server only
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
 } as const;
