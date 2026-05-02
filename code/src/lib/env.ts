@@ -29,4 +29,6 @@ export const env = {
   smtpDefaultTo: process.env.SMTP_DEFAULT_TO,
   // AI — server only
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  // Digest — server only
+  digestCronToken: process.env.DIGEST_CRON_TOKEN,
 } as const;
