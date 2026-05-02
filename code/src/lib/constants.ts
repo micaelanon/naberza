@@ -15,6 +15,7 @@ export const ROUTE_PATHS = {
   MAIL_ANALYSIS: "/mail-analysis",
   EMAIL_TRIAGE: "/email-triage/dashboard",
   WISHLIST: "/wishlist/dashboard",
+  PROJECTS: "/projects/dashboard",
 } as const;
 
 // ─── API endpoints (internos) ──────────────────────────────────────
