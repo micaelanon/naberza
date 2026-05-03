@@ -1,5 +1,5 @@
-import { classifyEmailBatch } from "@/lib/email-triage/email-classifier";
-import type { EmailToClassify } from "@/lib/email-triage/email-classifier";
+import { classifyEmailBatch } from "@/lib/email-triage/email-classifier-vertex";
+import type { EmailToClassify } from "@/lib/email-triage/email-classifier-vertex";
 import type { MailImapAdapter, EmailMessage } from "@/lib/adapters/mail/mail-imap.adapter";
 import type { EmailTriageRepository } from "./email-triage.repository";
 import type { TriageSessionSummary, TriageItemView } from "./email-triage.types";

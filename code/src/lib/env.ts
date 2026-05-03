@@ -29,6 +29,8 @@ export const env = {
   smtpDefaultTo: process.env.SMTP_DEFAULT_TO,
   // AI — server only
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  // Google Vertex AI — server only
+  googleServiceAccountPath: process.env.GOOGLE_SERVICE_ACCOUNT_PATH ?? "./vertex-key.json",
   // Digest — server only
   digestCronToken: process.env.DIGEST_CRON_TOKEN,
 } as const;

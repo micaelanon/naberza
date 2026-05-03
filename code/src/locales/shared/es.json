@@ -115,7 +115,7 @@
       "audit": "Auditoría",
       "automations": "Automaciones",
       "documents": "Documentos",
-      "emailTriage": "Triage de correo",
+      "emailTriage": "Limpieza de bandeja",
       "finance": "Finanzas",
       "home": "Casa",
       "invoices": "Facturas",
@@ -126,7 +126,7 @@
       "projects": "Proyectos",
       "subscriptions": "Suscripciones",
       "mail": "Análisis",
-      "emailTriage": "Triage de correo",
+      "emailTriage": "Limpieza de bandeja",
       "tasks": "Tareas",
       "users": "Ajustes"
     },
@@ -410,6 +410,165 @@
     },
     "toast": {
       "close": "Cerrar"
+    },
+    "wishlist": {
+      "title": "Wishlist",
+      "action": {
+        "new": "+ Nueva wishlist",
+        "create": "Añadir",
+        "save": "Guardar cambios",
+        "markBought": "Marcar como comprado"
+      },
+      "namePlaceholder": "¿Qué quieres comprar?",
+      "urlPlaceholder": "URL del producto",
+      "pricePlaceholder": "Precio estimado",
+      "notesPlaceholder": "Notas (opcional)",
+      "tagsPlaceholder": "Etiquetas (separadas por coma)",
+      "searchPlaceholder": "Buscar...",
+      "priority": {
+        "high": "Alta",
+        "medium": "Media",
+        "low": "Baja",
+        "none": "Sin prioridad"
+      },
+      "status": {
+        "pending": "Pendiente",
+        "bought": "Comprado",
+        "discarded": "Descartado"
+      },
+      "filter": {
+        "all": "Todos",
+        "clear": "Limpiar filtros",
+        "count": "{filtered} de {total}"
+      },
+      "empty": {
+        "default": "Aún no tienes nada en tu wishlist.",
+        "filtered": "No hay elementos que coincidan con los filtros."
+      },
+      "error": {
+        "load": "Error al cargar la wishlist",
+        "create": "Error al crear el elemento",
+        "save": "Error al guardar",
+        "delete": "Error al eliminar",
+        "requiredTitle": "El nombre es obligatorio"
+      },
+      "toast": {
+        "created": "Añadido a la wishlist",
+        "deleted": "Elemento eliminado",
+        "bought": "¡Comprado!"
+      },
+      "paginationLabel": "elementos"
+    },
+    "projects": {
+      "title": "Proyectos",
+      "action": {
+        "new": "+ Nuevo proyecto",
+        "create": "Crear proyecto",
+        "save": "Guardar cambios"
+      },
+      "namePlaceholder": "Nombre del proyecto",
+      "descPlaceholder": "Descripción (opcional)",
+      "tagsPlaceholder": "Etiquetas (separadas por coma)",
+      "notePlaceholder": "Añadir nota...",
+      "status": {
+        "active": "Activo",
+        "paused": "Pausado",
+        "completed": "Completado",
+        "archived": "Archivado"
+      },
+      "empty": {
+        "default": "Aún no tienes proyectos."
+      },
+      "error": {
+        "load": "Error al cargar proyectos",
+        "create": "Error al crear el proyecto",
+        "save": "Error al guardar",
+        "delete": "Error al eliminar",
+        "requiredName": "El nombre es obligatorio"
+      },
+      "toast": {
+        "created": "Proyecto creado",
+        "deleted": "Proyecto eliminado"
+      }
+    },
+    "subscriptions": {
+      "title": "Suscripciones",
+      "monthly": "Total mensual",
+      "annual": "Total anual",
+      "action": {
+        "new": "+ Nueva suscripción",
+        "create": "Añadir",
+        "save": "Guardar cambios"
+      },
+      "namePlaceholder": "Nombre",
+      "providerPlaceholder": "Proveedor",
+      "amountPlaceholder": "Importe",
+      "urlPlaceholder": "URL",
+      "notesPlaceholder": "Notas (opcional)",
+      "alertDaysPlaceholder": "Alertar días antes",
+      "status": {
+        "active": "Activa",
+        "cancelled": "Cancelada",
+        "paused": "Pausada"
+      },
+      "empty": {
+        "default": "Aún no tienes suscripciones registradas."
+      },
+      "error": {
+        "load": "Error al cargar suscripciones",
+        "create": "Error al crear la suscripción",
+        "save": "Error al guardar",
+        "delete": "Error al eliminar",
+        "requiredName": "El nombre es obligatorio"
+      },
+      "toast": {
+        "created": "Suscripción añadida",
+        "deleted": "Suscripción eliminada"
+      }
+    },
+    "emailTriage": {
+      "title": "Limpieza de bandeja",
+      "subtitle": "Analiza tu inbox con IA para decidir qué correos se pueden archivar, conservar o mover a la papelera.",
+      "startBtn": "Analizar inbox con IA",
+      "warning": "La IA analizará hasta 500 emails. Los emails con adjuntos PDF y los de menos de 48 horas nunca se borrarán automáticamente.",
+      "progress": {
+        "fetching": "Descargando emails...",
+        "classifying": "Clasificando con IA...",
+        "executing": "Moviendo a la papelera...",
+        "done": "Completado",
+        "failed": "Falló"
+      },
+      "results": {
+        "title": "Resultados del triage",
+        "count": "{count} correos analizados",
+        "section": {
+          "trash": "Mover a papelera",
+          "archive": "Archivar",
+          "keep": "Conservar",
+          "review": "Revisar tú"
+        },
+        "override": {
+          "keep": "Conservar",
+          "trash": "Papelera"
+        },
+        "confirm": "¿Mover {count} correos a la papelera? Gmail los retiene 30 días.",
+        "confirmYes": "Sí, mover a papelera",
+        "confirmNo": "Cancelar",
+        "execute": "Mover {count} correos a la papelera",
+        "dryRun": "Dry run: los correos no se moverán hasta que confirmes.",
+        "done": "{trashed} correos movidos a la papelera",
+        "doneErrors": "{trashed} correos movidos a la papelera ({errors} errores)",
+        "newSession": "Nueva sesión"
+      },
+      "history": {
+        "title": "Sesiones anteriores"
+      },
+      "error": {
+        "start": "No se pudo iniciar la sesión de triage",
+        "execute": "Error al ejecutar el borrado",
+        "load": "Error al cargar",
+        "failed": "La sesión de triage falló."
+      }
     }
   }
 }
