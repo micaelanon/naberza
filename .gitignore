@@ -23,3 +23,5 @@ LOCAL-DEV-QUICK-START.sh
 
 # Local AI progress tracking
 .local/
+vertex-key.json
+code/vertex-key.json
