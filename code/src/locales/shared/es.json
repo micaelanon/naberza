@@ -106,8 +106,10 @@
         "senders": "5 remitentes más repetidos",
         "suggestions": "Sugerencias útiles"
       },
-      "subtitle": "No te enseño el mail entero, solo señales y sugerencias útiles detectadas sobre lo ya ingerido.",
-      "title": "Análisis de correo"
+      "subtitle": "Señales detectadas en los correos ya procesados.",
+      "title": "Análisis de correo",
+      "triageCta": "Limpiar bandeja con IA",
+      "unsubscribeLink": "Abrir link de baja"
     },
     "nav": {
       "appTitle": "Dashboard",

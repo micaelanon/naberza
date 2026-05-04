@@ -190,3 +190,29 @@
   background: var(--color-olive, #606c38);
   color: white;
 }
+
+/* ─── Mail Analysis: triage CTA ─────────────────────────────── */
+
+.mail-analysis__triage-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-olive, #606c38);
+  color: white;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.mail-analysis__triage-cta:hover {
+  background: var(--color-olive-dark, #4a5428);
+}
+
+.mail-analysis__triage-cta .material-symbols-outlined {
+  font-size: 1.1rem;
+  font-variation-settings: "FILL" 0, "wght" 300;
+}
