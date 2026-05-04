@@ -126,14 +126,16 @@ function buildPendingInvoiceItem(
 }
 
 function buildUsefulSignals(documentsCount: number, isQuietDay: boolean): ActionDigestItem[] {
-  const signals: ActionDigestItem[] = [
-    {
+  const signals: ActionDigestItem[] = [];
+
+  if (documentsCount > 0) {
+    signals.push({
       id: "documents-total",
       title: `${documentsCount} documentos archivados`,
-      detail: "Paperless ya está aportando contexto documental al sistema.",
+      detail: "Accede a tus documentos gestionados por Paperless.",
       href: ROUTE_PATHS.DOCUMENTS,
-    },
-  ];
+    });
+  }
 
   if (isQuietDay) {
     signals.push({

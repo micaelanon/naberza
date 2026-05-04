@@ -31,4 +31,6 @@ export const env = {
   geminiApiKey: process.env.GEMINI_API_KEY,
   // Digest — server only
   digestCronToken: process.env.DIGEST_CRON_TOKEN,
+  // OpenClaw Codex (optional, local only)
+  openclawCodexAuthPath: process.env.OPENCLAW_CODEX_AUTH_PATH,
 } as const;
