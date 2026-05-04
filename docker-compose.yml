@@ -40,6 +40,15 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:3000/api}
+
+      # IMAP
+      MAIL_IMAP_HOST: ${MAIL_IMAP_HOST:-}
+      MAIL_IMAP_PORT: ${MAIL_IMAP_PORT:-993}
+      MAIL_IMAP_USER: ${MAIL_IMAP_USER:-}
+      MAIL_IMAP_PASSWORD: ${MAIL_IMAP_PASSWORD:-}
+
+      # AI / Vertex
+      GOOGLE_APPLICATION_CREDENTIALS: /app/vertex-key.json
     ports:
       - '3000:3000'
     # NOTE: Volumes are disabled to use built image directly

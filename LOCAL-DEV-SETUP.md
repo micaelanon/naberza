@@ -9,7 +9,7 @@
 ## Quick Start (Script Automático)
 
 ```bash
-cd /Users/micaelai/.openclaw/workspace/naberza
+cd /Users/micaelai/.openclaw/workspace/projects/naberza
 chmod +x start-dev.sh
 ./start-dev.sh
 ```
@@ -28,7 +28,7 @@ El script automáticamente:
 ### 1. Navega al proyecto
 
 ```bash
-cd /Users/micaelai/.openclaw/workspace/naberza
+cd /Users/micaelai/.openclaw/workspace/projects/naberza
 ```
 
 ### 2. Verifica rama

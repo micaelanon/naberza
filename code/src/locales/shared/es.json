@@ -531,6 +531,8 @@
       "subtitle": "Analiza tu inbox con IA para decidir qué correos se pueden archivar, conservar o mover a la papelera.",
       "startBtn": "Analizar inbox con IA",
       "warning": "La IA analizará hasta 500 emails. Los emails con adjuntos PDF y los de menos de 48 horas nunca se borrarán automáticamente.",
+      "emailCount": "{count} correos",
+      "moreEmails": "+{count} correos más",
       "progress": {
         "fetching": "Descargando emails...",
         "classifying": "Clasificando con IA...",
@@ -538,9 +540,19 @@
         "done": "Completado",
         "failed": "Falló"
       },
+      "status": {
+        "pending": "Pendiente",
+        "fetching": "Descargando",
+        "classifying": "Clasificando",
+        "ready": "Listo",
+        "executing": "Ejecutando",
+        "done": "Completado",
+        "failed": "Falló"
+      },
       "results": {
         "title": "Resultados del triage",
         "count": "{count} correos analizados",
+        "operationDone": "Operación completada",
         "section": {
           "trash": "Mover a papelera",
           "archive": "Archivar",
