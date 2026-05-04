@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧪 Codex Usage Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 32px;
+      width: 480px;
+    }
+    h1 {
+      font-size: 18px;
+      margin-bottom: 24px;
+      color: #999;
+    }
+    .model {
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #222;
+      border-radius: 12px;
+    }
+    .model-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .model-name {
+      color: #ccc;
+      font-weight: 600;
+    }
+    .model-status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .status-ok { background: #1a3a1a; color: #4ade80; }
+    .status-limit { background: #3a1a1a; color: #f87171; }
+    .status-unknown { background: #2a2a1a; color: #fbbf24; }
+    .bar {
+      width: 100%;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .bar-daily { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .bar-weekly { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .bar-cost { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #888;
+    }
+    .stats span { display: flex; align-items: center; gap: 4px; }
+    .refresh-btn {
+      width: 100%;
+      padding: 10px;
+      margin-top: 16px;
+      background: #333;
+      border: 1px solid #555;
+      border-radius: 8px;
+      color: #ccc;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .refresh-btn:hover { background: #444; }
+    .legend {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #333;
+      font-size: 11px;
+      color: #666;
+    }
+    .loading { text-align: center; color: #666; padding: 40px; }
+    .error { color: #f87171; font-size: 13px; padding: 16px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🧪 OpenAI Codex — Uso en tiempo real</h1>
+    <div id="content">
+      <div class="loading">Consultando OpenClaw...</div>
+    </div>
+    <button class="refresh-btn" onclick="fetchStatus()">🔄 Actualizar</button>
+    <div class="legend">
+      Basado en datos de session_status de OpenClaw.
+      Límites estimados: 160 msg/día · 1000 msg/semana para ChatGPT Plus.
+      No es oficial, es orientativo.
+    </div>
+  </div>
+
+  <script>
+    const OPENCLAW_GATEWAY = 'http://localhost:18789';
+    // Este token es para la API del gateway, no la de OpenAI.
+    // Necesitarías configurar auth si el gateway lo requiere.
+    // Por ahora haremos una simulación con datos de prueba.
+
+    async function fetchStatus() {
+      const content = document.getElementById('content');
+      content.innerHTML = '<div class="loading">Consultando OpenClaw...</div>';
+
+      try {
+        // Intentamos llamar al gateway de OpenClaw
+        // Nota: puede necesitar autenticación
+        const resp = await fetch(`${OPENCLAW_GATEWAY}/api/status`, {
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (!resp.ok) {
+          throw new Error(`Gateway responded ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        renderStatus(data);
+      } catch (e) {
+        // Si falla, mostramos datos de ejemplo para ver el diseño
+        content.innerHTML = `
+          <div class="error">
+            ⚠️ No se pudo conectar con OpenClaw gateway (${e.message})<br>
+            Mostrando datos de ejemplo:
+          </div>
+        `;
+        renderMockData(content);
+      }
+    }
+
+    function renderMockData(container) {
+      // Simulamos el estado que veríamos si OpenAI Codex estuviese funcionando
+      const models = [
+        {
+          name: '💰 Codex GPT-5.4',
+          dailyUsed: 45,
+          dailyLimit: 160,
+          weeklyUsed: 720,
+          weeklyLimit: 1000,
+          weeklyReset: 'en 2h 15m',
+          cost: 2.45,
+          status: 'ok'
+        },
+        {
+          name: '💰 Codex GPT-5.3',
+          dailyUsed: 12,
+          dailyLimit: 160,
+          weeklyUsed: 340,
+          weeklyLimit: 1000,
+          weeklyReset: 'en 2h 15m',
+          cost: 0.80,
+          status: 'ok'
+        },
+        {
+          name: '💰 Codex GPT-5.5',
+          dailyUsed: 0,
+          dailyLimit: 160,
+          weeklyUsed: 1000,
+          weeklyLimit: 1000,
+          weeklyReset: 'en 2h 15m',
+          cost: 4.20,
+          status: 'limit'
+        }
+      ];
+
+      renderModels(container, models);
+    }
+
+    function renderModels(container, models) {
+      let html = '';
+      models.forEach(m => {
+        const dailyPct = Math.round((m.dailyUsed / m.dailyLimit) * 100);
+        const weeklyPct = Math.round((m.weeklyUsed / m.weeklyLimit) * 100);
+        const statusClass = m.status === 'limit' ? 'status-limit' : (m.status === 'ok' ? 'status-ok' : 'status-unknown');
+        const statusText = m.status === 'limit' ? '⛔ Límite' : (m.status === 'ok' ? '✅ Activo' : '❓');
+
+        html += `
+          <div class="model">
+            <div class="model-header">
+              <span class="model-name">${m.name}</span>
+              <span class="model-status ${statusClass}">${statusText}</span>
+            </div>
+            <div style="font-size:12px;color:#888;margin-bottom:4px;">
+              📊 Diario: ${m.dailyUsed}/${m.dailyLimit} mensajes
+            </div>
+            <div class="bar">
+              <div class="bar-fill bar-daily" style="width:${Math.min(dailyPct, 100)}%"></div>
+            </div>
+            <div style="font-size:12px;color:#888;margin:8px 0 4px;">
+              📅 Semanal: ${m.weeklyUsed}/${m.weeklyLimit} mensajes
+              ${m.weeklyReset ? `<span style="color:#fbbf24">· Reset ${m.weeklyReset}</span>` : ''}
+            </div>
+            <div class="bar">
+              <div class="bar-fill bar-weekly" style="width:${Math.min(weeklyPct, 100)}%"></div>
+            </div>
+            <div class="stats">
+              <span>💰 Coste: $${m.cost.toFixed(2)}</span>
+              <span>${weeklyPct >= 80 ? '🔴' : (weeklyPct >= 50 ? '🟡' : '🟢')} ${weeklyPct}% semanal</span>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // No usamos renderStatus si no tenemos datos reales aún
+    function renderStatus(data) {
+      const container = document.getElementById('content');
+      // Si logramos conectar con el gateway, procesar aquí
+      renderModels(container, data.models || []);
+    }
+
+    // Inicializar
+    fetchStatus();
+  </script>
+</body>
+</html>

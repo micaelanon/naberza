@@ -26,7 +26,7 @@ describe("EmailTriageView (idle)", () => {
 
     render(<EmailTriageView />);
 
-    expect(screen.getByText("Analizar inbox con IA")).toBeDefined();
+    expect(screen.getByText("app.emailTriage.startBtn")).toBeDefined();
   });
 
   it("shows warning text", async () => {
@@ -37,6 +37,6 @@ describe("EmailTriageView (idle)", () => {
 
     render(<EmailTriageView />);
 
-    expect(screen.getByText(/menos de 48 horas/)).toBeDefined();
+    expect(screen.getByText("app.emailTriage.warning")).toBeDefined();
   });
 });

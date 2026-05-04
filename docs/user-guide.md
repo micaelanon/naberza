@@ -3,7 +3,7 @@
 ## 1. Arrancar el sistema
 
 ```bash
-cd ~/.openclaw/workspace/naberza
+cd ~/.openclaw/workspace/projects/naberza
 docker compose up -d
 ```
 
