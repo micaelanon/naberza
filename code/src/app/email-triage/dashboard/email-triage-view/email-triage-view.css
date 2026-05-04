@@ -151,8 +151,73 @@
   transition: background 0.15s;
 }
 
-.email-triage-section__group:hover {
+.email-triage-section__group:hover .email-triage-section__group-body {
   background: var(--color-surface, #fafaf7);
+}
+
+.email-triage-section__group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.email-triage-section__group-body {
+  padding: 0.25rem 0;
+}
+
+.email-triage-section__item-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.35rem 0.5rem 0.35rem 1rem;
+  border-left: 2px solid var(--color-border, #e5e5e5);
+  margin: 0.25rem 0;
+  font-size: 0.8125rem;
+}
+
+.email-triage-section__item-row-main {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.email-triage-section__item-subject {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 400px;
+}
+
+.email-triage-section__item-from {
+  color: var(--color-text-muted, #888);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.email-triage-section__item-row-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.email-triage-section__item-date {
+  color: var(--color-text-muted, #888);
+  font-size: 0.7rem;
+}
+
+.email-triage-section__item-reason {
+  color: var(--color-olive, #606c38);
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+.email-triage-section__group-more {
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #888);
+  font-style: italic;
 }
 
 .email-triage-section__group-category {

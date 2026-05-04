@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 import { authOptions } from "@/lib/auth";
 import { EmailTriageRepository } from "@/modules/email-triage/email-triage.repository";
@@ -15,18 +16,20 @@ const service = new EmailTriageService(repository, () => {
     status: "active" as const,
     permissions: { read: true, write: true },
     config: {
-      host: process.env.MAILBOX_IMAP_HOST ?? "",
-      port: Number(process.env.MAILBOX_IMAP_PORT ?? "993"),
+      host: process.env.MAIL_IMAP_HOST ?? "",
+      port: Number(process.env.MAIL_IMAP_PORT ?? "993"),
       secure: true,
-      user: process.env.MAILBOX_IMAP_USER ?? "",
-      password: process.env.MAILBOX_IMAP_PASSWORD ?? "",
+      user: process.env.MAIL_IMAP_USER ?? "",
+      password: process.env.MAIL_IMAP_PASSWORD ?? "",
     },
   };
   return new MailImapAdapter(connectionConfig);
 });
 
-export async function GET(
-  _request: Request,
+const VALID_DECISIONS = ["TRASH", "ARCHIVE", "KEEP", "REVIEW"];
+
+export async function POST(
+  request: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> },
 ) {
   const session = await getServerSession(authOptions);
@@ -37,21 +40,27 @@ export async function GET(
   const { sessionId } = await params;
 
   try {
-    const sessionData = await service.getSession(sessionId);
-    if (!sessionData) {
-      return NextResponse.json({ error: "Session not found" }, { status: 404 });
+    const body = (await request.json()) as Record<string, unknown>;
+    const aiCategory = body.aiCategory as string | undefined;
+    const decision = body.decision as string | undefined;
+
+    if (!aiCategory || !decision || !VALID_DECISIONS.includes(decision)) {
+      return NextResponse.json(
+        {
+          error: `Invalid request. Requires aiCategory and decision (one of: ${VALID_DECISIONS.join(", ")})`,
+        },
+        { status: 400 },
+      );
     }
 
-    const items = await service.getSessionItems(sessionId);
+    await service.overrideCategoryDecision(sessionId, aiCategory, decision);
 
-    return NextResponse.json({
-      data: {
-        session: sessionData,
-        items,
-      },
-    });
+    return NextResponse.json({ data: { sessionId, aiCategory, decision } });
   } catch (error) {
-    console.error(`[EmailTriage API] GET /api/email-triage/${sessionId}:`, error);
+    console.error(
+      `[EmailTriage API] POST /api/email-triage/${sessionId}/override-category:`,
+      error,
+    );
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -40,23 +40,52 @@ function ProgressView({ progressPct, viewState }: { progressPct: number; viewSta
   );
 }
 
+function ItemRow({ item }: { item: ItemApiResponse }): ReactNode {
+  return (
+    <div className="email-triage-section__item-row">
+      <div className="email-triage-section__item-row-main">
+        <span className="email-triage-section__item-subject">{item.subject}</span>
+        <span className="email-triage-section__item-from">{item.fromAddress}</span>
+      </div>
+      <div className="email-triage-section__item-row-meta">
+        <span className="email-triage-section__item-date">
+          {new Date(item.emailDate).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })}
+        </span>
+        {item.aiReason && <span className="email-triage-section__item-reason">{item.aiReason}</span>}
+      </div>
+    </div>
+  );
+}
+
 function SectionGroup({
-  category, count, sessionId, categoryKey, onOverride,
+  category, items, sessionId, categoryKey, onOverride,
 }: {
-  category: string; count: number; sessionId: string | null; categoryKey: string; onOverride: (sid: string, cat: string, decision: string) => void;
+  category: string; items: ItemApiResponse[]; sessionId: string | null; categoryKey: string; onOverride: (sid: string, cat: string, decision: string) => void;
 }): ReactNode {
   return (
     <div className="email-triage-section__group">
-      <span className="email-triage-section__group-category">{category}</span>
-      <span className="email-triage-section__group-count">{count} correos</span>
-      {sessionId && categoryKey !== "keep" && (
-        <button
-          className="email-triage-section__group-override"
-          onClick={() => onOverride(sessionId, category, categoryKey === "trash" ? "KEEP" : "TRASH")}
-        >
-          {categoryKey === "trash" ? "Conservar" : "Papelera"}
-        </button>
-      )}
+      <div className="email-triage-section__group-header">
+        <span className="email-triage-section__group-category">{category}</span>
+        <span className="email-triage-section__group-count">{items.length} correos</span>
+        {sessionId && categoryKey !== "keep" && (
+          <button
+            className="email-triage-section__group-override"
+            onClick={() => onOverride(sessionId, category, categoryKey === "trash" ? "KEEP" : "TRASH")}
+          >
+            {categoryKey === "trash" ? "Conservar todos" : "Papelera todos"}
+          </button>
+        )}
+      </div>
+      <div className="email-triage-section__group-body">
+        {items.slice(0, 20).map((item) => (
+          <ItemRow key={item.id} item={item} />
+        ))}
+        {items.length > 20 && (
+          <div className="email-triage-section__group-more">
+            +{items.length - 20} correos más en esta categoría
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -70,6 +99,12 @@ function SectionPanel({
   const info = SECTION_LABELS[key_];
   if (items.length === 0) return null;
   const categories = groupByCategory(items);
+  const itemsByCategory = new Map<string, ItemApiResponse[]>();
+  for (const item of items) {
+    const cat = item.aiCategory ?? "other";
+    if (!itemsByCategory.has(cat)) itemsByCategory.set(cat, []);
+    itemsByCategory.get(cat)!.push(item);
+  }
   return (
     <div className="email-triage-section">
       <div className="email-triage-section__header" onClick={() => onToggle(key_)}>
@@ -79,8 +114,8 @@ function SectionPanel({
       </div>
       {!collapsed && (
         <div className="email-triage-section__body">
-          {Array.from(categories.entries()).map(([cat, count]) => (
-            <SectionGroup key={cat} category={cat} count={count} sessionId={sessionId} categoryKey={key_} onOverride={onOverride} />
+          {Array.from(categories.entries()).map(([cat]) => (
+            <SectionGroup key={cat} category={cat} items={itemsByCategory.get(cat) ?? []} sessionId={sessionId} categoryKey={key_} onOverride={onOverride} />
           ))}
         </div>
       )}

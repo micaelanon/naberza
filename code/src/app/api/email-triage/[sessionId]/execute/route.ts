@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
 import { authOptions } from "@/lib/auth";
 import { EmailTriageRepository } from "@/modules/email-triage/email-triage.repository";
@@ -16,48 +15,44 @@ const service = new EmailTriageService(repository, () => {
     status: "active" as const,
     permissions: { read: true, write: true },
     config: {
-      host: process.env.MAILBOX_IMAP_HOST ?? "",
-      port: Number(process.env.MAILBOX_IMAP_PORT ?? "993"),
+      host: process.env.MAIL_IMAP_HOST ?? "",
+      port: Number(process.env.MAIL_IMAP_PORT ?? "993"),
       secure: true,
-      user: process.env.MAILBOX_IMAP_USER ?? "",
-      password: process.env.MAILBOX_IMAP_PASSWORD ?? "",
+      user: process.env.MAIL_IMAP_USER ?? "",
+      password: process.env.MAIL_IMAP_PASSWORD ?? "",
     },
   };
   return new MailImapAdapter(connectionConfig);
 });
 
-const VALID_DECISIONS = ["TRASH", "ARCHIVE", "KEEP", "REVIEW"];
-
 export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ sessionId: string; itemId: string }> },
+  _request: Request,
+  { params }: { params: Promise<{ sessionId: string }> },
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { itemId } = await params;
+  const { sessionId } = await params;
 
   try {
-    const body = (await request.json()) as Record<string, unknown>;
-    const decision = body.decision as string | undefined;
+    const sessionData = await service.getSession(sessionId);
+    if (!sessionData) {
+      return NextResponse.json({ error: "Session not found" }, { status: 404 });
+    }
 
-    if (!decision || !VALID_DECISIONS.includes(decision)) {
+    if (sessionData.status !== "READY") {
       return NextResponse.json(
-        { error: `Invalid decision. Must be one of: ${VALID_DECISIONS.join(", ")}` },
-        { status: 400 },
+        { error: `Session must be READY, current: ${sessionData.status}` },
+        { status: 409 },
       );
     }
 
-    await service.overrideDecision(itemId, decision);
-
-    return NextResponse.json({ data: { itemId, decision } });
+    const result = await service.executeSession(sessionId);
+    return NextResponse.json({ data: result });
   } catch (error) {
-    console.error(
-      `[EmailTriage API] POST /api/email-triage/.../items/${itemId}/override:`,
-      error,
-    );
+    console.error(`[EmailTriage API] POST /api/email-triage/${sessionId}/execute:`, error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

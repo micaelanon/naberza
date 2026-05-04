@@ -1,10 +1,10 @@
-import { classifyEmailBatch } from "@/lib/email-triage/email-classifier-vertex";
-import type { EmailToClassify } from "@/lib/email-triage/email-classifier-vertex";
+import { classifyEmailBatch, type EmailToClassify } from "@/lib/email-triage/email-classifier";
 import type { MailImapAdapter, EmailMessage } from "@/lib/adapters/mail/mail-imap.adapter";
 import type { EmailTriageRepository } from "./email-triage.repository";
 import type { TriageSessionSummary, TriageItemView } from "./email-triage.types";
 
 const FORCE_KEEP_HOURS = 48;
+const FETCH_LIMIT = 500;
 
 function mapEmailToClassify(email: EmailMessage): EmailToClassify {
   return {
@@ -28,8 +28,8 @@ export class EmailTriageService {
     const session = await this.repository.createSession("email-imap");
 
     // Start processing in background (non-blocking)
-    this.processSession(session.id).catch(() => {
-      // Session status updated to FAILED inside processSession
+    this.processSession(session.id).catch((err) => {
+      console.error("[EmailTriage] processSession failed:", err);
     });
 
     return { sessionId: session.id };
@@ -120,7 +120,7 @@ export class EmailTriageService {
 
       // Fetch emails from IMAP adapter
       const adapter = this.adapterFactory();
-      const emails = await adapter.fetchNewMessages();
+      const emails = await adapter.fetchNewMessages(undefined, FETCH_LIMIT);
 
       await this.repository.updateSessionStatus(sessionId, "CLASSIFYING", {
         totalFetched: emails.length,
@@ -273,7 +273,8 @@ export class EmailTriageService {
         keepCount,
         reviewCount,
       });
-    } catch {
+    } catch (err) {
+      console.error("[EmailTriage] processSession error:", err);
       await this.repository
         .updateSessionStatus(sessionId, "FAILED")
         .catch(() => {});

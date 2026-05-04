@@ -34,10 +34,10 @@ vi.mock("@/lib/auth", () => ({
   authOptions: {},
 }));
 
-import { GET as listGet, POST as createPost } from "../api/route";
-import { GET as detailGet } from "../api/[sessionId]/route";
-import { POST as executePost } from "../api/[sessionId]/execute/route";
-import { POST as overridePost } from "../api/[sessionId]/items/[itemId]/override/route";
+import { GET as listGet, POST as createPost } from "../../api/email-triage/route";
+import { GET as detailGet } from "../../api/email-triage/[sessionId]/route";
+import { POST as executePost } from "../../api/email-triage/[sessionId]/execute/route";
+import { POST as overridePost } from "../../api/email-triage/[sessionId]/items/[itemId]/override/route";
 
 function assertAuthenticated() {
   getServerSessionMock.mockResolvedValue({ user: { id: "admin" } });
@@ -79,10 +79,7 @@ describe("POST /api/email-triage", () => {
   it("returns 201 with sessionId", async () => {
     serviceMock.startSession.mockResolvedValue({ sessionId: SESSION_ID });
 
-    const req = new NextRequest("http://localhost/api/email-triage", {
-      method: "POST",
-    });
-    const res = await createPost(req);
+    const res = await createPost();
     expect(res.status).toBe(201);
     const body = await res.json();
     expect(body.data.sessionId).toBe(SESSION_ID);
@@ -90,10 +87,7 @@ describe("POST /api/email-triage", () => {
 
   it("returns 500 on service error", async () => {
     serviceMock.startSession.mockRejectedValue(new Error("IMAP down"));
-    const req = new NextRequest("http://localhost/api/email-triage", {
-      method: "POST",
-    });
-    const res = await createPost(req);
+    const res = await createPost();
     expect(res.status).toBe(500);
   });
 });

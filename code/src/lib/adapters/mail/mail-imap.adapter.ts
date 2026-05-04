@@ -198,7 +198,7 @@ export class MailImapAdapter implements BaseAdapter {
     };
   }
 
-  async fetchNewMessages(since?: Date): Promise<EmailMessage[]> {
+  async fetchNewMessages(since?: Date, limit?: number): Promise<EmailMessage[]> {
     const client = this.createClient();
     const mailbox = this.config.mailbox ?? "INBOX";
 
@@ -211,8 +211,11 @@ export class MailImapAdapter implements BaseAdapter {
       if (since) searchCriteria["since"] = since;
 
       const rawUids = await client.search(searchCriteria, { uid: true });
-      const uids: number[] = Array.isArray(rawUids) ? rawUids : [];
+      let uids: number[] = Array.isArray(rawUids) ? rawUids : [];
       if (!uids.length) return [];
+      if (limit !== undefined && uids.length > limit) {
+        uids = uids.slice(-limit);
+      }
 
       const messages = await client.fetchAll(uids.join(","), {
         envelope: true,

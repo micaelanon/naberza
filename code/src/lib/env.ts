@@ -27,10 +27,8 @@ export const env = {
   smtpPassword: process.env.SMTP_PASSWORD,
   smtpFromAddress: process.env.SMTP_FROM_ADDRESS ?? "naberza@localhost",
   smtpDefaultTo: process.env.SMTP_DEFAULT_TO,
-  // AI — server only
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
-  // Google Vertex AI — server only
-  googleServiceAccountPath: process.env.GOOGLE_SERVICE_ACCOUNT_PATH ?? "./vertex-key.json",
+  // AI — Gemini API
+  geminiApiKey: process.env.GEMINI_API_KEY,
   // Digest — server only
   digestCronToken: process.env.DIGEST_CRON_TOKEN,
 } as const;

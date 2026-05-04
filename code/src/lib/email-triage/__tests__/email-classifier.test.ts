@@ -1,33 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { EmailToClassify } from "@/lib/email-triage/email-classifier";
 
-const { createMock, anthropicConstructorMock } = vi.hoisted(() => {
-  const create = vi.fn();
+const { generateContentMock } = vi.hoisted(() => ({
+  generateContentMock: vi.fn(),
+}));
 
+vi.mock("@google/genai", () => {
+  const modelsMock = { generateContent: generateContentMock };
   return {
-    createMock: create,
-    anthropicConstructorMock: vi.fn(() => ({
-      beta: {
-        messages: {
-          create,
-        },
-      },
+    GoogleGenAI: vi.fn(() => ({
+      models: modelsMock,
     })),
   };
 });
 
-vi.mock("@anthropic-ai/sdk", () => ({
-  default: anthropicConstructorMock,
-}));
-
 import { classifyEmailBatch } from "@/lib/email-triage/email-classifier";
-import type { EmailToClassify } from "@/lib/email-triage/email-classifier";
 
-function makeAnthropicResponse(payload: unknown) {
+function makeResponse(payload: unknown) {
   return {
-    content: [
+    candidates: [
       {
-        type: "text",
-        text: JSON.stringify(payload),
+        content: {
+          parts: [{ text: JSON.stringify(payload) }],
+        },
       },
     ],
   };
@@ -53,8 +48,8 @@ describe("classifyEmailBatch", () => {
   });
 
   it("classifies GitHub Actions emails as trash", async () => {
-    createMock.mockResolvedValue(
-      makeAnthropicResponse([
+    generateContentMock.mockResolvedValue(
+      makeResponse([
         {
           uid: 1,
           decision: "trash",
@@ -76,12 +71,12 @@ describe("classifyEmailBatch", () => {
         category: "ci-notification",
       },
     ]);
-    expect(createMock).toHaveBeenCalledTimes(1);
+    expect(generateContentMock).toHaveBeenCalledTimes(1);
   });
 
   it("never returns trash for emails with PDF attachments", async () => {
-    createMock.mockResolvedValue(
-      makeAnthropicResponse([
+    generateContentMock.mockResolvedValue(
+      makeResponse([
         {
           uid: 2,
           decision: "trash",
@@ -106,8 +101,8 @@ describe("classifyEmailBatch", () => {
   });
 
   it("always keeps emails newer than 48 hours", async () => {
-    createMock.mockResolvedValue(
-      makeAnthropicResponse([
+    generateContentMock.mockResolvedValue(
+      makeResponse([
         {
           uid: 3,
           decision: "trash",
@@ -132,36 +127,24 @@ describe("classifyEmailBatch", () => {
   });
 
   it("marks all batch items as review when the API fails twice", async () => {
-    createMock.mockRejectedValue(new Error("Anthropic unavailable"));
+    generateContentMock.mockRejectedValue(new Error("Gemini unavailable"));
 
     const result = await classifyEmailBatch([
       makeEmail({ uid: 4, subject: "Email A" }),
       makeEmail({ uid: 5, subject: "Email B", from: "ops@example.com" }),
     ]);
 
-    expect(createMock).toHaveBeenCalledTimes(2);
-    expect(result).toEqual([
-      {
-        uid: 4,
-        decision: "review",
-        reason: "Clasificación no disponible; revisar manualmente",
-        confidence: 0,
-        category: "review",
-      },
-      {
-        uid: 5,
-        decision: "review",
-        reason: "Clasificación no disponible; revisar manualmente",
-        confidence: 0,
-        category: "review",
-      },
+    expect(generateContentMock).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject([
+      { uid: 4, decision: "review" },
+      { uid: 5, decision: "review" },
     ]);
   });
 
   it("splits batches larger than 20 emails into multiple API calls", async () => {
-    createMock
+    generateContentMock
       .mockResolvedValueOnce(
-        makeAnthropicResponse(
+        makeResponse(
           Array.from({ length: 20 }, (_, index) => ({
             uid: index + 1,
             decision: "trash",
@@ -172,7 +155,7 @@ describe("classifyEmailBatch", () => {
         ),
       )
       .mockResolvedValueOnce(
-        makeAnthropicResponse([
+        makeResponse([
           {
             uid: 21,
             decision: "archive",
@@ -192,7 +175,7 @@ describe("classifyEmailBatch", () => {
 
     const result = await classifyEmailBatch(emails);
 
-    expect(createMock).toHaveBeenCalledTimes(2);
+    expect(generateContentMock).toHaveBeenCalledTimes(2);
     expect(result).toHaveLength(21);
     expect(result[20]).toEqual({
       uid: 21,

@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
 import { authOptions } from "@/lib/auth";
 import { EmailTriageRepository } from "@/modules/email-triage/email-triage.repository";
@@ -17,17 +16,17 @@ const service = new EmailTriageService(repository, () => {
     status: "active" as const,
     permissions: { read: true, write: true },
     config: {
-      host: process.env.MAILBOX_IMAP_HOST ?? "",
-      port: Number(process.env.MAILBOX_IMAP_PORT ?? "993"),
+      host: process.env.MAIL_IMAP_HOST ?? "",
+      port: Number(process.env.MAIL_IMAP_PORT ?? "993"),
       secure: true,
-      user: process.env.MAILBOX_IMAP_USER ?? "",
-      password: process.env.MAILBOX_IMAP_PASSWORD ?? "",
+      user: process.env.MAIL_IMAP_USER ?? "",
+      password: process.env.MAIL_IMAP_PASSWORD ?? "",
     },
   };
   return new MailImapAdapter(connectionConfig);
 });
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

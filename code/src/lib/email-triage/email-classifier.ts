@@ -1,6 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 
-import { env } from "@/lib/env";
+const VERTEX_PROJECT = process.env.VERTEX_PROJECT_ID ?? "gen-lang-client-0984205249";
+const VERTEX_LOCATION = process.env.VERTEX_LOCATION ?? "global";
 
 export interface EmailToClassify {
   uid: number;
@@ -24,7 +25,6 @@ export interface ClassificationResult {
 }
 
 const EMAIL_BATCH_SIZE = 20;
-const MODEL_ID = "claude-haiku-4-5-20251001";
 const FALLBACK_REASON = "Clasificación no disponible; revisar manualmente";
 const FALLBACK_CATEGORY = "review";
 const PROTECTED_SUBJECT_KEYWORDS = [
@@ -41,6 +41,7 @@ const PROTECTED_SUBJECT_KEYWORDS = [
 ];
 const PDF_ATTACHMENT_EXTENSIONS = [".pdf"];
 const RECENT_EMAIL_WINDOW_MS = 48 * 60 * 60 * 1000;
+
 const SYSTEM_PROMPT = `Eres un asistente personal de limpieza de correo electrónico. Tu trabajo es analizar emails y decidir si se pueden eliminar de forma segura del inbox.
 
 Criterios de decisión:
@@ -57,20 +58,24 @@ REGLAS ABSOLUTAS que no puedes ignorar:
 
 Responde ÚNICAMENTE con un JSON array, sin texto adicional.`;
 
-let anthropicClient: Anthropic | null = null;
+let genAi: GoogleGenAI | null = null;
 
-function getAnthropicClient(): Anthropic {
-  anthropicClient ??= new Anthropic({ apiKey: env.anthropicApiKey });
-  return anthropicClient;
+function getClient(): GoogleGenAI {
+  if (!genAi) {
+    genAi = new GoogleGenAI({
+      vertexai: true,
+      project: VERTEX_PROJECT,
+      location: VERTEX_LOCATION,
+    });
+  }
+  return genAi;
 }
 
 function chunkEmails(emails: EmailToClassify[]): EmailToClassify[][] {
   const batches: EmailToClassify[][] = [];
-
-  for (let index = 0; index < emails.length; index += EMAIL_BATCH_SIZE) {
-    batches.push(emails.slice(index, index + EMAIL_BATCH_SIZE));
+  for (let i = 0; i < emails.length; i += EMAIL_BATCH_SIZE) {
+    batches.push(emails.slice(i, i + EMAIL_BATCH_SIZE));
   }
-
   return batches;
 }
 
@@ -88,29 +93,6 @@ function buildFallbackResults(emails: EmailToClassify[]): ClassificationResult[]
     confidence: 0,
     category: FALLBACK_CATEGORY,
   }));
-}
-
-function parseResponseText(response: unknown): string {
-  if (!response || typeof response !== "object") {
-    throw new Error("Anthropic response is empty");
-  }
-
-  const content = Reflect.get(response, "content");
-  if (!Array.isArray(content)) {
-    throw new Error("Anthropic response content is invalid");
-  }
-
-  const text = content
-    .filter((block) => Boolean(block) && typeof block === "object" && Reflect.get(block, "type") === "text")
-    .map((block) => Reflect.get(block, "text"))
-    .filter((value): value is string => typeof value === "string")
-    .join("\n");
-
-  if (!text.trim()) {
-    throw new Error("Anthropic response does not contain text");
-  }
-
-  return text;
 }
 
 function getNormalizedReason(partialResult: Partial<ClassificationResult> | undefined): string {
@@ -205,51 +187,73 @@ function applyHardRules(email: EmailToClassify, result: ClassificationResult, no
   return result;
 }
 
-async function classifyBatchWithAnthropic(batch: EmailToClassify[], now: Date): Promise<ClassificationResult[]> {
-  const client = getAnthropicClient();
-  const response = await client.beta.messages.create({
-    model: MODEL_ID,
-    max_tokens: 2048,
-    system: [
-      {
-        type: "text",
-        text: SYSTEM_PROMPT,
-        cache_control: { type: "ephemeral" },
-      },
-    ],
-    messages: [
-      {
-        role: "user",
-        content: `Clasifica estos emails. Fecha actual: ${now.toISOString()}\n\n${JSON.stringify(batch, null, 2)}\n\nResponde con:\n[\n  { \"uid\": 123, \"decision\": \"trash\", \"reason\": \"Newsletter de marketing\", \"confidence\": 0.95, \"category\": \"newsletter\" }\n]`,
-      },
-    ],
-  });
+function cleanResponseText(text: string): string {
+  return text
+    .replace(/```json\s*/gi, "")
+    .replace(/```\s*/g, "")
+    .trim();
+}
 
-  const responseText = parseResponseText(response);
-  const parsedResponse = JSON.parse(responseText) as Array<Partial<ClassificationResult>>;
-  const resultByUid = new Map<number, Partial<ClassificationResult>>();
+function buildUserPrompt(batch: EmailToClassify[], now: Date): string {
+  const items = batch.map((e) => ({
+    uid: e.uid,
+    from: e.from,
+    subject: e.subject,
+    date: e.date.toISOString(),
+    hasAttachments: e.hasAttachments,
+    attachmentNames: e.attachmentNames,
+    isRead: e.isRead,
+    snippet: e.snippet,
+  }));
+  return `Clasifica estos emails. Fecha actual: ${now.toISOString()}\n\n${JSON.stringify(items, null, 2)}\n\nResponde ÚNICAMENTE con un JSON array con este formato:\n[\n  { "uid": 123, "decision": "trash", "reason": "...", "confidence": 0.95, "category": "newsletter" }\n]`;
+}
 
-  for (const item of parsedResponse) {
-    if (typeof item.uid === "number") {
-      resultByUid.set(item.uid, item);
-    }
+function extractTextFromGeminiResponse(response: Awaited<ReturnType<ReturnType<typeof getClient>["models"]["generateContent"]>>): string {
+  const text = response.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text?.trim()) throw new Error("Empty response from Gemini");
+  return text;
+}
+
+function buildResultMap(parsed: Array<Partial<ClassificationResult>>): Map<number, Partial<ClassificationResult>> {
+  const map = new Map<number, Partial<ClassificationResult>>();
+  for (const item of parsed) {
+    if (typeof item.uid === "number") map.set(item.uid, item);
   }
+  return map;
+}
 
+async function classifyBatchWithGemini(
+  batch: EmailToClassify[],
+  now: Date,
+): Promise<ClassificationResult[]> {
+  const client = getClient();
+  const response = await client.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [{ role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n" + buildUserPrompt(batch, now) }] }],
+    config: { temperature: 0.1, maxOutputTokens: 4096 },
+  });
+  const parsed = JSON.parse(cleanResponseText(extractTextFromGeminiResponse(response))) as Array<Partial<ClassificationResult>>;
+  const resultByUid = buildResultMap(parsed);
   return batch.map((email) => normalizeResult(email, resultByUid.get(email.uid), now));
 }
 
-async function classifyBatchWithRetry(batch: EmailToClassify[], now: Date): Promise<ClassificationResult[]> {
+async function classifyBatchWithRetry(
+  batch: EmailToClassify[],
+  now: Date,
+): Promise<ClassificationResult[]> {
   try {
-    return await classifyBatchWithAnthropic(batch, now);
+    return await classifyBatchWithGemini(batch, now);
   } catch {
     try {
-      return await classifyBatchWithAnthropic(batch, now);
+      return await classifyBatchWithGemini(batch, now);
     } catch {
-      return buildFallbackResults(batch).map((result) => applyHardRules(
-        batch.find((email) => email.uid === result.uid) as EmailToClassify,
-        result,
-        now,
-      ));
+      return buildFallbackResults(batch).map((result) =>
+        applyHardRules(
+          batch.find((email) => email.uid === result.uid) as EmailToClassify,
+          result,
+          now,
+        ),
+      );
     }
   }
 }
@@ -261,7 +265,9 @@ export async function classifyEmailBatch(emails: EmailToClassify[]): Promise<Cla
 
   const now = new Date();
   const batches = chunkEmails(emails);
-  const results = await Promise.all(batches.map((batch) => classifyBatchWithRetry(batch, now)));
+  const results = await Promise.all(
+    batches.map((batch) => classifyBatchWithRetry(batch, now)),
+  );
 
   return results.flat();
 }
