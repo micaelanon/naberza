@@ -106,10 +106,8 @@
         "senders": "5 remitentes más repetidos",
         "suggestions": "Sugerencias útiles"
       },
-      "subtitle": "Señales detectadas en los correos ya procesados.",
-      "title": "Análisis de correo",
-      "triageCta": "Limpiar bandeja con IA",
-      "unsubscribeLink": "Abrir link de baja"
+      "subtitle": "No te enseño el mail entero, solo señales y sugerencias útiles detectadas sobre lo ya ingerido.",
+      "title": "Análisis de correo"
     },
     "nav": {
       "appTitle": "Dashboard",
@@ -128,7 +126,6 @@
       "projects": "Proyectos",
       "subscriptions": "Suscripciones",
       "mail": "Análisis",
-      "emailTriage": "Limpieza de bandeja",
       "tasks": "Tareas",
       "users": "Ajustes"
     },
@@ -533,8 +530,6 @@
       "subtitle": "Analiza tu inbox con IA para decidir qué correos se pueden archivar, conservar o mover a la papelera.",
       "startBtn": "Analizar inbox con IA",
       "warning": "La IA analizará hasta 500 emails. Los emails con adjuntos PDF y los de menos de 48 horas nunca se borrarán automáticamente.",
-      "emailCount": "{count} correos",
-      "moreEmails": "+{count} correos más",
       "progress": {
         "fetching": "Descargando emails...",
         "classifying": "Clasificando con IA...",
@@ -542,19 +537,9 @@
         "done": "Completado",
         "failed": "Falló"
       },
-      "status": {
-        "pending": "Pendiente",
-        "fetching": "Descargando",
-        "classifying": "Clasificando",
-        "ready": "Listo",
-        "executing": "Ejecutando",
-        "done": "Completado",
-        "failed": "Falló"
-      },
       "results": {
         "title": "Resultados del triage",
         "count": "{count} correos analizados",
-        "operationDone": "Operación completada",
         "section": {
           "trash": "Mover a papelera",
           "archive": "Archivar",
@@ -582,6 +567,57 @@
         "execute": "Error al ejecutar el borrado",
         "load": "Error al cargar",
         "failed": "La sesión de triage falló."
+      }
+    },
+    "dashboardHome": {
+      "shellTitle": "Hoy",
+      "subtitle": "Esto es lo que merece tu atención ahora mismo.",
+      "userFallback": "usuario",
+      "greeting": {
+        "morning": "Buenos días",
+        "afternoon": "Buenas tardes",
+        "night": "Buenas noches"
+      },
+      "guest": {
+        "title": "Naberza OS",
+        "subtitle": "Tu sistema operativo personal",
+        "description": "Inbox centralizado, tareas, documentos, automatización del hogar y control financiero.",
+        "cta": "Entrar"
+      },
+      "summary": {
+        "inboxLabel": "Inbox",
+        "inboxMeta": "sin clasificar",
+        "tasksLabel": "Tareas",
+        "tasksMetaPending": "pendientes",
+        "tasksMetaDueToday": "{count, plural, one {# vence hoy} other {# vencen hoy}}",
+        "invoicesLabel": "Facturas",
+        "invoicesMetaUnpaid": "sin pagar",
+        "invoicesMetaOverdue": "{count, plural, one {# vencida} other {# vencidas}}",
+        "subscriptionsLabel": "Suscripciones",
+        "subscriptionsMeta": "activas",
+        "codexLabel": "Codex",
+        "codexMetaPrimary": "ventana 5h",
+        "codexMetaSecondary": "semanal"
+      },
+      "sections": {
+        "focus": "Foco ahora",
+        "needsAction": "Requiere acción",
+        "usefulSignals": "Señales útiles"
+      },
+      "empty": {
+        "focus": "No hay nada urgente detectado ahora mismo.",
+        "needsAction": "No hay nada pendiente de clasificar o revisar con prioridad.",
+        "usefulSignals": "Aún no hay señales útiles destacables."
+      },
+      "triageCta": "Limpieza de bandeja",
+      "triageCtaDetail": "Revisa con IA qué correos puedes archivar, conservar o mover a la papelera.",
+      "codex": {
+        "title": "Codex",
+        "statusOk": "disponible",
+        "statusWarn": "próximo al límite",
+        "statusCritical": "límite alcanzado",
+        "window5h": "Ventana 5h",
+        "windowWeekly": "Ventana semanal"
       }
     }
   }

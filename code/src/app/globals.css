@@ -14,8 +14,15 @@ body {
 body {
   font-family: var(--font-sans);
   color: var(--color-text-primary);
-  background: radial-gradient(circle at top left, rgba(95, 116, 103, 0.14), transparent 30%),
-    linear-gradient(180deg, #f7f4ef 0%, #f2eee7 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background: linear-gradient(
+    155deg,
+    #d4e4f5 0%,
+    #e2d8ef 35%,
+    #edd8e4 65%,
+    #f2e8d4 100%
+  );
 }
 
 a {
