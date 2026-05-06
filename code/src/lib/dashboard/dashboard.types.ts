@@ -13,6 +13,7 @@ export interface DashboardStats {
   tasksDueToday: number;
   documentsTotal: number;
   invoicesUnpaid: number;
+  subscriptionsActive: number;
   homeAlerts: number;
   ideasCaptured: number;
   approvalsPending: number;

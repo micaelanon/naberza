@@ -126,7 +126,6 @@
       "projects": "Proyectos",
       "subscriptions": "Suscripciones",
       "mail": "Análisis",
-      "emailTriage": "Limpieza de bandeja",
       "tasks": "Tareas",
       "users": "Ajustes"
     },
@@ -569,6 +568,49 @@
         "load": "Error al cargar",
         "failed": "La sesión de triage falló."
       }
+    },
+    "dashboardHome": {
+      "shellTitle": "Hoy",
+      "subtitle": "Esto es lo que merece tu atención ahora mismo.",
+      "userFallback": "usuario",
+      "greeting": {
+        "morning": "Buenos días",
+        "afternoon": "Buenas tardes",
+        "night": "Buenas noches"
+      },
+      "guest": {
+        "title": "Naberza OS",
+        "subtitle": "Tu sistema operativo personal",
+        "description": "Inbox centralizado, tareas, documentos, automatización del hogar y control financiero.",
+        "cta": "Entrar"
+      },
+      "summary": {
+        "inboxLabel": "Inbox",
+        "inboxMeta": "sin clasificar",
+        "tasksLabel": "Tareas",
+        "tasksMetaPending": "pendientes",
+        "tasksMetaDueToday": "{count, plural, one {# vence hoy} other {# vencen hoy}}",
+        "invoicesLabel": "Facturas",
+        "invoicesMetaUnpaid": "sin pagar",
+        "invoicesMetaOverdue": "{count, plural, one {# vencida} other {# vencidas}}",
+        "subscriptionsLabel": "Suscripciones",
+        "subscriptionsMeta": "activas",
+        "codexLabel": "Codex",
+        "codexMetaPrimary": "ventana 5h",
+        "codexMetaSecondary": "semanal"
+      },
+      "sections": {
+        "focus": "Foco ahora",
+        "needsAction": "Requiere acción",
+        "usefulSignals": "Señales útiles"
+      },
+      "empty": {
+        "focus": "No hay nada urgente detectado ahora mismo.",
+        "needsAction": "No hay nada pendiente de clasificar o revisar con prioridad.",
+        "usefulSignals": "Aún no hay señales útiles destacables."
+      },
+      "triageCta": "Limpieza de bandeja",
+      "triageCtaDetail": "Revisa con IA qué correos puedes archivar, conservar o mover a la papelera."
     }
   }
 }
