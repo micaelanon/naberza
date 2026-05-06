@@ -20,7 +20,6 @@ interface SummaryCard {
   label: string;
   value: string;
   meta: string;
-  icon: string;
   urgent: boolean;
 }
 
@@ -96,7 +95,6 @@ function buildSummaryCards({
       label: t("app.dashboardHome.summary.inboxLabel"),
       value: String(stats.inboxPending),
       meta: t("app.dashboardHome.summary.inboxMeta"),
-      icon: "inbox",
       urgent: false,
     },
     {
@@ -105,7 +103,6 @@ function buildSummaryCards({
       label: t("app.dashboardHome.summary.tasksLabel"),
       value: String(stats.tasksPending),
       meta: getTasksMeta(stats, t),
-      icon: "check_circle",
       urgent: stats.tasksDueToday > 0,
     },
     {
@@ -114,7 +111,6 @@ function buildSummaryCards({
       label: t("app.dashboardHome.summary.invoicesLabel"),
       value: String(stats.invoicesUnpaid),
       meta: getInvoicesMeta(overdueCount, t),
-      icon: "receipt_long",
       urgent: overdueCount > 0,
     },
     {
@@ -123,7 +119,6 @@ function buildSummaryCards({
       label: t("app.dashboardHome.summary.subscriptionsLabel"),
       value: String(stats.subscriptionsActive),
       meta: t("app.dashboardHome.summary.subscriptionsMeta"),
-      icon: "subscriptions",
       urgent: false,
     },
   ];
@@ -140,7 +135,6 @@ function buildSummaryCards({
     label: t("app.dashboardHome.summary.codexLabel"),
     value: `${Math.round(worstPct)}%`,
     meta: getCodexMeta(codex, t),
-    icon: "memory",
     urgent: worstPct >= 60,
   });
 
@@ -156,10 +150,7 @@ function SummaryGrid({ items }: SummaryGridProps) {
 
         return (
           <a key={item.id} href={item.href} className={cardClassName}>
-            <div className="stats-card__header">
-              <span className="material-symbols-outlined stats-card__icon" aria-hidden="true">{item.icon}</span>
-              <span className="stats-card__label">{item.label}</span>
-            </div>
+            <span className="stats-card__label">{item.label}</span>
             <div className={valueClassName}>{item.value}</div>
             <div className="stats-card__meta">{item.meta}</div>
           </a>
@@ -172,7 +163,7 @@ function SummaryGrid({ items }: SummaryGridProps) {
 function DigestSection({ title, empty, items }: DigestSectionProps) {
   return (
     <section className="digest-section">
-      <h2 className="home-page__section-title">{title}</h2>
+      <h2 className="digest-section__title">{title}</h2>
       {items.length === 0 ? (
         <p className="page-empty">{empty}</p>
       ) : (
@@ -185,7 +176,12 @@ function DigestSection({ title, empty, items }: DigestSectionProps) {
             return (
               <a key={item.id} href={item.href} className={className}>
                 <div className="digest-card__title">{item.title}</div>
-                <div className="digest-card__detail">{item.detail}</div>
+                {item.id !== "triage-cta" && (
+                  <div className="digest-card__detail">{item.detail}</div>
+                )}
+                {item.id === "triage-cta" && (
+                  <span className="digest-card__arrow" aria-hidden="true">›</span>
+                )}
               </a>
             );
           })}
