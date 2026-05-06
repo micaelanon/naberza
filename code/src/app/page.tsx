@@ -67,28 +67,18 @@ function getInvoicesMeta(overdueCount: number, t: Translator): string {
   return t("app.dashboardHome.summary.invoicesMetaUnpaid");
 }
 
-function getCodexMeta(codex: CodexUsage, t: Translator): string {
-  if (codex.primaryWindow.usedPercent >= codex.secondaryWindow.usedPercent) {
-    return t("app.dashboardHome.summary.codexMetaPrimary");
-  }
-
-  return t("app.dashboardHome.summary.codexMetaSecondary");
-}
-
 function buildSummaryCards({
   stats,
   digestFocus,
-  codex,
   t,
 }: {
   stats: DashboardStats;
   digestFocus: ActionDigestItem[];
-  codex: CodexUsage | null;
   t: Translator;
 }): SummaryCard[] {
   const overdueCount = extractOverdueInvoiceCount(digestFocus);
 
-  const cards: SummaryCard[] = [
+  return [
     {
       id: "inbox",
       href: ROUTE_PATHS.INBOX,
@@ -122,23 +112,78 @@ function buildSummaryCards({
       urgent: false,
     },
   ];
+}
 
-  if (!codex) {
-    return cards;
-  }
+function getCodexBadgeClass(pct: number): string {
+  if (pct >= 85) return "home-widget__badge--error";
+  if (pct >= 60) return "home-widget__badge--warn";
+  return "home-widget__badge--ok";
+}
 
-  const worstPct = Math.max(codex.primaryWindow.usedPercent, codex.secondaryWindow.usedPercent);
+function getCodexBarClass(pct: number): string {
+  if (pct >= 85) return "codex-bar-fill--error";
+  if (pct >= 60) return "codex-bar-fill--warn";
+  return "codex-bar-fill--ok";
+}
 
-  cards.push({
-    id: "codex",
-    href: ROUTE_PATHS.HOME,
-    label: t("app.dashboardHome.summary.codexLabel"),
-    value: `${Math.round(worstPct)}%`,
-    meta: getCodexMeta(codex, t),
-    urgent: worstPct >= 60,
-  });
+function getCodexStatusLabel(pct: number, t: Translator): string {
+  if (pct >= 85) return t("app.dashboardHome.codex.statusCritical");
+  if (pct >= 60) return t("app.dashboardHome.codex.statusWarn");
+  return t("app.dashboardHome.codex.statusOk");
+}
 
-  return cards;
+function CodexWidget({ usage, t }: { usage: CodexUsage; t: Translator }) {
+  const worstPct = Math.max(
+    usage.primaryWindow.usedPercent,
+    usage.secondaryWindow.usedPercent,
+  );
+
+  return (
+    <section className="home-widget">
+      <div className="home-widget__head">
+        <h3 className="home-widget__title">
+          {t("app.dashboardHome.codex.title")}
+        </h3>
+        <span className={`home-widget__badge ${getCodexBadgeClass(worstPct)}`}>
+          {getCodexStatusLabel(worstPct, t)}
+        </span>
+      </div>
+
+      <div className="codex-bar-row">
+        <span className="codex-bar-row__label">
+          {t("app.dashboardHome.codex.window5h")}
+        </span>
+        <span className="codex-bar-row__pct">
+          {Math.round(usage.primaryWindow.usedPercent)}%
+        </span>
+      </div>
+      <div className="codex-bar-track">
+        <div
+          className={`codex-bar-fill ${getCodexBarClass(usage.primaryWindow.usedPercent)}`}
+          style={{ width: `${Math.min(usage.primaryWindow.usedPercent, 100)}%` }}
+        />
+      </div>
+
+      <div className="codex-bar-row">
+        <span className="codex-bar-row__label">
+          {t("app.dashboardHome.codex.windowWeekly")}
+        </span>
+        <span className="codex-bar-row__pct">
+          {Math.round(usage.secondaryWindow.usedPercent)}%
+        </span>
+      </div>
+      <div className="codex-bar-track">
+        <div
+          className={`codex-bar-fill ${getCodexBarClass(usage.secondaryWindow.usedPercent)}`}
+          style={{ width: `${Math.min(usage.secondaryWindow.usedPercent, 100)}%` }}
+        />
+      </div>
+
+      <p className="codex-bar-footer">
+        {usage.planType} · {usage.userEmail}
+      </p>
+    </section>
+  );
 }
 
 function SummaryGrid({ items }: SummaryGridProps) {
@@ -222,7 +267,6 @@ const HomePage = async () => {
   const summaryCards = buildSummaryCards({
     stats,
     digestFocus: digest.focus,
-    codex,
     t,
   });
   const usefulSignals = [
@@ -246,23 +290,32 @@ const HomePage = async () => {
           <SummaryGrid items={summaryCards} />
         </div>
 
-        <DigestSection
-          title={t("app.dashboardHome.sections.focus")}
-          empty={t("app.dashboardHome.empty.focus")}
-          items={digest.focus}
-        />
+        <div className="home-grid">
+          <main className="home-main">
+            <DigestSection
+              title={t("app.dashboardHome.sections.focus")}
+              empty={t("app.dashboardHome.empty.focus")}
+              items={digest.focus}
+            />
 
-        <DigestSection
-          title={t("app.dashboardHome.sections.needsAction")}
-          empty={t("app.dashboardHome.empty.needsAction")}
-          items={digest.needsAction}
-        />
+            <DigestSection
+              title={t("app.dashboardHome.sections.needsAction")}
+              empty={t("app.dashboardHome.empty.needsAction")}
+              items={digest.needsAction}
+            />
 
-        <DigestSection
-          title={t("app.dashboardHome.sections.usefulSignals")}
-          empty={t("app.dashboardHome.empty.usefulSignals")}
-          items={usefulSignals}
-        />
+            <DigestSection
+              title={t("app.dashboardHome.sections.usefulSignals")}
+              empty={t("app.dashboardHome.empty.usefulSignals")}
+              items={usefulSignals}
+            />
+          </main>
+          {codex && (
+            <aside className="home-aside">
+              <CodexWidget usage={codex} t={t} />
+            </aside>
+          )}
+        </div>
       </div>
     </AppShell>
   );

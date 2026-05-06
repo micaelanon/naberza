@@ -610,7 +610,15 @@
         "usefulSignals": "Aún no hay señales útiles destacables."
       },
       "triageCta": "Limpieza de bandeja",
-      "triageCtaDetail": "Revisa con IA qué correos puedes archivar, conservar o mover a la papelera."
+      "triageCtaDetail": "Revisa con IA qué correos puedes archivar, conservar o mover a la papelera.",
+      "codex": {
+        "title": "Codex",
+        "statusOk": "disponible",
+        "statusWarn": "próximo al límite",
+        "statusCritical": "límite alcanzado",
+        "window5h": "Ventana 5h",
+        "windowWeekly": "Ventana semanal"
+      }
     }
   }
 }
