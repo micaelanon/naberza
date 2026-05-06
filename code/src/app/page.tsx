@@ -1,56 +1,175 @@
 import { getServerSession } from "next-auth";
+import { getTranslations } from "next-intl/server";
 
 import { AppShell } from "@/components/ui";
-import { ROUTE_PATHS } from "@/lib/constants";
 import { authOptions } from "@/lib/auth";
+import { ROUTE_PATHS } from "@/lib/constants";
+import type { ActionDigestItem } from "@/lib/dashboard/action-digest";
 import { getActionDigest } from "@/lib/dashboard/action-digest";
 import { getDashboardStats } from "@/lib/dashboard";
 import type { DashboardStats } from "@/lib/dashboard/dashboard.types";
+import { getCodexUsage } from "@/lib/dashboard/codex-usage";
+import type { CodexUsage } from "@/lib/dashboard/codex-usage";
 import "./home.css";
 
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 14) return "Buenos días";
-  if (hour < 21) return "Buenas tardes";
-  return "Buenas noches";
+type Translator = Awaited<ReturnType<typeof getTranslations>>;
+
+interface SummaryCard {
+  id: string;
+  href: string;
+  label: string;
+  value: string;
+  meta: string;
+  icon: string;
+  urgent: boolean;
 }
 
-const StatsBar = ({ stats }: { stats: DashboardStats }) => {
-  const items = [
-    { label: "inbox pendiente", value: stats.inboxPending, urgent: stats.inboxPending > 10 },
-    { label: "tareas", value: stats.tasksPending, urgent: stats.tasksDueToday > 0 },
-    { label: "vencen hoy", value: stats.tasksDueToday, urgent: stats.tasksDueToday > 0 },
-    { label: "facturas sin pagar", value: stats.invoicesUnpaid, urgent: stats.invoicesUnpaid > 0 },
-    { label: "documentos", value: stats.documentsTotal, urgent: false },
-    ...(stats.approvalsPending > 0
-      ? [{ label: "aprobaciones", value: stats.approvalsPending, urgent: true }]
-      : []),
-    ...(stats.homeAlerts > 0
-      ? [{ label: "alertas del hogar", value: stats.homeAlerts, urgent: true }]
-      : []),
+interface SummaryGridProps {
+  items: SummaryCard[];
+}
+
+interface DigestSectionProps {
+  title: string;
+  empty: string;
+  items: ActionDigestItem[];
+}
+
+function getGreeting(t: Translator): string {
+  const hour = new Date().getHours();
+
+  if (hour < 14) return t("app.dashboardHome.greeting.morning");
+  if (hour < 21) return t("app.dashboardHome.greeting.afternoon");
+  return t("app.dashboardHome.greeting.night");
+}
+
+function extractOverdueInvoiceCount(items: ActionDigestItem[]): number {
+  const overdueItem = items.find((item) => item.id.startsWith("invoice-overdue-"));
+  if (!overdueItem) return 0;
+
+  const match = overdueItem.title.match(/\d+/u);
+  if (!match) return 0;
+
+  return Number(match[0]);
+}
+
+function getTasksMeta(stats: DashboardStats, t: Translator): string {
+  if (stats.tasksDueToday > 0) {
+    return t("app.dashboardHome.summary.tasksMetaDueToday", { count: stats.tasksDueToday });
+  }
+
+  return t("app.dashboardHome.summary.tasksMetaPending");
+}
+
+function getInvoicesMeta(overdueCount: number, t: Translator): string {
+  if (overdueCount > 0) {
+    return t("app.dashboardHome.summary.invoicesMetaOverdue", { count: overdueCount });
+  }
+
+  return t("app.dashboardHome.summary.invoicesMetaUnpaid");
+}
+
+function getCodexMeta(codex: CodexUsage, t: Translator): string {
+  if (codex.primaryWindow.usedPercent >= codex.secondaryWindow.usedPercent) {
+    return t("app.dashboardHome.summary.codexMetaPrimary");
+  }
+
+  return t("app.dashboardHome.summary.codexMetaSecondary");
+}
+
+function buildSummaryCards({
+  stats,
+  digestFocus,
+  codex,
+  t,
+}: {
+  stats: DashboardStats;
+  digestFocus: ActionDigestItem[];
+  codex: CodexUsage | null;
+  t: Translator;
+}): SummaryCard[] {
+  const overdueCount = extractOverdueInvoiceCount(digestFocus);
+
+  const cards: SummaryCard[] = [
+    {
+      id: "inbox",
+      href: ROUTE_PATHS.INBOX,
+      label: t("app.dashboardHome.summary.inboxLabel"),
+      value: String(stats.inboxPending),
+      meta: t("app.dashboardHome.summary.inboxMeta"),
+      icon: "inbox",
+      urgent: false,
+    },
+    {
+      id: "tasks",
+      href: ROUTE_PATHS.TASKS,
+      label: t("app.dashboardHome.summary.tasksLabel"),
+      value: String(stats.tasksPending),
+      meta: getTasksMeta(stats, t),
+      icon: "check_circle",
+      urgent: stats.tasksDueToday > 0,
+    },
+    {
+      id: "invoices",
+      href: ROUTE_PATHS.INVOICES,
+      label: t("app.dashboardHome.summary.invoicesLabel"),
+      value: String(stats.invoicesUnpaid),
+      meta: getInvoicesMeta(overdueCount, t),
+      icon: "receipt_long",
+      urgent: overdueCount > 0,
+    },
+    {
+      id: "subscriptions",
+      href: ROUTE_PATHS.SUBSCRIPTIONS,
+      label: t("app.dashboardHome.summary.subscriptionsLabel"),
+      value: String(stats.subscriptionsActive),
+      meta: t("app.dashboardHome.summary.subscriptionsMeta"),
+      icon: "subscriptions",
+      urgent: false,
+    },
   ];
 
+  if (!codex) {
+    return cards;
+  }
+
+  const worstPct = Math.max(codex.primaryWindow.usedPercent, codex.secondaryWindow.usedPercent);
+
+  cards.push({
+    id: "codex",
+    href: ROUTE_PATHS.HOME,
+    label: t("app.dashboardHome.summary.codexLabel"),
+    value: `${Math.round(worstPct)}%`,
+    meta: getCodexMeta(codex, t),
+    icon: "memory",
+    urgent: worstPct >= 60,
+  });
+
+  return cards;
+}
+
+function SummaryGrid({ items }: SummaryGridProps) {
   return (
-    <div className="stats-bar">
-      {items.map((item) => (
-        <div key={item.label} className={`stats-bar__item${item.urgent ? " stats-bar__item--urgent" : ""}`}>
-          <span className="stats-bar__value">{item.value}</span>
-          <span className="stats-bar__label">{item.label}</span>
-        </div>
-      ))}
+    <div className="stats-grid">
+      {items.map((item) => {
+        const cardClassName = item.urgent ? "stats-card stats-card--urgent" : "stats-card";
+        const valueClassName = item.urgent ? "stats-card__value stats-card__value--urgent" : "stats-card__value";
+
+        return (
+          <a key={item.id} href={item.href} className={cardClassName}>
+            <div className="stats-card__header">
+              <span className="material-symbols-outlined stats-card__icon" aria-hidden="true">{item.icon}</span>
+              <span className="stats-card__label">{item.label}</span>
+            </div>
+            <div className={valueClassName}>{item.value}</div>
+            <div className="stats-card__meta">{item.meta}</div>
+          </a>
+        );
+      })}
     </div>
   );
 }
 
-const DigestSection = ({
-  title,
-  empty,
-  items,
-}: {
-  title: string;
-  empty: string;
-  items: Array<{ id: string; title: string; detail: string; href: string; tone?: "default" | "warning" | "urgent" }>;
-}) => {
+function DigestSection({ title, empty, items }: DigestSectionProps) {
   return (
     <section className="digest-section">
       <h2 className="home-page__section-title">{title}</h2>
@@ -59,7 +178,10 @@ const DigestSection = ({
       ) : (
         <div className="digest-list">
           {items.map((item) => {
-            const className = item.tone ? `digest-card digest-card--${item.tone}` : "digest-card";
+            const toneClassName = item.tone ? ` digest-card--${item.tone}` : "";
+            const ctaClassName = item.id === "triage-cta" ? " digest-card--cta" : "";
+            const className = `digest-card${toneClassName}${ctaClassName}`;
+
             return (
               <a key={item.id} href={item.href} className={className}>
                 <div className="digest-card__title">{item.title}</div>
@@ -71,60 +193,79 @@ const DigestSection = ({
       )}
     </section>
   );
-};
+}
 
 const HomePage = async () => {
-  const session = await getServerSession(authOptions);
+  const [session, t] = await Promise.all([
+    getServerSession(authOptions),
+    getTranslations({ locale: "es" }),
+  ]);
 
   if (!session) {
     return (
       <div className="home-page home-page--guest">
         <div className="home-page__hero">
-          <span className="home-page__hero-icon">⬡</span>
-          <h1 className="home-page__title">Naberza OS</h1>
-          <p className="home-page__subtitle">Tu sistema operativo personal</p>
-          <p className="home-page__description">
-            Inbox centralizado, tareas, documentos, automatización del hogar y control financiero.
-          </p>
+          <span className="material-symbols-outlined home-page__hero-icon" aria-hidden="true">dashboard</span>
+          <h1 className="home-page__title">{t("app.dashboardHome.guest.title")}</h1>
+          <p className="home-page__subtitle">{t("app.dashboardHome.guest.subtitle")}</p>
+          <p className="home-page__description">{t("app.dashboardHome.guest.description")}</p>
           <a href={ROUTE_PATHS.LOGIN} className="home-page__cta">
-            Entrar
+            {t("app.dashboardHome.guest.cta")}
           </a>
         </div>
       </div>
     );
   }
 
-  const [stats, digest] = await Promise.all([
+  const [stats, digest, codex] = await Promise.all([
     getDashboardStats(),
     getActionDigest(),
+    getCodexUsage(),
   ]);
-  const greeting = getGreeting();
+
+  const summaryCards = buildSummaryCards({
+    stats,
+    digestFocus: digest.focus,
+    codex,
+    t,
+  });
+  const usefulSignals = [
+    {
+      id: "triage-cta",
+      title: t("app.dashboardHome.triageCta"),
+      detail: t("app.dashboardHome.triageCtaDetail"),
+      href: ROUTE_PATHS.EMAIL_TRIAGE,
+    },
+    ...digest.usefulSignals,
+  ];
 
   return (
-    <AppShell title="Hoy">
+    <AppShell title={t("app.dashboardHome.shellTitle")}>
       <div className="home-page">
         <div className="home-page__welcome">
-          <h1 className="home-page__greeting">{greeting}, {session.user?.name ?? "usuario"}</h1>
-          <p className="home-page__subtitle">Esto es lo que merece tu atención ahora mismo.</p>
-          <StatsBar stats={stats} />
+          <h1 className="home-page__greeting">
+            {getGreeting(t)}, {session.user?.name ?? t("app.dashboardHome.userFallback")}
+          </h1>
+          <p className="home-page__subtitle">{t("app.dashboardHome.subtitle")}</p>
+          <SummaryGrid items={summaryCards} />
         </div>
 
         <DigestSection
-          title="Foco ahora"
-          empty="No hay nada urgente detectado ahora mismo."
+          title={t("app.dashboardHome.sections.focus")}
+          empty={t("app.dashboardHome.empty.focus")}
           items={digest.focus}
         />
 
         <DigestSection
-          title="Requiere acción"
-          empty="No hay nada pendiente de clasificar o revisar con prioridad."
+          title={t("app.dashboardHome.sections.needsAction")}
+          empty={t("app.dashboardHome.empty.needsAction")}
           items={digest.needsAction}
         />
 
         <DigestSection
-          title="Señales útiles"
-          empty="Aún no hay señales útiles destacables."
-          items={digest.usefulSignals}
+          title={t("app.dashboardHome.sections.usefulSignals")}
+          empty={t("app.dashboardHome.empty.usefulSignals")}
+          items={usefulSignals}
         />
       </div>
     </AppShell>

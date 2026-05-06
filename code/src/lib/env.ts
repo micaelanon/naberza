@@ -33,4 +33,6 @@ export const env = {
   googleServiceAccountPath: process.env.GOOGLE_SERVICE_ACCOUNT_PATH ?? "./vertex-key.json",
   // Digest — server only
   digestCronToken: process.env.DIGEST_CRON_TOKEN,
+  // OpenClaw Codex (optional, local only)
+  openclawCodexAuthPath: process.env.OPENCLAW_CODEX_AUTH_PATH,
 } as const;

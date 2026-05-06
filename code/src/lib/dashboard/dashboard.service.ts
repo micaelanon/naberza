@@ -1,4 +1,5 @@
 import { ROUTE_PATHS } from "@/lib/constants";
+import { prisma } from "@/lib/db/prisma-client";
 import { AutomationRepository } from "@/modules/automations/automation.repository";
 import { DocumentRepository } from "@/modules/documents/document.repository";
 import { FinanceRepository } from "@/modules/finance/finance.repository";
@@ -30,6 +31,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     tasksDueResult,
     documentsCount,
     invoicesCount,
+    subscriptionsActive,
     homeAlertsCount,
     ideasCount,
     approvalsCount,
@@ -45,6 +47,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     }),
     documentRepo.count(),
     invoiceRepo.count({ status: "PENDING" }),
+    prisma.subscription.count({ where: { status: "ACTIVE" } }),
     homeRepo.count({ severity: "WARNING" }),
     ideasRepo.count({ status: "CAPTURED" }),
     automationRepo.countApprovals({ status: "PENDING" }),
@@ -57,6 +60,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     tasksDueToday: tasksDueResult.total,
     documentsTotal: documentsCount,
     invoicesUnpaid: invoicesCount,
+    subscriptionsActive,
     homeAlerts: homeAlertsCount,
     ideasCaptured: ideasCount,
     approvalsPending: approvalsCount,

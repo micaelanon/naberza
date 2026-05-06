@@ -9,6 +9,7 @@ const {
   ideasRepoMock,
   automationRepoMock,
   financeRepoMock,
+  prismaMock,
 } = vi.hoisted(() => ({
   inboxRepoMock: { findAll: vi.fn() },
   taskRepoMock: { findAll: vi.fn() },
@@ -18,6 +19,7 @@ const {
   ideasRepoMock: { count: vi.fn() },
   automationRepoMock: { countApprovals: vi.fn() },
   financeRepoMock: { count: vi.fn() },
+  prismaMock: { subscription: { count: vi.fn() } },
 }));
 
 vi.mock("@/modules/inbox/inbox.repository", () => ({
@@ -52,6 +54,10 @@ vi.mock("@/modules/finance/finance.repository", () => ({
   FinanceRepository: vi.fn().mockImplementation(() => financeRepoMock),
 }));
 
+vi.mock("@/lib/db/prisma-client", () => ({
+  prisma: prismaMock,
+}));
+
 import { getDashboardStats, buildDashboardLayout } from "../dashboard.service";
 
 function defaultMocks(overrides: Record<string, unknown> = {}) {
@@ -63,6 +69,7 @@ function defaultMocks(overrides: Record<string, unknown> = {}) {
   ideasRepoMock.count.mockResolvedValue(0);
   automationRepoMock.countApprovals.mockResolvedValue(0);
   financeRepoMock.count.mockResolvedValue(0);
+  prismaMock.subscription.count.mockResolvedValue(0);
   Object.assign({}, overrides);
 }
 
@@ -79,6 +86,7 @@ describe("DashboardService", () => {
       ideasRepoMock.count.mockResolvedValue(4);
       automationRepoMock.countApprovals.mockResolvedValue(1);
       financeRepoMock.count.mockResolvedValue(0);
+      prismaMock.subscription.count.mockResolvedValue(6);
 
       const stats = await getDashboardStats();
 
@@ -88,6 +96,7 @@ describe("DashboardService", () => {
         tasksDueToday: 3,
         documentsTotal: 8,
         invoicesUnpaid: 2,
+        subscriptionsActive: 6,
         homeAlerts: 1,
         ideasCaptured: 4,
         approvalsPending: 1,
@@ -103,6 +112,7 @@ describe("DashboardService", () => {
       expect(stats.documentsTotal).toBe(0);
       expect(stats.invoicesUnpaid).toBe(0);
       expect(stats.homeAlerts).toBe(0);
+      expect(stats.subscriptionsActive).toBe(0);
       expect(stats.ideasCaptured).toBe(0);
       expect(stats.approvalsPending).toBe(0);
       expect(stats.financeAnomalies).toBe(0);
@@ -124,6 +134,15 @@ describe("DashboardService", () => {
       await getDashboardStats();
 
       expect(homeRepoMock.count).toHaveBeenCalledWith({ severity: "WARNING" });
+    });
+
+    it("calls prisma.subscription.count with ACTIVE status", async () => {
+      defaultMocks();
+      prismaMock.subscription.count.mockResolvedValue(5);
+
+      await getDashboardStats();
+
+      expect(prismaMock.subscription.count).toHaveBeenCalledWith({ where: { status: "ACTIVE" } });
     });
 
     it("calls ideasRepo.count with CAPTURED status", async () => {
@@ -161,6 +180,7 @@ describe("DashboardService", () => {
       tasksDueToday: 0,
       documentsTotal: 0,
       invoicesUnpaid: 0,
+      subscriptionsActive: 0,
       homeAlerts: 0,
       ideasCaptured: 0,
       approvalsPending: 0,
