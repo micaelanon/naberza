@@ -44,7 +44,7 @@ const Sidebar = ({ versionLabel }: SidebarProps) => {
   return (
     <nav className="sidebar" aria-label={t("app.nav.ariaLabel")}>
       <div className="sidebar__brand">
-        <span className="sidebar__brand-icon">⬡</span>
+        <span className="sidebar__brand-icon" aria-hidden="true">N</span>
         <span className="sidebar__brand-name">Naberza</span>
       </div>
 
